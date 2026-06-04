@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { LessonPlayer } from "@/components/uebung/LessonPlayer";
 import { getLessonItems, getLessonMeta } from "@/lib/content";
+import { getAllItems } from "@/lib/redemittel";
 import type { CEFRLevel } from "@/types";
 import { LEVELS } from "@/types";
+
+export const dynamic = "force-dynamic";
 
 export default async function LessonPage({
   params,
@@ -18,8 +21,9 @@ export default async function LessonPage({
     ? (min as CEFRLevel)
     : "B1";
 
-  const meta = getLessonMeta(lessonId);
-  const items = getLessonItems(lessonId, minLevel);
+  const allItems = await getAllItems();
+  const meta = getLessonMeta(allItems, lessonId);
+  const items = getLessonItems(allItems, lessonId, minLevel);
 
   if (!meta || items.length === 0) {
     return (

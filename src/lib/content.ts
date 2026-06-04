@@ -1,4 +1,3 @@
-import corpus from "@/content/corpus.json";
 import type {
   CEFRLevel,
   RedemittelItem,
@@ -6,7 +5,10 @@ import type {
 } from "@/types";
 import { LEVEL_RANK } from "@/types";
 
-const ITEMS = corpus as RedemittelItem[];
+// Reine Hilfsfunktionen: die Items werden von den Server-Seiten via
+// getAllItems() (src/lib/redemittel.ts, Postgres) geladen und hier übergeben.
+// Diese Datei bleibt frei von DB-/server-only-Importen (sie wird auch vom
+// Client-Component ReferenceBrowser importiert — nur functionRank).
 
 const SKILL_ORDER: SkillCode[] = ["schreiben", "sprechen", "shared"];
 
@@ -72,10 +74,6 @@ export interface SkillGroup {
 
 const LEVEL_SORT = (a: CEFRLevel, b: CEFRLevel) => LEVEL_RANK[a] - LEVEL_RANK[b];
 
-export function getAllItems(): RedemittelItem[] {
-  return ITEMS;
-}
-
 /** lessonId kodiert skill + task + function */
 export function makeLessonId(
   skill: SkillCode,
@@ -98,11 +96,11 @@ export function parseLessonId(
 }
 
 /** Vollständiger Baum skill → task → function mit Zählern und vorhandenen Niveaus */
-export function getSkillGroups(): SkillGroup[] {
+export function getSkillGroups(items: RedemittelItem[]): SkillGroup[] {
   const skillMap = new Map<SkillCode, Map<string, Map<string, FunctionGroup>>>();
   const taskLabels = new Map<string, string>();
 
-  for (const item of ITEMS) {
+  for (const item of items) {
     if (!skillMap.has(item.skill)) skillMap.set(item.skill, new Map());
     const taskMap = skillMap.get(item.skill)!;
 
@@ -154,13 +152,14 @@ export function getSkillGroups(): SkillGroup[] {
 
 /** Items einer Lektion (task+function), optional ab einem Mindestniveau */
 export function getLessonItems(
+  items: RedemittelItem[],
   lessonId: string,
   minLevel: CEFRLevel = "B1"
 ): RedemittelItem[] {
   const parsed = parseLessonId(lessonId);
   if (!parsed) return [];
   const min = LEVEL_RANK[minLevel];
-  return ITEMS.filter(
+  return items.filter(
     (it) =>
       it.skill === parsed.skill &&
       it.task.code === parsed.taskCode &&
@@ -169,10 +168,10 @@ export function getLessonItems(
   );
 }
 
-export function getLessonMeta(lessonId: string) {
+export function getLessonMeta(items: RedemittelItem[], lessonId: string) {
   const parsed = parseLessonId(lessonId);
   if (!parsed) return null;
-  const sample = ITEMS.find(
+  const sample = items.find(
     (it) =>
       it.skill === parsed.skill &&
       it.task.code === parsed.taskCode &&
@@ -186,12 +185,12 @@ export function getLessonMeta(lessonId: string) {
   };
 }
 
-export function getStats() {
+export function getStats(items: RedemittelItem[]) {
   const byLevel: Record<string, number> = {};
   const bySkill: Record<string, number> = {};
-  for (const it of ITEMS) {
+  for (const it of items) {
     byLevel[it.level] = (byLevel[it.level] || 0) + 1;
     bySkill[it.skill] = (bySkill[it.skill] || 0) + 1;
   }
-  return { total: ITEMS.length, byLevel, bySkill };
+  return { total: items.length, byLevel, bySkill };
 }

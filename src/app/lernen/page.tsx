@@ -1,13 +1,15 @@
 import { AppHeader } from "@/components/AppHeader";
 import { ReferenceBrowser } from "@/components/nachschlagen/ReferenceBrowser";
-import { getAllItems } from "@/lib/content";
+import { getAllItems } from "@/lib/redemittel";
 
 export const metadata = {
   title: "Nachschlagen · B1-Trainer",
 };
 
-export default function NachschlagenPage() {
-  const items = getAllItems();
+export const dynamic = "force-dynamic";
+
+export default async function NachschlagenPage() {
+  const items = await getAllItems();
   return (
     <>
       <AppHeader />

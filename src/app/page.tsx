@@ -1,10 +1,14 @@
 import { AppHeader } from "@/components/AppHeader";
 import { HomeBrowser } from "@/components/home/HomeBrowser";
 import { getSkillGroups, getStats } from "@/lib/content";
+import { getAllItems } from "@/lib/redemittel";
 
-export default function HomePage() {
-  const groups = getSkillGroups();
-  const stats = getStats();
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const items = await getAllItems();
+  const groups = getSkillGroups(items);
+  const stats = getStats(items);
 
   return (
     <>
