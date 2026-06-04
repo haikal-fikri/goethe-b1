@@ -214,7 +214,7 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
                   key={fn.code}
                   className="rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] p-4"
                 >
-                  <h3 className="mb-2 text-sm font-medium text-[var(--fg)]">
+                  <h3 className="mb-2 font-serif text-base font-medium text-[var(--fg)]">
                     {fn.name}
                   </h3>
                   <ul className="flex flex-col gap-1">
