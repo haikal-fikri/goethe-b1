@@ -19,7 +19,7 @@ export function AppHeader() {
         <Link
           href="/"
           onClick={() => setOpen(false)}
-          className="text-[15px] font-semibold tracking-tight text-[var(--fg)]"
+          className="font-serif text-[15px] font-semibold tracking-tight text-[var(--fg)]"
         >
           B1-Trainer
         </Link>
