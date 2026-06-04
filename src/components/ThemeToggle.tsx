@@ -15,6 +15,10 @@ export function ThemeToggle() {
   function toggle() {
     const next: Theme = theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
+    // theme-color mitführen, damit die iPhone-Notch/Statusleiste dem Header folgt
+    document
+      .querySelector("meta[name=theme-color]")
+      ?.setAttribute("content", next === "light" ? "#faf7f1" : "#17191b");
     try {
       localStorage.setItem("theme", next);
     } catch {

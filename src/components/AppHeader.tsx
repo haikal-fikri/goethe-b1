@@ -65,7 +65,7 @@ export function AppHeader() {
 
       {/* Mobile-Menü (Overlay, schiebt den Inhalt nicht nach unten) */}
       {open && (
-        <nav className="absolute inset-x-0 top-full border-b border-[var(--border-soft)] bg-[var(--bg)] px-4 py-2 shadow-lg sm:hidden">
+        <nav className="animate-slide-down absolute inset-x-0 top-full border-b border-[var(--border-soft)] bg-[var(--bg)] px-4 py-2 shadow-lg sm:hidden">
           {LINKS.map((l) => (
             <Link
               key={l.href}

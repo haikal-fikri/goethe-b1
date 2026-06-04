@@ -50,11 +50,11 @@
 [data-theme="light"] {
   color-scheme: light;
 
-  --bg: #f4efe4;
-  --bg-elev: #fbf8f0;
-  --bg-elev-2: #efe7d6;
-  --border: #d9cfba;
-  --border-soft: #e7decb;
+  --bg: #faf7f1; /* helleres Papier */
+  --bg-elev: #fffdf8;
+  --bg-elev-2: #f3eee3;
+  --border: #e4dccd;
+  --border-soft: #efe8da;
 
   --fg: #2c2a26; /* warme Tinte */
   --fg-muted: #6b6458;
@@ -74,16 +74,10 @@
 
   --radius: 10px;
 
-  /* Papier: sehr feine Linien + warmer Schimmer */
-  --bg-texture: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 27px,
-      rgba(60, 42, 12, 0.035) 28px
-    ),
-    radial-gradient(
+  /* Papier: nur ein sehr dezenter warmer Schimmer, keine Linien */
+  --bg-texture: radial-gradient(
       1000px 600px at 100% 0%,
-      rgba(180, 150, 90, 0.06),
+      rgba(190, 160, 100, 0.05),
       transparent 60%
     );
 }
@@ -149,6 +143,21 @@ body {
 
 .animate-fade-in {
   animation: fade-in 0.25s ease;
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.2s ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
