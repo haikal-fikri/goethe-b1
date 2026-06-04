@@ -105,7 +105,14 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
               functionRank(taskCode, ca) - functionRank(taskCode, cb) ||
               ca.localeCompare(cb)
           )
-          .map(([code, v]) => ({ code, name: v.name, items: v.items })),
+          .map(([code, v]) => ({
+            code,
+            name: v.name,
+            // Wendungen aufsteigend nach Niveau (B1 → C2)
+            items: [...v.items].sort(
+              (a, b) => LEVEL_RANK[a.level] - LEVEL_RANK[b.level]
+            ),
+          })),
       }));
   }, [items, activeSkill, minLevel, activeTask, query]);
 
