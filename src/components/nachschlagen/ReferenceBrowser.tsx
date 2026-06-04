@@ -32,6 +32,23 @@ function firstTaskCode(items: RedemittelItem[], skill: SkillCode): string {
   return codes[0] ?? "";
 }
 
+/**
+ * Fasst Wendungen mit gleicher eingeklappter Beschriftung (frame, sonst phrase)
+ * zu einem Eintrag zusammen — so erscheint z.B. das Konnektor-Muster „Da …, …"
+ * nur einmal, mit allen Beispielsätzen darunter (keine Dubletten).
+ */
+function groupByLabel(
+  items: RedemittelItem[]
+): { label: string; items: RedemittelItem[] }[] {
+  const map = new Map<string, RedemittelItem[]>();
+  for (const it of items) {
+    const label = it.frame ?? it.phrase;
+    if (!map.has(label)) map.set(label, []);
+    map.get(label)!.push(it);
+  }
+  return [...map.entries()].map(([label, group]) => ({ label, items: group }));
+}
+
 export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
   const skills = useMemo(
     () => [...new Set(items.map((i) => i.skill))] as SkillCode[],
@@ -216,8 +233,8 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
                     {fn.name}
                   </h3>
                   <ul className="flex flex-col gap-1">
-                    {fn.items.map((it) => (
-                      <li key={it.id}>
+                    {groupByLabel(fn.items).map((entry) => (
+                      <li key={entry.label}>
                         <details className="group/item">
                           <summary className="flex cursor-pointer list-none items-start gap-2 rounded-[calc(var(--radius)-4px)] py-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">
                             <span
@@ -228,24 +245,28 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
                               ›
                             </span>
                             <span className="flex-1 text-[var(--fg)]">
-                              {it.frame ?? it.phrase}
+                              {entry.label}
                             </span>
-                            <LevelBadge level={it.level} />
+                            <LevelBadge level={entry.items[0].level} />
                           </summary>
-                          <div className="mt-1 flex flex-col gap-0.5 border-l-2 pl-3 pt-0.5"
+                          <div className="mt-1 flex flex-col gap-2 border-l-2 pl-3 pt-0.5"
                             style={{ borderColor: `color-mix(in srgb, ${accent} 35%, transparent)`, marginLeft: "0.3rem" }}
                           >
-                            <span className="text-sm text-[var(--fg)]">
-                              {it.phrase}
-                            </span>
-                            <span className="text-xs italic text-[var(--fg-dim)]">
-                              {it.translation}
-                            </span>
-                            {it.notes && (
-                              <span className="mt-1 text-xs text-[var(--fg-muted)]">
-                                {it.notes}
-                              </span>
-                            )}
+                            {entry.items.map((it) => (
+                              <div key={it.id} className="flex flex-col gap-0.5">
+                                <span className="text-sm text-[var(--fg)]">
+                                  {it.phrase}
+                                </span>
+                                <span className="text-xs italic text-[var(--fg-dim)]">
+                                  {it.translation}
+                                </span>
+                                {it.notes && (
+                                  <span className="text-xs text-[var(--fg-muted)]">
+                                    {it.notes}
+                                  </span>
+                                )}
+                              </div>
+                            ))}
                           </div>
                         </details>
                       </li>

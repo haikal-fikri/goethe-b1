@@ -10,9 +10,11 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #17191b; /* echte schwarze Tafel (neutrales Tiefschwarz-Grau) */
-  --bg-elev: #1f2225;
-  --bg-elev-2: #282c30;
+  --bg: #17191b; /* das EINE Schwarz — Seite, Karten, Panels, Header */
+  /* Eine einzige Dunkelgrau-Stufe für erhabene/interaktive Elemente
+     (Eingaben, Kacheln, Hover, Fortschrittsbalken). */
+  --bg-elev: #26292e;
+  --bg-elev-2: #26292e;
   --border: #383c41;
   --border-soft: #2a2e32;
 
