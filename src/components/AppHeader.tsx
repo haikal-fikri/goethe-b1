@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { SneakerMove } from "@phosphor-icons/react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 const LINKS = [
@@ -19,8 +20,9 @@ export function AppHeader() {
         <Link
           href="/"
           onClick={() => setOpen(false)}
-          className="text-[15px] font-semibold tracking-tight text-[var(--fg)]"
+          className="flex items-center gap-1.5 text-[15px] font-semibold tracking-tight text-[var(--fg)]"
         >
+          <SneakerMove size={20} weight="duotone" aria-hidden />
           B1-Trainer
         </Link>
 

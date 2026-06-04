@@ -33,20 +33,39 @@ function firstTaskCode(items: RedemittelItem[], skill: SkillCode): string {
 }
 
 /**
- * Fasst Wendungen mit gleicher eingeklappter Beschriftung (frame, sonst phrase)
- * zu einem Eintrag zusammen — so erscheint z.B. das Konnektor-Muster „Da …, …"
- * nur einmal, mit allen Beispielsätzen darunter (keine Dubletten).
+ * Normalisierter Konnektor-Schlüssel: kleingeschrieben, ohne „…" und ohne
+ * Satzzeichen — so fallen Varianten desselben Konnektors zusammen
+ * (z.B. „…, gleichwohl …" und „…; gleichwohl …").
+ */
+function connectorKey(it: RedemittelItem): string {
+  return (it.frame ?? it.phrase)
+    .toLowerCase()
+    .replace(/…/g, " ")
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Fasst Wendungen desselben Konnektors zusammen und behält nur das
+ * NIEDRIGSTE vorhandene Niveau (z.B. „gleichwohl" als C1, nicht zusätzlich
+ * als C2). So gibt es keine Dubletten über mehrere Niveaus hinweg.
+ * Mehrere Beispielsätze auf demselben Niveau erscheinen unter einem Eintrag.
  */
 function groupByLabel(
   items: RedemittelItem[]
 ): { label: string; items: RedemittelItem[] }[] {
   const map = new Map<string, RedemittelItem[]>();
   for (const it of items) {
-    const label = it.frame ?? it.phrase;
-    if (!map.has(label)) map.set(label, []);
-    map.get(label)!.push(it);
+    const k = connectorKey(it);
+    if (!map.has(k)) map.set(k, []);
+    map.get(k)!.push(it);
   }
-  return [...map.entries()].map(([label, group]) => ({ label, items: group }));
+  return [...map.values()].map((group) => {
+    const minRank = Math.min(...group.map((g) => LEVEL_RANK[g.level]));
+    const kept = group.filter((g) => LEVEL_RANK[g.level] === minRank);
+    return { label: kept[0].frame ?? kept[0].phrase, items: kept };
+  });
 }
 
 export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
