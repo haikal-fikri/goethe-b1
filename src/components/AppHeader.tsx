@@ -14,8 +14,8 @@ export function AppHeader() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-[var(--border-soft)] bg-[color-mix(in_srgb,var(--bg)_80%,transparent)] backdrop-blur-md">
-      <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
+    <header className="sticky top-0 z-20 px-3 pb-2 pt-[calc(env(safe-area-inset-top)+0.5rem)]">
+      <div className="relative mx-auto flex max-w-3xl items-center justify-between gap-3 rounded-2xl border border-[var(--border-soft)] bg-[color-mix(in_srgb,var(--bg)_82%,transparent)] px-4 py-2.5 shadow-lg backdrop-blur-md">
         <Link
           href="/"
           onClick={() => setOpen(false)}
@@ -61,23 +61,24 @@ export function AppHeader() {
             />
           </button>
         </div>
-      </div>
 
-      {/* Mobile-Menü (Overlay, schiebt den Inhalt nicht nach unten) */}
-      {open && (
-        <nav className="animate-slide-down absolute inset-x-0 top-full border-b border-[var(--border-soft)] bg-[var(--bg)] px-4 py-2 shadow-lg sm:hidden">
-          {LINKS.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              onClick={() => setOpen(false)}
-              className="block rounded-md px-2.5 py-2.5 text-sm text-[var(--fg-muted)] transition-colors hover:bg-[var(--bg-elev)] hover:text-[var(--fg)]"
-            >
-              {l.label}
-            </Link>
-          ))}
-        </nav>
-      )}
+        {/* Mobile-Menü als eigene Insel unter der Kopf-Insel (schiebt den
+            Inhalt nicht nach unten) */}
+        {open && (
+          <nav className="animate-slide-down absolute inset-x-0 top-[calc(100%+0.5rem)] rounded-2xl border border-[var(--border-soft)] bg-[var(--bg)] p-2 shadow-lg sm:hidden">
+            {LINKS.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                onClick={() => setOpen(false)}
+                className="block rounded-xl px-2.5 py-2.5 text-sm text-[var(--fg-muted)] transition-colors hover:bg-[var(--bg-elev)] hover:text-[var(--fg)]"
+              >
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+        )}
+      </div>
     </header>
   );
 }

@@ -28,6 +28,9 @@ export const viewport = {
   themeColor: "#17191b",
   width: "device-width",
   initialScale: 1,
+  // Inhalt bis unter die Notch ziehen, damit der (fixe) Seitenhintergrund
+  // nahtlos in den Safe-Area-Bereich oben übergeht (kein harter Farbbalken).
+  viewportFit: "cover" as const,
 };
 
 // Setzt das Theme vor dem ersten Paint (kein Flash): gespeicherte Wahl,
