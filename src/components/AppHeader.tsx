@@ -6,8 +6,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 
 const LINKS = [
   { href: "/", label: "Üben" },
-  { href: "/nachschlagen", label: "Nachschlagen" },
-  { href: "/schreiben", label: "Schreiben" },
+  { href: "/lernen", label: "Lernen" },
+  { href: "/pruefen", label: "Prüfen" },
 ];
 
 export function AppHeader() {
