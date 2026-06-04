@@ -167,6 +167,22 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
                 ))}
               </ul>
             )}
+            {task.sampleAnswerDe && (
+              <details className="group/sample mt-3 border-t border-[var(--border-soft)] pt-3">
+                <summary
+                  className="flex cursor-pointer list-none items-center gap-2 text-xs font-medium outline-none"
+                  style={{ color: ACCENT }}
+                >
+                  <span className="transition-transform group-open/sample:rotate-90">
+                    ›
+                  </span>
+                  Beispieltext anzeigen
+                </summary>
+                <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-[var(--fg-muted)]">
+                  {task.sampleAnswerDe}
+                </p>
+              </details>
+            )}
           </div>
 
           {/* Schreibfeld */}

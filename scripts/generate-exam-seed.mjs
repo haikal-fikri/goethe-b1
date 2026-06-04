@@ -36,7 +36,7 @@ SIMS.forEach((sim, si) => {
   );
   sim.tasks.forEach((t, ti) => {
     lines.push(
-      `insert into exam_tasks (id, simulation_id, aufgabe, task_type, title_de, prompt_de, bullet_points_de, min_words, recommended_minutes, sort_order) values (` +
+      `insert into exam_tasks (id, simulation_id, aufgabe, task_type, title_de, prompt_de, bullet_points_de, min_words, recommended_minutes, sample_answer_de, sort_order) values (` +
         [
           q(t.id),
           sim.id,
@@ -47,9 +47,10 @@ SIMS.forEach((sim, si) => {
           arr(t.bulletPointsDe),
           t.minWords ?? 80,
           t.recommendedMinutes == null ? "null" : t.recommendedMinutes,
+          q(t.sampleAnswerDe),
           ti,
         ].join(", ") +
-        `) on conflict (id) do update set simulation_id=excluded.simulation_id, aufgabe=excluded.aufgabe, task_type=excluded.task_type, title_de=excluded.title_de, prompt_de=excluded.prompt_de, bullet_points_de=excluded.bullet_points_de, min_words=excluded.min_words, recommended_minutes=excluded.recommended_minutes, sort_order=excluded.sort_order;`
+        `) on conflict (id) do update set simulation_id=excluded.simulation_id, aufgabe=excluded.aufgabe, task_type=excluded.task_type, title_de=excluded.title_de, prompt_de=excluded.prompt_de, bullet_points_de=excluded.bullet_points_de, min_words=excluded.min_words, recommended_minutes=excluded.recommended_minutes, sample_answer_de=excluded.sample_answer_de, sort_order=excluded.sort_order;`
     );
   });
 });

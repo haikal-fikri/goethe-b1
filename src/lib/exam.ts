@@ -12,6 +12,7 @@ interface TaskRow {
   bullet_points_de: string[];
   min_words: number;
   recommended_minutes: number | null;
+  sample_answer_de: string | null;
 }
 
 function toTask(r: TaskRow): ExamTask {
@@ -25,6 +26,7 @@ function toTask(r: TaskRow): ExamTask {
     bulletPointsDe: r.bullet_points_de.length ? r.bullet_points_de : undefined,
     minWords: r.min_words,
     recommendedMinutes: r.recommended_minutes ?? undefined,
+    sampleAnswerDe: r.sample_answer_de ?? undefined,
   };
 }
 
@@ -35,7 +37,7 @@ export async function getSimulations(): Promise<ExamSimulation[]> {
   `;
   const rows = await sql<TaskRow[]>`
     select id, simulation_id, aufgabe, task_type, title_de, prompt_de,
-           bullet_points_de, min_words, recommended_minutes
+           bullet_points_de, min_words, recommended_minutes, sample_answer_de
     from exam_tasks
     order by simulation_id, aufgabe, sort_order
   `;
@@ -51,7 +53,7 @@ export async function getSimulations(): Promise<ExamSimulation[]> {
 export async function getExamTask(taskId: string): Promise<ExamTask | undefined> {
   const rows = await sql<TaskRow[]>`
     select id, simulation_id, aufgabe, task_type, title_de, prompt_de,
-           bullet_points_de, min_words, recommended_minutes
+           bullet_points_de, min_words, recommended_minutes, sample_answer_de
     from exam_tasks
     where id = ${taskId}
     limit 1

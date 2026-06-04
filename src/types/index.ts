@@ -59,6 +59,7 @@ export interface ExamTask {
   bulletPointsDe?: string[]; // Leitpunkte
   minWords: number; // Wortvorgabe (Richtwert)
   recommendedMinutes?: number;
+  sampleAnswerDe?: string; // Beispieltext / Musterlösung
 }
 
 export interface ExamSimulation {

@@ -25,7 +25,8 @@
         "promptDe": "Schreiben Sie Ihre Meinung zu dem Diskussionsthema aus dem Fernsehen: „Sind junge Menschen heute schlecht erzogen?“.",
         "bulletPointsDe": [],
         "minWords": 80,
-        "recommendedMinutes": 25
+        "recommendedMinutes": 25,
+        "sampleAnswerDe": "Ich bin der Meinung, dass man nicht pauschal sagen kann, dass alle jungen Menschen schlecht erzogen sind. Natürlich gibt es Jugendliche, die unhöflich wirken oder zu viel Zeit am Handy verbringen, aber das ist kein neues Phänomen. Ältere Generationen haben sich schon immer über die Jugend beschwert. Ich glaube eher, dass sich die Art der Kommunikation verändert hat. Es liegt an den Eltern und der Schule, den Kindern Werte wie Respekt und Höflichkeit im Umgang mit digitalen Medien zu vermitteln, statt sie nur zu verurteilen."
       },
       {
         "id": "s1-a3",
@@ -65,7 +66,8 @@
         "promptDe": "Schreiben Sie Ihre Meinung zu dem Diskussionsthema: „Schule schon ab 4“.",
         "bulletPointsDe": [],
         "minWords": 80,
-        "recommendedMinutes": 25
+        "recommendedMinutes": 25,
+        "sampleAnswerDe": "Das Thema, Kinder schon mit vier Jahren in die Schule zu schicken, sehe ich sehr kritisch. Meiner Ansicht nach ist das viel zu früh. In diesem Alter steht die spielerische Entwicklung im Vordergrund. Wenn Kinder bereits im Kindergarten mit Leistungsdruck oder schulischen Anforderungen wie dem Erlernen von Buchstaben konfrontiert werden, geht die natürliche Freude am Entdecken verloren. Kinder brauchen Zeit zum Spielen, um ihre sozialen und emotionalen Fähigkeiten zu entwickeln. Die Schule sollte ein Ort sein, für den sie erst mit sechs oder sieben Jahren bereit sind."
       },
       {
         "id": "s2-a3",
@@ -105,7 +107,8 @@
         "promptDe": "Schreiben Sie Ihre Meinung zum Thema „Persönliche Kontakte und Internet“, basierend auf einem Kommentar über feste Arbeitszeiten und Flexibilität.",
         "bulletPointsDe": [],
         "minWords": 80,
-        "recommendedMinutes": 25
+        "recommendedMinutes": 25,
+        "sampleAnswerDe": "Die Aussage in dem Kommentar kann ich gut nachvollziehen. Feste Arbeitszeiten von 9 bis 17:30 Uhr bieten eine klare Struktur, die besonders für Eltern von kleinen Kindern sehr wertvoll für die Planung des Familienlebens ist. Dennoch zeigt der Kommentar ein Problem: Wenn man Kinder hat, reicht ein starrer Zeitplan oft nicht aus. Es wäre wünschenswert, wenn Arbeitgeber mehr Flexibilität im Homeoffice oder bei den Arbeitszeiten anbieten würden, damit Beruf und Privatleben besser vereinbar sind, ohne dass der Kontakt zu den Kunden darunter leidet."
       },
       {
         "id": "s3-a3",
@@ -145,7 +148,8 @@
         "promptDe": "Schreiben Sie Ihre Meinung zum Thema „Persönliche Kontakte und Internet“, basierend auf einem Kommentar, der besagt, dass Internetkontakte persönliche Treffen nicht ersetzen können.",
         "bulletPointsDe": [],
         "minWords": 80,
-        "recommendedMinutes": 25
+        "recommendedMinutes": 25,
+        "sampleAnswerDe": "Ich stimme dem Kommentar voll und ganz zu: Das Internet ist ein großartiges Werkzeug, um in Kontakt zu bleiben, besonders wenn Freunde weit weg wohnen. Es ersetzt jedoch keinesfalls ein persönliches Treffen. Bei einem direkten Gespräch kann man die Mimik und Gestik des Gegenübers wahrnehmen, was über digitale Kanäle oft verloren geht. Ich denke, soziale Medien und Videoanrufe sollten nur eine Ergänzung sein, um die Zeit zwischen echten Begegnungen zu überbrücken, aber sie sollten niemals unsere wertvollen persönlichen Treffen ersetzen."
       },
       {
         "id": "s4-a3",
