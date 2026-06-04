@@ -240,7 +240,7 @@
   {
     "phrase": "Ich hätte da einen Vorschlag zur Verteilung der Aufgaben.",
     "frame": "ich hätte da einen Vorschlag zu …",
-    "translation": "I have a suggestion regarding the distribution of tasks.",
+    "translation": "I'd have a suggestion regarding how to divide up the tasks.",
     "level": "B2",
     "skill": "sprechen",
     "task": {
@@ -266,7 +266,7 @@
       "Aufgaben."
     ],
     "distractors": [
-      "habe",
+      "hatte",
       "mit",
       "Vorschläge"
     ],
@@ -304,7 +304,7 @@
       "einbringen?"
     ],
     "distractors": [
-      "darf",
+      "dürfen",
       "einbringt",
       "bringen"
     ],
@@ -616,7 +616,7 @@
     "distractors": [
       "leuchten",
       "mich",
-      "ein,"
+      "aus,"
     ],
     "clozeTemplate": "Das {{leuchtet}} mir ein, machen wir es so.",
     "notes": "jemandem leuchtet etwas ein: idiomatisch für überzeugen.",
@@ -967,7 +967,7 @@
       "lohnt."
     ],
     "distractors": [
-      "muss",
+      "müsstest",
       "dass",
       "abgewogen"
     ],
@@ -1088,7 +1088,7 @@
     "distractors": [
       "macht",
       "wird",
-      "das"
+      "ihn"
     ],
     "clozeTemplate": "Gut, dann {{machen}} wir es so.",
     "notes": "Einfacher Abschluss einer Einigung.",
@@ -1276,7 +1276,7 @@
       "gefunden."
     ],
     "distractors": [
-      "haben",
+      "hatten",
       "einem",
       "finden"
     ],
@@ -2186,7 +2186,7 @@
     ],
     "distractors": [
       "Warten",
-      "betrachtet,",
+      "betrachten,",
       "Vorteil"
     ],
     "clozeTemplate": "Aus meiner ganz persönlichen {{Warte}} betrachtet, überwiegen die Vorteile.",
@@ -2239,7 +2239,7 @@
   {
     "phrase": "Ich finde, dass die Vorteile überwiegen.",
     "frame": "ich finde, dass …",
-    "translation": "I think that the advantages outweigh the disadvantages.",
+    "translation": "I think that the advantages prevail.",
     "level": "B1",
     "skill": "sprechen",
     "task": {
@@ -2355,7 +2355,7 @@
   {
     "phrase": "Alles in allem überwiegen für mich die Vorteile.",
     "frame": "alles in allem überwiegen die Vorteile",
-    "translation": "All in all, the advantages outweigh the rest for me.",
+    "translation": "All in all, for me the advantages prevail.",
     "level": "C1",
     "skill": "sprechen",
     "task": {
@@ -3003,7 +3003,7 @@
       "Präsentation."
     ],
     "distractors": [
-      "ab,",
+      "auf,",
       "einen",
       "Präsentationen"
     ],
@@ -3115,8 +3115,8 @@
       "nennen?"
     ],
     "distractors": [
-      "kannst",
-      "das",
+      "könnte",
+      "dem",
       "Beispiele"
     ],
     "clozeTemplate": "{{Könntest}} du dazu ein Beispiel nennen?",
@@ -3233,7 +3233,7 @@
       "nachhaken?"
     ],
     "distractors": [
-      "darf",
+      "dürfen",
       "der",
       "nachgehakt"
     ],
@@ -3358,7 +3358,7 @@
   {
     "phrase": "Das kann ich gut nachvollziehen.",
     "frame": "das kann ich nachvollziehen",
-    "translation": "I can well understand that.",
+    "translation": "I can really understand that.",
     "level": "B2",
     "skill": "sprechen",
     "task": {
@@ -3474,7 +3474,7 @@
   {
     "phrase": "Lassen Sie mich das gern etwas genauer ausführen.",
     "frame": "lassen Sie mich das genauer ausführen",
-    "translation": "Let me elaborate on that a bit, gladly.",
+    "translation": "Let me gladly elaborate on that a bit.",
     "level": "C1",
     "skill": "sprechen",
     "task": {
@@ -3849,12 +3849,12 @@
       "treffen?"
     ],
     "distractors": [
-      "wollen",
+      "sollt",
       "uns,",
       "getroffen"
     ],
     "clozeTemplate": "Sollen wir uns morgen {{treffen}}?",
-    "notes": "Einfacher Vorschlag mit sollen.",
+    "notes": "Vorschlag als Frage mit sollen + Infinitiv am Satzende.",
     "tags": [
       "vorschlag"
     ],
@@ -4494,7 +4494,7 @@
     ],
     "distractors": [
       "stimmt",
-      "habe",
+      "hatte",
       "Anmerkungen"
     ],
     "clozeTemplate": "Im Prinzip {{stimme}} ich zu, hätte aber eine Anmerkung.",
@@ -4532,7 +4532,7 @@
       "hinaus."
     ],
     "distractors": [
-      "läuft",
+      "liefst",
       "einem",
       "hinausgelaufen"
     ],

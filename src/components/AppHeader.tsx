@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const LINKS = [
   { href: "/", label: "Üben" },
@@ -20,41 +21,46 @@ export function AppHeader() {
           onClick={() => setOpen(false)}
           className="text-[15px] font-semibold tracking-tight text-[var(--fg)]"
         >
-          Redemittel-Trainer
+          B1-Trainer
         </Link>
 
-        {/* Desktop-Navigation */}
-        <nav className="hidden items-center gap-1 text-[13px] sm:flex">
-          {LINKS.map((l) => (
-            <HeaderLink key={l.href} href={l.href}>
-              {l.label}
-            </HeaderLink>
-          ))}
-        </nav>
+        <div className="flex items-center gap-1">
+          {/* Desktop-Navigation */}
+          <nav className="hidden items-center gap-1 text-[13px] sm:flex">
+            {LINKS.map((l) => (
+              <HeaderLink key={l.href} href={l.href}>
+                {l.label}
+              </HeaderLink>
+            ))}
+          </nav>
 
-        {/* Mobile-Hamburger (2 Linien) */}
-        <button
-          type="button"
-          onClick={() => setOpen((o) => !o)}
-          aria-label="Menü"
-          aria-expanded={open}
-          className="flex h-9 w-9 flex-col items-center justify-center gap-[5px] rounded-md text-[var(--fg)] transition-colors hover:bg-[var(--bg-elev)] sm:hidden"
-        >
-          <span
-            className="block h-[2px] w-5 bg-current transition-transform"
-            style={
-              open ? { transform: "translateY(3.5px) rotate(45deg)" } : undefined
-            }
-          />
-          <span
-            className="block h-[2px] w-5 bg-current transition-transform"
-            style={
-              open
-                ? { transform: "translateY(-3.5px) rotate(-45deg)" }
-                : undefined
-            }
-          />
-        </button>
+          {/* Theme-Umschalter (Tafel ↔ Papier) — immer sichtbar */}
+          <ThemeToggle />
+
+          {/* Mobile-Hamburger (2 Linien) */}
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-label="Menü"
+            aria-expanded={open}
+            className="flex h-9 w-9 flex-col items-center justify-center gap-[5px] rounded-md text-[var(--fg)] transition-colors hover:bg-[var(--bg-elev)] sm:hidden"
+          >
+            <span
+              className="block h-[2px] w-5 bg-current transition-transform"
+              style={
+                open ? { transform: "translateY(3.5px) rotate(45deg)" } : undefined
+              }
+            />
+            <span
+              className="block h-[2px] w-5 bg-current transition-transform"
+              style={
+                open
+                  ? { transform: "translateY(-3.5px) rotate(-45deg)" }
+                  : undefined
+              }
+            />
+          </button>
+        </div>
       </div>
 
       {/* Mobile-Menü (Overlay, schiebt den Inhalt nicht nach unten) */}

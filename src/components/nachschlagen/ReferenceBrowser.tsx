@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { CEFRLevel, RedemittelItem, SkillCode } from "@/types";
 import { LEVEL_RANK } from "@/types";
+import { functionRank } from "@/lib/content";
 import { LevelBadge } from "@/components/LevelBadge";
 import { SKILL_ACCENT, SKILL_LABEL } from "@/lib/ui";
 
@@ -13,8 +14,22 @@ const MIN_FILTERS: { label: string; min: CEFRLevel }[] = [
 ];
 
 interface Group {
+  taskCode: string;
   taskLabel: string;
-  functions: { name: string; items: RedemittelItem[] }[];
+  functions: { code: string; name: string; items: RedemittelItem[] }[];
+}
+
+/** Kurzes Tab-Label, z.B. "Aufgabe 1 — Informelle E-Mail" → "Aufgabe 1". */
+function shortTaskLabel(labelDe: string): string {
+  return labelDe.split("—")[0].trim() || labelDe;
+}
+
+/** Erster Aufgaben-Code einer Fertigkeit (kanonisch sortiert). */
+function firstTaskCode(items: RedemittelItem[], skill: SkillCode): string {
+  const codes = [
+    ...new Set(items.filter((i) => i.skill === skill).map((i) => i.task.code)),
+  ].sort((a, b) => a.localeCompare(b));
+  return codes[0] ?? "";
 }
 
 export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
@@ -26,8 +41,29 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
     skills[0] ?? "schreiben"
   );
   const [minLevel, setMinLevel] = useState<CEFRLevel>("B1");
+  const [activeTask, setActiveTask] = useState<string>(() =>
+    firstTaskCode(items, skills[0] ?? "schreiben")
+  );
   const [query, setQuery] = useState("");
   const accent = SKILL_ACCENT[activeSkill];
+
+  function pickSkill(s: SkillCode) {
+    setActiveSkill(s);
+    setActiveTask(firstTaskCode(items, s)); // Aufgaben unterscheiden sich je Fertigkeit
+  }
+
+  // Aufgaben (Prüfungsteile) der aktiven Fertigkeit, in kanonischer Reihenfolge.
+  const taskTabs = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const it of items) {
+      if (it.skill === activeSkill && !map.has(it.task.code)) {
+        map.set(it.task.code, it.task.labelDe);
+      }
+    }
+    return [...map.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([code, label]) => ({ code, label }));
+  }, [items, activeSkill]);
 
   const groups = useMemo<Group[]>(() => {
     const min = LEVEL_RANK[minLevel];
@@ -36,24 +72,42 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
       (i) =>
         i.skill === activeSkill &&
         LEVEL_RANK[i.level] >= min &&
+        i.task.code === activeTask &&
         (q === "" ||
           i.phrase.toLowerCase().includes(q) ||
           i.frame?.toLowerCase().includes(q) ||
           i.translation.toLowerCase().includes(q))
     );
 
-    const taskMap = new Map<string, Map<string, RedemittelItem[]>>();
+    const taskMap = new Map<
+      string,
+      { label: string; fns: Map<string, { name: string; items: RedemittelItem[] }> }
+    >();
     for (const it of filtered) {
-      if (!taskMap.has(it.task.labelDe)) taskMap.set(it.task.labelDe, new Map());
-      const fnMap = taskMap.get(it.task.labelDe)!;
-      if (!fnMap.has(it.function.nameDe)) fnMap.set(it.function.nameDe, []);
-      fnMap.get(it.function.nameDe)!.push(it);
+      if (!taskMap.has(it.task.code))
+        taskMap.set(it.task.code, { label: it.task.labelDe, fns: new Map() });
+      const fns = taskMap.get(it.task.code)!.fns;
+      if (!fns.has(it.function.code))
+        fns.set(it.function.code, { name: it.function.nameDe, items: [] });
+      fns.get(it.function.code)!.items.push(it);
     }
-    return [...taskMap.entries()].map(([taskLabel, fnMap]) => ({
-      taskLabel,
-      functions: [...fnMap.entries()].map(([name, its]) => ({ name, items: its })),
-    }));
-  }, [items, activeSkill, minLevel, query]);
+
+    // Aufgaben nach Code (Aufgabe 1 → 2 → 3), Funktionen in kanonischer
+    // Reihenfolge wie in einem echten Text (Einleitung → … → Schluss).
+    return [...taskMap.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([taskCode, { label, fns }]) => ({
+        taskCode,
+        taskLabel: label,
+        functions: [...fns.entries()]
+          .sort(
+            ([ca], [cb]) =>
+              functionRank(taskCode, ca) - functionRank(taskCode, cb) ||
+              ca.localeCompare(cb)
+          )
+          .map(([code, v]) => ({ code, name: v.name, items: v.items })),
+      }));
+  }, [items, activeSkill, minLevel, activeTask, query]);
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-20 pt-6">
@@ -66,7 +120,7 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
               key={s}
               role="tab"
               aria-selected={isActive}
-              onClick={() => setActiveSkill(s)}
+              onClick={() => pickSkill(s)}
               className="shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors"
               style={{
                 borderColor: isActive
@@ -109,9 +163,38 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Suchen …"
-          className="ml-auto min-w-[140px] flex-1 rounded-full border border-[var(--border-soft)] bg-[var(--bg-elev)] px-3 py-1.5 text-sm text-[var(--fg)] outline-none focus:border-[var(--border-base)] sm:flex-none"
+          className="ml-auto min-w-[140px] flex-1 rounded-full border border-[var(--border-soft)] bg-[var(--bg-elev)] px-3 py-1.5 text-sm text-[var(--fg)] outline-none focus:border-[var(--border)] sm:flex-none"
         />
       </div>
+
+      {/* Aufgabe / Prüfungsteil — nur wenn die Fertigkeit mehrere Teile hat
+          (also nicht bei Konnektoren mit nur einem Teil). */}
+      {taskTabs.length > 1 && (
+      <div role="tablist" className="mt-3 flex gap-2 overflow-x-auto pb-1">
+        {taskTabs.map((t) => {
+          const isActive = t.code === activeTask;
+          const label = shortTaskLabel(t.label);
+          return (
+            <button
+              key={t.code}
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setActiveTask(t.code)}
+              className="shrink-0 rounded-full border px-3 py-1.5 text-xs transition-colors"
+              style={{
+                borderColor: isActive ? accent : "var(--border-soft)",
+                color: isActive ? "var(--fg)" : "var(--fg-muted)",
+                backgroundColor: isActive
+                  ? `color-mix(in srgb, ${accent} 14%, transparent)`
+                  : "transparent",
+              }}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
+      )}
 
       {groups.length === 0 && (
         <p className="mt-10 text-center text-sm text-[var(--fg-dim)]">
@@ -119,16 +202,16 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
         </p>
       )}
 
-      <div key={activeSkill} className="animate-fade-in">
+      <div key={`${activeSkill}-${activeTask}`} className="animate-fade-in">
         {groups.map((g) => (
-          <section key={g.taskLabel} className="mt-7">
+          <section key={g.taskCode} className="mt-7">
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--fg-dim)]">
               {g.taskLabel}
             </h2>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {g.functions.map((fn) => (
                 <div
-                  key={fn.name}
+                  key={fn.code}
                   className="rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] p-4"
                 >
                   <h3 className="mb-2 text-sm font-medium text-[var(--fg)]">
@@ -138,7 +221,7 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
                     {fn.items.map((it) => (
                       <li key={it.id}>
                         <details className="group/item">
-                          <summary className="flex cursor-pointer list-none items-start gap-2 rounded-[calc(var(--radius)-4px)] py-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-base)]">
+                          <summary className="flex cursor-pointer list-none items-start gap-2 rounded-[calc(var(--radius)-4px)] py-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">
                             <span
                               className="mt-0.5 shrink-0 text-[var(--fg-dim)] transition-transform group-open/item:rotate-90"
                               style={{ color: accent }}

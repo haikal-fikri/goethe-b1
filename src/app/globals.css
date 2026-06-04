@@ -1,32 +1,91 @@
 @import "tailwindcss";
 
 /* ============================================================
-   Design tokens — adaptiert aus redemittel-goethe-b1.html
+   Themen-Tokens
+   - dark  = Tafel / Blackboard (dunkles Grün-Grau, Kreide-Akzente)
+   - light = Papier (warmes Creme, Tinten-Akzente)
+   Das Theme wird über data-theme am <html> gesetzt (siehe layout.tsx).
    ============================================================ */
-:root {
-  --bg: #0d1117;
-  --bg-elev: #161b22;
-  --bg-elev-2: #1c2230;
-  --border: #2a313c;
-  --border-soft: #21262d;
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
 
-  --fg: #e6edf3;
-  --fg-muted: #9aa6b2;
-  --fg-dim: #6e7681;
+  --bg: #17191b; /* echte schwarze Tafel (neutrales Tiefschwarz-Grau) */
+  --bg-elev: #1f2225;
+  --bg-elev-2: #282c30;
+  --border: #383c41;
+  --border-soft: #2a2e32;
 
-  --accent-write: #e3b341; /* Schreiben — golden */
-  --accent-speak: #4cc4d4; /* Sprechen — cyan */
-  --accent-shared: #8b95a3; /* Konnektoren — neutral */
+  --fg: #eceae4; /* Kreideweiß, leicht warm */
+  --fg-muted: #a7a9a4;
+  --fg-dim: #797b77;
 
-  --level-b1: #3fb950;
-  --level-b2: #d29922;
-  --level-c1: #db6d6d;
-  --level-c2: #bc8cff;
+  --accent-write: #e8c468; /* Schreiben — Kreidegelb */
+  --accent-speak: #6fcad6; /* Sprechen — Kreideblau */
+  --accent-shared: #a6a8a3; /* Konnektoren — neutral */
 
-  --ok: #3fb950;
-  --bad: #db6d6d;
+  --level-b1: #6cc56e;
+  --level-b2: #e0b04a;
+  --level-c1: #e08a8a;
+  --level-c2: #c4a2f0;
+
+  --ok: #6cc56e;
+  --bad: #e08a8a;
 
   --radius: 10px;
+
+  /* Kreidestaub: heller Schimmer oben, dezenter Staub unten (neutral) */
+  --bg-texture: radial-gradient(
+      1100px 600px at 80% -12%,
+      rgba(255, 255, 255, 0.04),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 520px at 0% 112%,
+      rgba(255, 255, 255, 0.03),
+      transparent 58%
+    );
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f4efe4;
+  --bg-elev: #fbf8f0;
+  --bg-elev-2: #efe7d6;
+  --border: #d9cfba;
+  --border-soft: #e7decb;
+
+  --fg: #2c2a26; /* warme Tinte */
+  --fg-muted: #6b6458;
+  --fg-dim: #968d7d;
+
+  --accent-write: #b9852a; /* dunkleres Gold/Ocker für Kontrast auf Creme */
+  --accent-speak: #2f93a3;
+  --accent-shared: #6f7770;
+
+  --level-b1: #2f9e4f;
+  --level-b2: #b9822a;
+  --level-c1: #c0504d;
+  --level-c2: #7e57c2;
+
+  --ok: #2f9e4f;
+  --bad: #c0504d;
+
+  --radius: 10px;
+
+  /* Papier: sehr feine Linien + warmer Schimmer */
+  --bg-texture: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 27px,
+      rgba(60, 42, 12, 0.035) 28px
+    ),
+    radial-gradient(
+      1000px 600px at 100% 0%,
+      rgba(180, 150, 90, 0.06),
+      transparent 60%
+    );
 }
 
 @theme inline {
@@ -52,14 +111,17 @@
   --color-ok: var(--ok);
   --color-bad: var(--bad);
 
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
+  /* Futura zuerst (echtes Futura auf macOS/iOS), dann Jost als Webfont-Fallback. */
+  --font-sans: "Futura", var(--font-jost), "Avenir Next", Avenir, "Century Gothic",
+    system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-fraunces), Georgia, "Times New Roman", serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
 }
 
-html {
-  color-scheme: dark;
+/* Serifen-Paar (Fraunces) für die Seitentitel; Body bleibt Futura/Jost. */
+h1 {
+  font-family: var(--font-serif);
 }
 
 body {
@@ -68,14 +130,10 @@ body {
   font-family: var(--font-sans);
   font-size: 15px;
   line-height: 1.55;
-  background-image: radial-gradient(
-      900px 500px at 85% -10%,
-      rgba(76, 196, 212, 0.05),
-      transparent 60%
-    ),
-    radial-gradient(900px 500px at 0% 0%, rgba(227, 179, 65, 0.045), transparent 55%);
+  background-image: var(--bg-texture);
   background-attachment: fixed;
   -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 @keyframes fade-in {

@@ -3,7 +3,7 @@
     "id": "7a052e1cc4e6",
     "phrase": "Da es spät war, gingen wir nach Hause.",
     "frame": "Da …, …",
-    "translation": "Since it was late, we went home.",
+    "translation": "As it was late, we went home.",
     "level": "B1",
     "skill": "shared",
     "task": {
@@ -28,12 +28,12 @@
       "Hause."
     ],
     "distractors": [
-      "Weil",
       "Denn",
+      "Sobald",
       "ginge"
     ],
     "clozeTemplate": "{{Da}} es spät war, gingen wir nach Hause.",
-    "notes": "‘da’ ist subordinierend: Verb am Nebensatzende, danach Inversion im Hauptsatz.",
+    "notes": "‘da’ ist subordinierend (bekannter Grund): Verb am Nebensatzende, danach Inversion. Nicht mit zeitlichem ‘sobald’ verwechseln.",
     "tags": [
       "konnektor",
       "grund"
@@ -84,7 +84,7 @@
     "id": "7c9529ca3bfc",
     "phrase": "Aufgrund des Sturms fiel der Zug aus.",
     "frame": "Aufgrund … …",
-    "translation": "Due to the storm, the train was cancelled.",
+    "translation": "Owing to the storm, the train was cancelled.",
     "level": "B2",
     "skill": "shared",
     "task": {
@@ -108,12 +108,12 @@
       "aus."
     ],
     "distractors": [
-      "Wegen",
       "Trotz",
+      "Während",
       "fielen"
     ],
     "clozeTemplate": "{{Aufgrund}} des Sturms fiel der Zug aus.",
-    "notes": "‘aufgrund’ + Genitiv; danach Inversion (Verb vor Subjekt).",
+    "notes": "‘aufgrund’ + Genitiv (sachlicher Grund); danach Inversion. Synonym ‘wegen’; Gegensatz ‘trotz’.",
     "tags": [
       "konnektor",
       "grund"
@@ -124,7 +124,7 @@
     "id": "0c716e0e42b3",
     "phrase": "Sie verlor den Job; infolgedessen musste sie sparen.",
     "frame": "…; infolgedessen …",
-    "translation": "She lost her job; as a result she had to economize.",
+    "translation": "She lost her job; as a direct consequence she had to economize.",
     "level": "C1",
     "skill": "shared",
     "task": {
@@ -149,12 +149,12 @@
       "sparen."
     ],
     "distractors": [
-      "folglich",
-      "deswegen",
+      "obwohl",
+      "während",
       "muss"
     ],
     "clozeTemplate": "Sie verlor den Job; {{infolgedessen}} musste sie sparen.",
-    "notes": "‘infolgedessen’ löst Inversion aus.",
+    "notes": "‘infolgedessen’ (= als unmittelbare Folge) löst Inversion aus; ‘folglich/deswegen’ wären sinngleich, daher hier keine Ablenker.",
     "tags": [
       "konnektor",
       "grund"
@@ -190,12 +190,12 @@
       "Prüfung."
     ],
     "distractors": [
-      "Da",
       "Denn",
+      "Sobald",
       "lernt"
     ],
     "clozeTemplate": "{{Weil}} er fleißig lernte, bestand er die Prüfung.",
-    "notes": "‘weil’ ist subordinierend; Verb am Nebensatzende.",
+    "notes": "‘weil’ ist subordinierend (Verb am Nebensatzende); ‘denn’ ist nebenordnend und kann nicht vorangestellt werden.",
     "tags": [
       "konnektor",
       "grund"
@@ -232,11 +232,11 @@
     ],
     "distractors": [
       "trotz",
-      "aufgrund",
+      "während",
       "scheitert"
     ],
     "clozeTemplate": "Der Plan scheiterte, nicht zuletzt {{wegen}} fehlender Mittel.",
-    "notes": "‘wegen’ + Genitiv; ‘nicht zuletzt’ verstärkt den Grund.",
+    "notes": "‘wegen’ + Genitiv (Grund); ‘nicht zuletzt’ verstärkt; ‘trotz/während’ ergäben hier den falschen Sinn.",
     "tags": [
       "konnektor",
       "grund"
@@ -310,11 +310,11 @@
     ],
     "distractors": [
       "Trotz",
-      "Wegen",
+      "Während",
       "handelte"
     ],
     "clozeTemplate": "{{Angesichts}} der Lage handelten sie sofort.",
-    "notes": "‘angesichts’ + Genitiv; danach Inversion.",
+    "notes": "‘angesichts’ + Genitiv (= im Hinblick auf eine ernste Lage); danach Inversion.",
     "tags": [
       "konnektor",
       "grund"
@@ -349,12 +349,12 @@
       "unglücklich."
     ],
     "distractors": [
-      "trotzdem",
       "obwohl",
+      "weil",
       "ist,"
     ],
     "clozeTemplate": "Er ist reich, {{dennoch}} ist er unglücklich.",
-    "notes": "‘dennoch’ löst Inversion aus (Verb vor Subjekt).",
+    "notes": "‘dennoch’ (= trotz dieses Umstands) löst Inversion aus; subordinierende ‘obwohl/weil’ passen hier nicht.",
     "tags": [
       "konnektor",
       "gegensatz"
@@ -365,7 +365,7 @@
     "id": "0e8603cb557f",
     "phrase": "Die Eltern arbeiten, die Kinder indes spielen.",
     "frame": "…, … indes …",
-    "translation": "The parents work, while the children meanwhile play.",
+    "translation": "The parents are working; the children, meanwhile, are playing.",
     "level": "C1",
     "skill": "shared",
     "task": {
@@ -389,12 +389,12 @@
       "spielen."
     ],
     "distractors": [
-      "jedoch",
-      "hingegen",
+      "obwohl",
+      "weil",
       "spielt"
     ],
     "clozeTemplate": "Die Eltern arbeiten, die Kinder {{indes}} spielen.",
-    "notes": "‘indes’ steht hier im Mittelfeld und drückt einen Gegensatz aus.",
+    "notes": "‘indes’ (gehoben, = unterdessen/wohingegen) steht im Mittelfeld; ‘jedoch/hingegen’ wären gleichwertig, daher hier keine Ablenker.",
     "tags": [
       "konnektor",
       "gegensatz"
@@ -429,12 +429,12 @@
       "bevorzugt."
     ],
     "distractors": [
-      "während",
       "obwohl",
+      "sodass",
       "bevorzugen"
     ],
     "clozeTemplate": "Ich mag Tee, {{wohingegen}} er Kaffee bevorzugt.",
-    "notes": "‘wohingegen’ ist subordinierend: Verb am Nebensatzende.",
+    "notes": "‘wohingegen’ ist subordinierend (klarer Gegensatz, Verb am Nebensatzende); ‘während’ ist sinngleich, daher kein Ablenker.",
     "tags": [
       "konnektor",
       "gegensatz"
@@ -487,7 +487,7 @@
     "id": "daad630bf3d4",
     "phrase": "Der Sommer war heiß, der Winter hingegen mild.",
     "frame": "…, … hingegen …",
-    "translation": "The summer was hot, the winter by contrast mild.",
+    "translation": "The summer was hot; the winter, by contrast, was mild.",
     "level": "B2",
     "skill": "shared",
     "task": {
@@ -512,12 +512,12 @@
       "mild."
     ],
     "distractors": [
-      "dennoch",
-      "trotzdem",
+      "obwohl",
+      "weil",
       "waren"
     ],
     "clozeTemplate": "Der Sommer war heiß, der Winter {{hingegen}} mild.",
-    "notes": "‘hingegen’ kann im Mittelfeld stehen und kontrastiert zwei Aussagen.",
+    "notes": "‘hingegen’ (= im Gegensatz dazu) steht im Mittelfeld und kontrastiert zwei Aussagen.",
     "tags": [
       "konnektor",
       "gegensatz"
@@ -528,7 +528,7 @@
     "id": "69e0fc8a6f36",
     "phrase": "Er versprach viel, jedoch hielt er wenig.",
     "frame": "…, jedoch …",
-    "translation": "He promised much, but kept little.",
+    "translation": "He promised a lot; however, he delivered little.",
     "level": "B1",
     "skill": "shared",
     "task": {
@@ -557,7 +557,7 @@
       "hielt,"
     ],
     "clozeTemplate": "Er versprach viel, {{jedoch}} hielt er wenig.",
-    "notes": "‘jedoch’ am Satzanfang löst Inversion aus.",
+    "notes": "‘jedoch’ steht hier im Vorfeld und löst Inversion aus; ‘aber’ (nebenordnend) täte das nicht.",
     "tags": [
       "konnektor",
       "gegensatz"
@@ -568,7 +568,7 @@
     "id": "503bc085fddc",
     "phrase": "Vielen gefällt der Film, mir hingegen nicht.",
     "frame": "…, … hingegen …",
-    "translation": "Many like the film, I however do not.",
+    "translation": "Many people like the film; I, by contrast, don't.",
     "level": "B2",
     "skill": "shared",
     "task": {
@@ -592,12 +592,12 @@
       "nicht."
     ],
     "distractors": [
-      "dennoch",
-      "trotzdem",
+      "obwohl",
+      "weil",
       "gefallen"
     ],
     "clozeTemplate": "Vielen gefällt der Film, mir {{hingegen}} nicht.",
-    "notes": "‘hingegen’ im Mittelfeld kontrastiert die Subjekte.",
+    "notes": "‘hingegen’ (= im Gegensatz dazu) im Mittelfeld kontrastiert die Personen.",
     "tags": [
       "konnektor",
       "gegensatz"
@@ -608,7 +608,7 @@
     "id": "d313d0f755be",
     "phrase": "Die Theorie überzeugt, die Praxis indessen enttäuscht.",
     "frame": "…, … indessen …",
-    "translation": "The theory convinces, the practice however disappoints.",
+    "translation": "The theory is convincing; in practice, by contrast, it disappoints.",
     "level": "C2",
     "skill": "shared",
     "task": {
@@ -632,12 +632,12 @@
       "enttäuscht."
     ],
     "distractors": [
-      "jedoch",
-      "hingegen",
+      "obwohl",
+      "weil",
       "enttäuschen"
     ],
     "clozeTemplate": "Die Theorie überzeugt, die Praxis {{indessen}} enttäuscht.",
-    "notes": "‘indessen’ (gehoben) drückt hier einen Gegensatz aus.",
+    "notes": "‘indessen’ (gehoben, = wohingegen) im Mittelfeld; ‘jedoch/hingegen’ wären gleichwertig, daher kein Ablenker.",
     "tags": [
       "konnektor",
       "gegensatz"
@@ -673,11 +673,11 @@
     ],
     "distractors": [
       "folgend",
-      "deshalb",
+      "obwohl",
       "blieb"
     ],
     "clozeTemplate": "Es regnete; {{folglich}} blieben wir zu Hause.",
-    "notes": "‘folglich’ löst Inversion aus (Verb vor Subjekt).",
+    "notes": "‘folglich’ (logische Folge) löst Inversion aus; ‘deshalb’ wäre sinngleich, daher kein Ablenker.",
     "tags": [
       "konnektor",
       "folge"
@@ -712,12 +712,12 @@
       "reisen."
     ],
     "distractors": [
-      "damit",
-      "also",
+      "obwohl",
+      "weil",
       "kannst"
     ],
     "clozeTemplate": "Er hat gespart; {{somit}} kann er reisen.",
-    "notes": "‘somit’ löst Inversion aus.",
+    "notes": "‘somit’ (= demnach/also) löst Inversion aus; sinngleiche ‘also/folglich’ daher keine Ablenker.",
     "tags": [
       "konnektor",
       "folge"
@@ -752,12 +752,12 @@
       "freigesprochen."
     ],
     "distractors": [
-      "dementsprechend",
-      "deshalb",
+      "obwohl",
+      "weil",
       "wird"
     ],
     "clozeTemplate": "Die Beweise fehlten; {{demzufolge}} wurde er freigesprochen.",
-    "notes": "‘demzufolge’ löst Inversion aus.",
+    "notes": "‘demzufolge’ (= entsprechend daraus folgend) löst Inversion aus; ‘deshalb/dementsprechend’ wären sinngleich.",
     "tags": [
       "konnektor",
       "folge"
@@ -794,12 +794,12 @@
       "ungültig."
     ],
     "distractors": [
-      "also",
-      "folglich",
+      "obwohl",
+      "weil",
       "sind"
     ],
     "clozeTemplate": "Die Prämisse ist falsch; {{mithin}} ist der Schluss ungültig.",
-    "notes": "‘mithin’ (sehr gehoben) löst Inversion aus.",
+    "notes": "‘mithin’ (sehr gehoben, = folglich) löst Inversion aus; ‘also/folglich’ wären sinngleich.",
     "tags": [
       "konnektor",
       "folge"
@@ -835,12 +835,12 @@
       "Stelle."
     ],
     "distractors": [
-      "darum",
+      "obwohl",
       "weil",
       "bekommt"
     ],
     "clozeTemplate": "Sie war qualifiziert; {{daher}} bekam sie die Stelle.",
-    "notes": "‘daher’ löst Inversion aus.",
+    "notes": "‘daher’ (= aus diesem Grund) löst Inversion aus; subordinierende ‘weil/obwohl’ passen hier nicht.",
     "tags": [
       "konnektor",
       "folge"
@@ -851,7 +851,7 @@
     "id": "689a45e139d5",
     "phrase": "Er log mehrfach; demnach ist ihm nicht zu trauen.",
     "frame": "…; demnach …",
-    "translation": "He lied repeatedly; accordingly he is not to be trusted.",
+    "translation": "He lied repeatedly; so, by that account, he is not to be trusted.",
     "level": "C1",
     "skill": "shared",
     "task": {
@@ -877,12 +877,12 @@
       "trauen."
     ],
     "distractors": [
-      "demzufolge",
-      "deshalb",
+      "obwohl",
+      "weil",
       "sind"
     ],
     "clozeTemplate": "Er log mehrfach; {{demnach}} ist ihm nicht zu trauen.",
-    "notes": "‘demnach’ löst Inversion aus.",
+    "notes": "‘demnach’ (= dem zufolge, schlussfolgernd) löst Inversion aus; ‘demzufolge/deshalb’ wären sinngleich.",
     "tags": [
       "konnektor",
       "folge"
@@ -962,12 +962,12 @@
       "verirrten."
     ],
     "distractors": [
-      "damit",
       "deshalb",
+      "weil",
       "verirren"
     ],
     "clozeTemplate": "Sie kannte den Weg, {{sodass}} wir uns nicht verirrten.",
-    "notes": "‘sodass’ ist subordinierend: Verb am Nebensatzende.",
+    "notes": "‘sodass’ (tatsächliche Folge) ist subordinierend, Verb am Nebensatzende; ‘damit’ wäre Absicht, ‘deshalb’ verlangt Inversion.",
     "tags": [
       "konnektor",
       "folge"
@@ -1002,12 +1002,12 @@
       "weiter."
     ],
     "distractors": [
-      "Obwohl",
       "Trotzdem",
+      "Denn",
       "arbeitet"
     ],
     "clozeTemplate": "{{Obgleich}} er müde war, arbeitete er weiter.",
-    "notes": "‘obgleich’ ist subordinierend: Verb am Nebensatzende, dann Inversion.",
+    "notes": "‘obgleich’ (gehoben-schriftlich, = obwohl) ist subordinierend, Verb am Nebensatzende; ‘trotzdem/denn’ können keinen Verb-Letzt-Satz einleiten.",
     "tags": [
       "konnektor",
       "einraeumung"
@@ -1018,7 +1018,7 @@
     "id": "16f37a0cf42c",
     "phrase": "Wenngleich teuer, lohnt sich die Reise.",
     "frame": "Wenngleich …, …",
-    "translation": "Although expensive, the trip is worth it.",
+    "translation": "Even though it is expensive, the trip is worth it.",
     "level": "C1",
     "skill": "shared",
     "task": {
@@ -1041,12 +1041,12 @@
       "Reise."
     ],
     "distractors": [
-      "Obwohl",
       "Trotzdem",
+      "Denn",
       "lohnen"
     ],
     "clozeTemplate": "{{Wenngleich}} teuer, lohnt sich die Reise.",
-    "notes": "‘wenngleich’ leitet eine Einräumung ein (gehoben).",
+    "notes": "‘wenngleich’ (gehoben) leitet eine Einräumung ein; ‘obwohl’ wäre gleichbedeutend, ‘trotzdem/denn’ passen grammatisch nicht.",
     "tags": [
       "konnektor",
       "einraeumung"
@@ -1079,8 +1079,8 @@
       "freundlich."
     ],
     "distractors": [
-      "Trotzdem",
-      "Dennoch",
+      "Obwohl",
+      "Weil",
       "blieben"
     ],
     "clozeTemplate": "{{Ungeachtet}} dessen blieb sie freundlich.",
@@ -1159,11 +1159,11 @@
     ],
     "distractors": [
       "Obwohl",
-      "Dennoch",
+      "Weil",
       "gaben"
     ],
     "clozeTemplate": "{{Trotzdem}} gab er nicht auf.",
-    "notes": "‘trotzdem’ am Satzanfang löst Inversion aus.",
+    "notes": "‘trotzdem’ (Adverb) im Vorfeld löst Inversion aus; ‘dennoch’ wäre sinngleich, ‘obwohl/weil’ verlangen Verb-Letzt.",
     "tags": [
       "konnektor",
       "einraeumung"
@@ -1238,12 +1238,12 @@
       "schließlich."
     ],
     "distractors": [
-      "Obwohl",
       "Trotzdem",
+      "Denn",
       "unterschreibt"
     ],
     "clozeTemplate": "{{Obschon}} er zögerte, unterschrieb er schließlich.",
-    "notes": "‘obschon’ (gehoben) ist subordinierend.",
+    "notes": "‘obschon’ (gehoben-schriftlich, = obwohl) ist subordinierend; ‘trotzdem/denn’ können keinen Verb-Letzt-Satz einleiten.",
     "tags": [
       "konnektor",
       "einraeumung"
@@ -1318,8 +1318,8 @@
       "gestiegen."
     ],
     "distractors": [
-      "Außerdem",
-      "Zudem",
+      "Weil",
+      "Obwohl",
       "steigen"
     ],
     "clozeTemplate": "Darüber {{hinaus}} sind die Kosten gestiegen.",
@@ -1334,7 +1334,7 @@
     "id": "45c6b797a64c",
     "phrase": "Ferner wurde der Termin verschoben.",
     "frame": "Ferner …",
-    "translation": "Furthermore, the appointment was postponed.",
+    "translation": "Further, the appointment was postponed.",
     "level": "C1",
     "skill": "shared",
     "task": {
@@ -1356,12 +1356,12 @@
       "verschoben."
     ],
     "distractors": [
-      "Außerdem",
-      "Zudem",
+      "Weil",
+      "Obwohl",
       "wird"
     ],
     "clozeTemplate": "{{Ferner}} wurde der Termin verschoben.",
-    "notes": "‘ferner’ (gehoben) löst Inversion aus.",
+    "notes": "‘ferner’ (gehoben) löst Inversion aus; ‘außerdem/zudem/überdies’ wären sinngleich, daher keine Ablenker.",
     "tags": [
       "konnektor",
       "aufzaehlung"
@@ -1394,12 +1394,12 @@
       "Geld."
     ],
     "distractors": [
-      "Außerdem",
-      "Zudem",
+      "Weil",
+      "Obwohl",
       "fehlen"
     ],
     "clozeTemplate": "{{Überdies}} fehlt das nötige Geld.",
-    "notes": "‘überdies’ löst Inversion aus.",
+    "notes": "‘überdies’ (= darüber hinaus) löst Inversion aus; sinngleiche ‘außerdem/zudem/ferner’ sind keine Ablenker.",
     "tags": [
       "konnektor",
       "aufzaehlung"
@@ -1432,8 +1432,8 @@
       "Erfahrung."
     ],
     "distractors": [
-      "Außerdem",
-      "Zudem",
+      "Weil",
+      "Obwohl",
       "zählen"
     ],
     "clozeTemplate": "Nicht {{zuletzt}} zählt die Erfahrung.",
@@ -1471,12 +1471,12 @@
       "zentral."
     ],
     "distractors": [
-      "Zudem",
-      "Ferner",
+      "Weil",
+      "Obwohl",
       "sind"
     ],
     "clozeTemplate": "{{Außerdem}} ist das Hotel sehr zentral.",
-    "notes": "‘außerdem’ löst Inversion aus.",
+    "notes": "‘außerdem’ löst Inversion aus; sinngleiche ‘zudem/ferner/überdies’ sind keine Ablenker.",
     "tags": [
       "konnektor",
       "aufzaehlung"
@@ -1510,12 +1510,12 @@
       "Kultur."
     ],
     "distractors": [
-      "Außerdem",
-      "Ferner",
+      "Weil",
+      "Obwohl",
       "bieten"
     ],
     "clozeTemplate": "{{Zudem}} bietet die Stadt viel Kultur.",
-    "notes": "‘zudem’ löst Inversion aus.",
+    "notes": "‘zudem’ (= hinzu kommt) löst Inversion aus; sinngleiche ‘außerdem/ferner/überdies’ sind keine Ablenker.",
     "tags": [
       "konnektor",
       "aufzaehlung"
@@ -1526,7 +1526,7 @@
     "id": "f048b4c7b0b7",
     "phrase": "Des Weiteren benötigen wir Ihre Unterschrift.",
     "frame": "Des Weiteren …",
-    "translation": "Furthermore, we require your signature.",
+    "translation": "Additionally, we require your signature.",
     "level": "C1",
     "skill": "shared",
     "task": {
@@ -1549,8 +1549,8 @@
       "Unterschrift."
     ],
     "distractors": [
-      "Außerdem",
-      "Zudem",
+      "Weil",
+      "Obwohl",
       "benötigt"
     ],
     "clozeTemplate": "Des {{Weiteren}} benötigen wir Ihre Unterschrift.",
@@ -1565,7 +1565,7 @@
     "id": "4e48b6e8d2a4",
     "phrase": "Erstens fehlt Zeit, zweitens fehlt Geld.",
     "frame": "Erstens …, zweitens …",
-    "translation": "Firstly time is lacking, secondly money is lacking.",
+    "translation": "Firstly, there's no time; secondly, there's no money.",
     "level": "B1",
     "skill": "shared",
     "task": {
@@ -1588,12 +1588,12 @@
       "Geld."
     ],
     "distractors": [
-      "Außerdem",
-      "Zudem",
+      "Weil",
+      "Obwohl",
       "fehlen"
     ],
     "clozeTemplate": "{{Erstens}} fehlt Zeit, zweitens fehlt Geld.",
-    "notes": "‘erstens’ löst Inversion aus; gliedert eine Aufzählung.",
+    "notes": "‘erstens’ (Ordnungszahl-Aufzählung) löst Inversion aus und korreliert mit ‘zweitens’.",
     "tags": [
       "konnektor",
       "aufzaehlung"
@@ -1628,12 +1628,12 @@
       "lang."
     ],
     "distractors": [
-      "jedoch",
-      "trotzdem",
+      "weil",
+      "obwohl",
       "lange"
     ],
     "clozeTemplate": "Das Buch ist gut, {{allerdings}} zu lang.",
-    "notes": "‘allerdings’ schränkt ein; am Satzanfang löst es Inversion aus.",
+    "notes": "‘allerdings’ schränkt einräumend ein; ‘jedoch’ wäre hier sinngleich, daher kein Ablenker.",
     "tags": [
       "konnektor",
       "einschraenkung"
@@ -1644,7 +1644,7 @@
     "id": "68544687db49",
     "phrase": "Er ist freilich nicht der Einzige.",
     "frame": "… freilich …",
-    "translation": "He is admittedly not the only one.",
+    "translation": "He is, to be sure, not the only one.",
     "level": "C1",
     "skill": "shared",
     "task": {
@@ -1667,12 +1667,12 @@
       "Einzige."
     ],
     "distractors": [
-      "allerdings",
-      "jedoch",
+      "weil",
+      "obwohl",
       "sind"
     ],
     "clozeTemplate": "Er ist {{freilich}} nicht der Einzige.",
-    "notes": "‘freilich’ (gehoben) räumt einschränkend ein.",
+    "notes": "‘freilich’ (gehoben) räumt einschränkend ein; ‘allerdings/jedoch’ wären sinngleich, daher keine Ablenker.",
     "tags": [
       "konnektor",
       "einschraenkung"
@@ -1708,12 +1708,12 @@
       "Tag."
     ],
     "distractors": [
-      "dennoch",
-      "trotzdem",
+      "weil",
+      "obwohl",
       "genoss"
     ],
     "clozeTemplate": "Es war kalt; {{gleichwohl}} genossen wir den Tag.",
-    "notes": "‘gleichwohl’ (gehoben) löst Inversion aus.",
+    "notes": "‘gleichwohl’ (gehoben, = dennoch) löst Inversion aus; ‘dennoch/trotzdem’ wären sinngleich, daher keine Ablenker.",
     "tags": [
       "konnektor",
       "einschraenkung"
@@ -1749,12 +1749,12 @@
       "ist."
     ],
     "distractors": [
-      "sofern",
       "obwohl",
+      "weil",
       "sei"
     ],
     "clozeTemplate": "Der Plan ist gut, {{insofern}} er finanzierbar ist.",
-    "notes": "‘insofern (als)’ ist subordinierend: Verb am Nebensatzende.",
+    "notes": "‘insofern (als)’ schränkt die Geltung ein, subordinierend; ‘sofern’ wäre eine Bedingung, ‘obwohl/weil’ ändern den Sinn.",
     "tags": [
       "konnektor",
       "einschraenkung"
@@ -1790,12 +1790,12 @@
       "Budget."
     ],
     "distractors": [
-      "allerdings",
-      "jedoch",
+      "weil",
+      "obwohl",
       "fehlt,"
     ],
     "clozeTemplate": "Die Idee ist reizvoll, {{nur}} fehlt das Budget.",
-    "notes": "‘nur’ am Satzanfang des zweiten Teils löst Inversion aus.",
+    "notes": "‘nur’ (einschränkend) im Vorfeld löst Inversion aus; ‘allerdings/jedoch’ wären sinngleich, daher keine Ablenker.",
     "tags": [
       "konnektor",
       "einschraenkung"
@@ -1871,12 +1871,12 @@
       "Ganzen."
     ],
     "distractors": [
-      "allerdings",
-      "freilich",
+      "weil",
+      "obwohl",
       "stimmen"
     ],
     "clozeTemplate": "Das stimmt, {{jedenfalls}} im Großen und Ganzen.",
-    "notes": "‘jedenfalls’ schränkt die Geltung ein.",
+    "notes": "‘jedenfalls’ (= zumindest) schränkt die Geltung ein.",
     "tags": [
       "konnektor",
       "einschraenkung"
@@ -1911,12 +1911,12 @@
       "spazieren."
     ],
     "distractors": [
-      "Wenn",
-      "Falls",
+      "Denn",
+      "Trotzdem",
       "gehst"
     ],
     "clozeTemplate": "{{Sofern}} es nicht regnet, gehen wir spazieren.",
-    "notes": "‘sofern’ ist subordinierend: Verb am Nebensatzende, dann Inversion.",
+    "notes": "‘sofern’ (= unter der Bedingung, dass) subordinierend; ‘wenn/falls’ wären sinngleich, ‘denn/trotzdem’ können keinen Verb-Letzt-Satz einleiten.",
     "tags": [
       "konnektor",
       "bedingung"
@@ -1951,12 +1951,12 @@
       "Bus."
     ],
     "distractors": [
-      "sonst",
-      "ansonsten",
+      "weil",
+      "obwohl",
       "verpasst"
     ],
     "clozeTemplate": "Beeil dich, {{andernfalls}} verpassen wir den Bus.",
-    "notes": "‘andernfalls’ löst Inversion aus.",
+    "notes": "‘andernfalls’ (= sonst) löst Inversion aus; sinngleiche ‘sonst/ansonsten’ sind keine Ablenker.",
     "tags": [
       "konnektor",
       "bedingung"
@@ -2007,7 +2007,7 @@
     "id": "0a7572c0133e",
     "phrase": "Wir kommen, falls das Wetter passt.",
     "frame": "…, falls …",
-    "translation": "We'll come if the weather is right.",
+    "translation": "We'll come in case the weather is right.",
     "level": "B1",
     "skill": "shared",
     "task": {
@@ -2030,12 +2030,12 @@
       "passt."
     ],
     "distractors": [
-      "wenn",
-      "sofern",
+      "denn",
+      "obwohl",
       "passen"
     ],
     "clozeTemplate": "Wir kommen, {{falls}} das Wetter passt.",
-    "notes": "‘falls’ ist subordinierend: Verb am Nebensatzende.",
+    "notes": "‘falls’ (= für den Fall, dass) subordinierend, Verb am Nebensatzende; ‘wenn/sofern’ wären sinngleich, daher keine Ablenker.",
     "tags": [
       "konnektor",
       "bedingung"
@@ -2110,12 +2110,12 @@
       "groß."
     ],
     "distractors": [
-      "Vorausgesetzt",
+      "Weil",
       "Falls",
       "feiert"
     ],
     "clozeTemplate": "{{Angenommen,}} es klappt, feiern wir groß.",
-    "notes": "‘angenommen(, dass)’ leitet eine hypothetische Bedingung ein.",
+    "notes": "‘angenommen(, dass)’ leitet eine hypothetische Annahme ein, danach Hauptsatzstellung; ‘falls/weil’ verlangten Verb-Letzt.",
     "tags": [
       "konnektor",
       "bedingung"
@@ -2166,7 +2166,7 @@
     "id": "d56b3a3519e9",
     "phrase": "Wenn du übst, wirst du besser.",
     "frame": "Wenn …, …",
-    "translation": "If you practice, you'll get better.",
+    "translation": "Whenever you practise, you get better.",
     "level": "B1",
     "skill": "shared",
     "task": {
@@ -2189,12 +2189,12 @@
       "besser."
     ],
     "distractors": [
-      "Falls",
-      "Sofern",
+      "Denn",
+      "Obwohl",
       "wird"
     ],
     "clozeTemplate": "{{Wenn}} du übst, wirst du besser.",
-    "notes": "‘wenn’ ist subordinierend: Verb am Nebensatzende, dann Inversion.",
+    "notes": "‘wenn’ (konditional/iterativ) subordinierend, Verb am Nebensatzende, dann Inversion; ‘falls/sofern’ wären sinngleich.",
     "tags": [
       "konnektor",
       "bedingung"
@@ -2228,12 +2228,12 @@
       "vor."
     ],
     "distractors": [
-      "Dazu",
-      "Hierzu",
+      "Weil",
+      "Obwohl",
       "liegt"
     ],
     "clozeTemplate": "{{Diesbezüglich}} liegen noch keine Daten vor.",
-    "notes": "‘diesbezüglich’ löst Inversion aus.",
+    "notes": "‘diesbezüglich’ (= in dieser Hinsicht) löst Inversion aus; ‘dazu/hierzu’ wären sinngleich, daher keine Ablenker.",
     "tags": [
       "konnektor",
       "bezug"
@@ -2244,7 +2244,7 @@
     "id": "b7dcf867bdb3",
     "phrase": "Hinsichtlich der Kosten gibt es Bedenken.",
     "frame": "Hinsichtlich … …",
-    "translation": "Regarding the costs, there are concerns.",
+    "translation": "With regard to the costs, there are concerns.",
     "level": "C1",
     "skill": "shared",
     "task": {
@@ -2267,12 +2267,12 @@
       "Bedenken."
     ],
     "distractors": [
-      "Bezüglich",
-      "Betreffend",
+      "Trotz",
+      "Wegen",
       "geben"
     ],
     "clozeTemplate": "{{Hinsichtlich}} der Kosten gibt es Bedenken.",
-    "notes": "‘hinsichtlich’ + Genitiv; danach Inversion.",
+    "notes": "‘hinsichtlich’ + Genitiv (= in Bezug auf); ‘bezüglich’ wäre sinngleich; ‘trotz/wegen’ ändern den Sinn.",
     "tags": [
       "konnektor",
       "bezug"
@@ -2283,7 +2283,7 @@
     "id": "7e099049bf7e",
     "phrase": "In Bezug auf den Vertrag haben wir Fragen.",
     "frame": "In Bezug auf … …",
-    "translation": "With regard to the contract, we have questions.",
+    "translation": "In relation to the contract, we have questions.",
     "level": "B2",
     "skill": "shared",
     "task": {
@@ -2348,12 +2348,12 @@
       "bald."
     ],
     "distractors": [
-      "Hinsichtlich",
-      "Betreffend",
+      "Trotz",
+      "Wegen",
       "meldet"
     ],
     "clozeTemplate": "{{Bezüglich}} Ihrer Anfrage melden wir uns bald.",
-    "notes": "‘bezüglich’ + Genitiv; danach Inversion.",
+    "notes": "‘bezüglich’ + Genitiv (= in Bezug auf); ‘hinsichtlich’ wäre sinngleich; ‘trotz/wegen’ ändern den Sinn.",
     "tags": [
       "konnektor",
       "bezug"
@@ -2524,7 +2524,7 @@
     "id": "78cfbf9f2e01",
     "phrase": "Da niemand kam, schlossen wir früher.",
     "frame": "Da …, …",
-    "translation": "Since no one came, we closed earlier.",
+    "translation": "As no one came, we closed earlier.",
     "level": "B2",
     "skill": "shared",
     "task": {
@@ -2547,12 +2547,12 @@
       "früher."
     ],
     "distractors": [
-      "Weil",
       "Denn",
+      "Sobald",
       "schloss"
     ],
     "clozeTemplate": "{{Da}} niemand kam, schlossen wir früher.",
-    "notes": "‘da’ ist subordinierend: Verb am Nebensatzende, danach Inversion.",
+    "notes": "‘da’ subordinierend (bekannter Grund), Verb am Nebensatzende, danach Inversion; ‘weil’ wäre sinngleich, ‘denn’ kann nicht vorangestellt werden.",
     "tags": [
       "konnektor",
       "grund"
@@ -2629,12 +2629,12 @@
       "teuer."
     ],
     "distractors": [
-      "dennoch",
       "obwohl",
+      "weil",
       "sind"
     ],
     "clozeTemplate": "Die Stadt ist schön, {{gleichwohl}} ist sie teuer.",
-    "notes": "‘gleichwohl’ (gehoben) löst Inversion aus.",
+    "notes": "‘gleichwohl’ (gehoben, = dennoch) löst Inversion aus; subordinierende ‘obwohl/weil’ passen hier nicht.",
     "tags": [
       "konnektor",
       "einschraenkung"
@@ -2669,12 +2669,12 @@
       "verstand."
     ],
     "distractors": [
-      "damit",
       "folglich",
+      "weil",
       "versteht"
     ],
     "clozeTemplate": "Er sprach leise, {{sodass}} niemand ihn verstand.",
-    "notes": "‘sodass’ ist subordinierend: Verb am Nebensatzende.",
+    "notes": "‘sodass’ (tatsächliche Folge) subordinierend, Verb am Nebensatzende; ‘folglich’ verlangt Inversion, ‘weil’ ändert den Sinn.",
     "tags": [
       "konnektor",
       "folge"
@@ -2709,12 +2709,12 @@
       "stimmt."
     ],
     "distractors": [
-      "sofern",
-      "falls",
+      "denn,",
+      "obwohl,",
       "stimmen"
     ],
     "clozeTemplate": "Wir kaufen es, {{vorausgesetzt,}} der Preis stimmt.",
-    "notes": "‘vorausgesetzt(, dass)’ leitet eine Bedingung ein.",
+    "notes": "‘vorausgesetzt(, dass)’ leitet eine Bedingung ein, danach Hauptsatzstellung; ‘sofern/falls’ wären sinngleich, daher keine Ablenker.",
     "tags": [
       "konnektor",
       "bedingung"
@@ -2748,12 +2748,12 @@
       "Neuigkeiten."
     ],
     "distractors": [
-      "Hinsichtlich",
-      "Betreffend",
+      "Trotz",
+      "Wegen",
       "geben"
     ],
     "clozeTemplate": "{{Bezüglich}} des Projekts gibt es Neuigkeiten.",
-    "notes": "‘bezüglich’ + Genitiv; danach Inversion.",
+    "notes": "‘bezüglich’ + Genitiv (= in Bezug auf); ‘hinsichtlich’ wäre sinngleich; ‘trotz/wegen’ ändern den Sinn.",
     "tags": [
       "konnektor",
       "bezug"
@@ -2790,12 +2790,12 @@
       "aus."
     ],
     "distractors": [
-      "deshalb",
-      "folglich",
+      "weil",
+      "obwohl",
       "fielen"
     ],
     "clozeTemplate": "Das Wetter war schlecht, {{demzufolge}} fiel das Spiel aus.",
-    "notes": "‘demzufolge’ löst Inversion aus.",
+    "notes": "‘demzufolge’ (= entsprechend daraus folgend) löst Inversion aus; ‘deshalb/folglich’ wären sinngleich, daher keine Ablenker.",
     "tags": [
       "konnektor",
       "folge"
@@ -2830,12 +2830,12 @@
       "nervös."
     ],
     "distractors": [
-      "dennoch",
       "obwohl",
+      "weil",
       "bleiben"
     ],
     "clozeTemplate": "Er hat geübt, {{gleichwohl}} bleibt er nervös.",
-    "notes": "‘gleichwohl’ (gehoben) löst Inversion aus.",
+    "notes": "‘gleichwohl’ (gehoben, = dennoch) löst Inversion aus; subordinierende ‘obwohl/weil’ passen hier nicht.",
     "tags": [
       "konnektor",
       "einschraenkung"
@@ -2846,7 +2846,7 @@
     "id": "9a370b5cb309",
     "phrase": "Wenngleich er zögerte, stimmte er schließlich zu.",
     "frame": "Wenngleich …, …",
-    "translation": "Although he hesitated, he finally agreed.",
+    "translation": "Even though he hesitated, he finally agreed.",
     "level": "C1",
     "skill": "shared",
     "task": {
@@ -2870,12 +2870,12 @@
       "zu."
     ],
     "distractors": [
-      "Obwohl",
       "Trotzdem",
+      "Denn",
       "stimmt"
     ],
     "clozeTemplate": "{{Wenngleich}} er zögerte, stimmte er schließlich zu.",
-    "notes": "‘wenngleich’ ist subordinierend: Verb am Nebensatzende, dann Inversion.",
+    "notes": "‘wenngleich’ (gehoben) subordinierend, Verb am Nebensatzende; ‘obwohl’ wäre sinngleich, ‘trotzdem/denn’ passen grammatisch nicht.",
     "tags": [
       "konnektor",
       "einraeumung"
@@ -2908,12 +2908,12 @@
       "gekürzt."
     ],
     "distractors": [
-      "Außerdem",
-      "Ferner",
+      "Weil",
+      "Obwohl",
       "wird"
     ],
     "clozeTemplate": "{{Überdies}} wurde das Budget gekürzt.",
-    "notes": "‘überdies’ löst Inversion aus.",
+    "notes": "‘überdies’ (= darüber hinaus) löst Inversion aus; sinngleiche ‘außerdem/ferner/zudem’ sind keine Ablenker.",
     "tags": [
       "konnektor",
       "aufzaehlung"
@@ -2924,7 +2924,7 @@
     "id": "a9f3625edd98",
     "phrase": "Ferner empfehlen wir eine zweite Meinung.",
     "frame": "Ferner …",
-    "translation": "Furthermore, we recommend a second opinion.",
+    "translation": "Further, we recommend a second opinion.",
     "level": "C1",
     "skill": "shared",
     "task": {
@@ -2947,12 +2947,12 @@
       "Meinung."
     ],
     "distractors": [
-      "Außerdem",
-      "Zudem",
+      "Weil",
+      "Obwohl",
       "empfiehlt"
     ],
     "clozeTemplate": "{{Ferner}} empfehlen wir eine zweite Meinung.",
-    "notes": "‘ferner’ (gehoben) löst Inversion aus.",
+    "notes": "‘ferner’ (gehoben) löst Inversion aus; sinngleiche ‘außerdem/zudem/überdies’ sind keine Ablenker.",
     "tags": [
       "konnektor",
       "aufzaehlung"
@@ -2962,7 +2962,7 @@
   {
     "id": "448cafae0ddf",
     "phrase": "Vielen Dank für deine Nachricht!",
-    "frame": "vielen dank für deine nachricht",
+    "frame": "Vielen Dank für deine/Ihre …",
     "translation": "Many thanks for your message!",
     "level": "B1",
     "skill": "schreiben",
@@ -3023,11 +3023,11 @@
     ],
     "distractors": [
       "du",
-      "Ihnen",
-      "dich"
+      "dich",
+      "dein"
     ],
     "clozeTemplate": "{{Wie}} {{geht}} es dir?",
-    "notes": "Häufige Einstiegsfrage nach der Begrüßung.",
+    "notes": "es geht jemandem + Dativ: deshalb dir, nicht du/dich.",
     "tags": [
       "einleitung",
       "informell"
@@ -3061,8 +3061,8 @@
     ],
     "distractors": [
       "dich",
-      "Ihnen",
-      "hörst"
+      "hörst",
+      "hörte"
     ],
     "clozeTemplate": "{{Schön,}} von dir zu {{hören!}}",
     "notes": "Freundliche Reaktion auf eine erhaltene Mail.",
@@ -3100,7 +3100,7 @@
     "distractors": [
       "Langem",
       "hören",
-      "Ihnen"
+      "dich"
     ],
     "clozeTemplate": "{{Lange}} {{nichts}} von dir gehört!",
     "notes": "Lockerer Einstieg nach längerer Pause.",
@@ -3260,7 +3260,7 @@
     ],
     "distractors": [
       "dich",
-      "Ihnen",
+      "wollten",
       "schreibe"
     ],
     "clozeTemplate": "Ich {{wollte}} dir kurz {{schreiben.}}",
@@ -3274,7 +3274,7 @@
   {
     "id": "79336fb49bd7",
     "phrase": "Ich melde mich, weil ich eine Frage habe.",
-    "frame": "ich melde mich weil ich eine frage habe",
+    "frame": "Ich melde mich, weil …",
     "translation": "I'm getting in touch because I have a question.",
     "level": "B2",
     "skill": "schreiben",
@@ -3342,7 +3342,7 @@
       "Ordnung."
     ],
     "distractors": [
-      "Ihnen",
+      "dich",
       "im",
       "Ordnungen"
     ],
@@ -3398,7 +3398,7 @@
   {
     "id": "9ab4ba6716e7",
     "phrase": "Danke für deine Einladung!",
-    "frame": "danke für deine einladung",
+    "frame": "Danke für deine …",
     "translation": "Thanks for your invitation!",
     "level": "B1",
     "skill": "schreiben",
@@ -3435,7 +3435,7 @@
   {
     "id": "2b939452b759",
     "phrase": "Ich danke dir für deine Hilfe.",
-    "frame": "ich danke dir für deine hilfe",
+    "frame": "Ich danke dir für deine …",
     "translation": "Thank you for your help.",
     "level": "B1",
     "skill": "schreiben",
@@ -3500,7 +3500,7 @@
     ],
     "distractors": [
       "dich",
-      "Ihnen",
+      "dein",
       "liebe"
     ],
     "clozeTemplate": "Das ist {{wirklich}} {{lieb}} von dir!",
@@ -3781,7 +3781,7 @@
     ],
     "distractors": [
       "dich",
-      "Ihnen",
+      "kannst",
       "danke"
     ],
     "clozeTemplate": "Ich {{kann}} dir gar nicht genug {{danken.}}",
@@ -3834,7 +3834,7 @@
   {
     "id": "6698abfd6cbf",
     "phrase": "Hast du am Samstag Zeit?",
-    "frame": "hast du am samstag zeit",
+    "frame": "Hast du am … Zeit?",
     "translation": "Do you have time on Saturday?",
     "level": "B1",
     "skill": "schreiben",
@@ -3934,7 +3934,7 @@
       "lernen!"
     ],
     "distractors": [
-      "Lasst",
+      "Lässt",
       "uns,",
       "lernt"
     ],
@@ -3973,7 +3973,7 @@
       "geben?"
     ],
     "distractors": [
-      "Kannst",
+      "Könnten",
       "mich",
       "gibst"
     ],
@@ -3989,7 +3989,7 @@
   {
     "id": "2e835a38e56f",
     "phrase": "Wie wäre es mit Sonntagnachmittag?",
-    "frame": "wie wäre es mit sonntagnachmittag",
+    "frame": "Wie wäre es mit … (+ Dat.)?",
     "translation": "How about Sunday afternoon?",
     "level": "B2",
     "skill": "schreiben",
@@ -4052,7 +4052,7 @@
       "passt."
     ],
     "distractors": [
-      "Sage",
+      "Sagst",
       "dich",
       "passen"
     ],
@@ -4531,7 +4531,7 @@
   {
     "id": "bb823766bc6a",
     "phrase": "ich schreibe Ihnen wegen Ihrer Anzeige.",
-    "frame": "ich schreibe ihnen wegen ihrer anzeige",
+    "frame": "Ich schreibe Ihnen wegen … (+ Gen.)",
     "translation": "I am writing to you regarding your advertisement.",
     "level": "B1",
     "skill": "schreiben",
@@ -4570,7 +4570,7 @@
   {
     "id": "1285de395a8f",
     "phrase": "Ich wende mich mit einer Frage an Sie.",
-    "frame": "ich wende mich mit einer frage an sie",
+    "frame": "Ich wende mich mit … an Sie.",
     "translation": "I am contacting you with a question.",
     "level": "B2",
     "skill": "schreiben",
@@ -4652,7 +4652,7 @@
   {
     "id": "9be91f1e417f",
     "phrase": "Ich möchte mich über ein Problem beschweren.",
-    "frame": "ich möchte mich über ein problem beschweren",
+    "frame": "Ich möchte mich über … beschweren.",
     "translation": "I would like to complain about a problem.",
     "level": "B2",
     "skill": "schreiben",
@@ -4901,7 +4901,7 @@
   {
     "id": "9780a55ae9b0",
     "phrase": "Ich muss den Termin leider absagen.",
-    "frame": "ich muss den termin leider absagen",
+    "frame": "Ich muss … leider absagen.",
     "translation": "Unfortunately, I have to cancel the appointment.",
     "level": "B1",
     "skill": "schreiben",
@@ -4940,7 +4940,7 @@
   {
     "id": "04b3ebdd47cc",
     "phrase": "Ich bitte Sie, die Verspätung zu entschuldigen.",
-    "frame": "ich bitte sie die verspätung zu entschuldigen",
+    "frame": "Ich bitte Sie, … zu entschuldigen.",
     "translation": "I ask you to excuse the delay.",
     "level": "B2",
     "skill": "schreiben",
@@ -5243,7 +5243,7 @@
       "weiterhelfen?"
     ],
     "distractors": [
-      "Können",
+      "Könnte",
       "sie",
       "weiterhilft?"
     ],
@@ -5259,7 +5259,7 @@
   {
     "id": "89dd133cbc36",
     "phrase": "Ich bitte Sie um eine kurze Rückmeldung.",
-    "frame": "ich bitte sie um eine kurze rückmeldung",
+    "frame": "Ich bitte Sie um … (+ Akk.)",
     "translation": "I ask you for a brief reply.",
     "level": "B2",
     "skill": "schreiben",
@@ -5300,7 +5300,7 @@
     "id": "835ad1cf7c7f",
     "phrase": "Würden Sie mir bitte einen Termin nennen?",
     "frame": "würden sie mir bitte einen termin nennen",
-    "translation": "Would you please name an appointment for me?",
+    "translation": "Would you please suggest an appointment time?",
     "level": "B2",
     "skill": "schreiben",
     "task": {
@@ -5364,7 +5364,7 @@
       "zusenden?"
     ],
     "distractors": [
-      "Können",
+      "Könnte",
       "sie",
       "zusendet?"
     ],
@@ -5448,7 +5448,7 @@
     ],
     "distractors": [
       "werde",
-      "auf",
+      "mir",
       "freut"
     ],
     "clozeTemplate": "Ich {{würde}} mich {{über}} eine Rückmeldung sehr freuen.",
@@ -5548,7 +5548,7 @@
   {
     "id": "6996ed7fb695",
     "phrase": "Vielen Dank für Ihre Antwort.",
-    "frame": "vielen dank für ihre antwort",
+    "frame": "Vielen Dank für Ihre …",
     "translation": "Many thanks for your reply.",
     "level": "B1",
     "skill": "schreiben",
@@ -5586,7 +5586,7 @@
   {
     "id": "40b2be25a5c7",
     "phrase": "Ich danke Ihnen für Ihre Mühe.",
-    "frame": "ich danke ihnen für ihre mühe",
+    "frame": "Ich danke Ihnen für Ihre …",
     "translation": "Thank you for your effort.",
     "level": "B1",
     "skill": "schreiben",
@@ -6053,8 +6053,8 @@
       "freuen."
     ],
     "distractors": [
-      "Auf",
       "baldigen",
+      "mir",
       "freut"
     ],
     "clozeTemplate": "Über eine {{baldige}} Rückmeldung {{würde}} ich mich freuen.",
@@ -6068,7 +6068,7 @@
   {
     "id": "8fbb558aaece",
     "phrase": "Ich danke Ihnen im Voraus für Ihre Bemühungen.",
-    "frame": "ich danke ihnen im voraus für ihre bemühungen",
+    "frame": "Ich danke Ihnen im Voraus für …",
     "translation": "I thank you in advance for your efforts.",
     "level": "C1",
     "skill": "schreiben",
@@ -6110,7 +6110,7 @@
     "id": "c68fc6acf34c",
     "phrase": "Für Ihr Entgegenkommen wäre ich Ihnen sehr verbunden.",
     "frame": "für ihr entgegenkommen wäre ich ihnen sehr verbunden",
-    "translation": "I would be much obliged for your accommodation.",
+    "translation": "I would be much obliged for your cooperation.",
     "level": "C2",
     "skill": "schreiben",
     "task": {
@@ -6343,7 +6343,7 @@
   {
     "id": "98b16708491a",
     "phrase": "Ich schreibe Ihnen bezüglich meiner Buchung.",
-    "frame": "ich schreibe ihnen bezüglich meiner buchung",
+    "frame": "Ich schreibe Ihnen bezüglich … (+ Gen.)",
     "translation": "I am writing to you regarding my booking.",
     "level": "B2",
     "skill": "schreiben",
@@ -6382,7 +6382,7 @@
   {
     "id": "813a74e14384",
     "phrase": "Ich muss meine Teilnahme leider absagen.",
-    "frame": "ich muss meine teilnahme leider absagen",
+    "frame": "Ich muss … leider absagen.",
     "translation": "Unfortunately, I have to cancel my participation.",
     "level": "B2",
     "skill": "schreiben",
@@ -6653,7 +6653,7 @@
     "id": "5075a288dd91",
     "phrase": "Ich hätte da einen Vorschlag für dich.",
     "frame": "ich hätte da einen vorschlag für dich",
-    "translation": "I'd have a suggestion for you.",
+    "translation": "I've got a little suggestion for you.",
     "level": "C1",
     "skill": "schreiben",
     "task": {
@@ -6976,7 +6976,7 @@
     "id": "f23cd5c771e7",
     "phrase": "Es freut mich sehr, von dir zu lesen.",
     "frame": "es freut mich sehr von dir zu lesen",
-    "translation": "I'm very glad to read from you.",
+    "translation": "I'm so glad to hear from you in writing.",
     "level": "B2",
     "skill": "schreiben",
     "task": {
@@ -7278,7 +7278,7 @@
       "sinnvoll."
     ],
     "distractors": [
-      "nach",
+      "meine",
       "Meinungen",
       "sinnvolle"
     ],
@@ -7358,7 +7358,7 @@
       "ist."
     ],
     "distractors": [
-      "das",
+      "dem",
       "glauben",
       "den"
     ],
@@ -7373,7 +7373,7 @@
     "id": "a858c475e3bd",
     "phrase": "Aus meiner Sicht überwiegen hier die Nachteile.",
     "frame": "aus meiner Sicht …",
-    "translation": "From my point of view, the disadvantages outweigh here.",
+    "translation": "From my point of view, the disadvantages outweigh in this case.",
     "level": "B2",
     "skill": "schreiben",
     "task": {
@@ -7760,7 +7760,7 @@
       "diskutiert."
     ],
     "distractors": [
-      "man",
+      "mir",
       "fragen",
       "dringende"
     ],
@@ -7842,7 +7842,7 @@
       "Ausland."
     ],
     "distractors": [
-      "nach",
+      "meine",
       "Meinungen",
       "bestens"
     ],
@@ -7998,8 +7998,8 @@
     ],
     "distractors": [
       "habt",
-      "dir",
-      "Recht."
+      "dich",
+      "rechts."
     ],
     "clozeTemplate": "Da hast du völlig {{recht.}}",
     "notes": "‘recht haben’ kleingeschrieben.",
@@ -8109,7 +8109,7 @@
     "distractors": [
       "gibt",
       "dich",
-      "Recht."
+      "rechts."
     ],
     "clozeTemplate": "Da gebe ich dir {{recht.}}",
     "notes": "‘jemandem recht geben’.",
@@ -8830,7 +8830,7 @@
     ],
     "distractors": [
       "bezweifelt",
-      "dass",
+      "dessen",
       "den"
     ],
     "clozeTemplate": "Ich bezweifle, {{dass}} das die Lösung ist.",
@@ -10314,7 +10314,7 @@
     ],
     "distractors": [
       "Natürliche",
-      "gibt",
+      "geben",
       "Nachteil."
     ],
     "clozeTemplate": "{{Natürlich}} gibt es auch Nachteile.",
@@ -10985,7 +10985,7 @@
     "distractors": [
       "den",
       "gehen",
-      "den"
+      "für"
     ],
     "clozeTemplate": "In dem Artikel geht es {{um}} das Tempolimit.",
     "notes": "‘es geht um’ + Akkusativ.",
@@ -11441,7 +11441,7 @@
     "id": "14f5d7486b21",
     "phrase": "Letztendlich überwiegen für mich die Vorteile.",
     "frame": "letztendlich überwiegen … die Vorteile",
-    "translation": "Ultimately, the advantages outweigh for me.",
+    "translation": "Ultimately, for me the advantages prevail.",
     "level": "B2",
     "skill": "schreiben",
     "task": {
@@ -11969,7 +11969,7 @@
     "id": "4de5143c1a4f",
     "phrase": "Ich hätte da einen Vorschlag zur Verteilung der Aufgaben.",
     "frame": "ich hätte da einen Vorschlag zu …",
-    "translation": "I have a suggestion regarding the distribution of tasks.",
+    "translation": "I'd have a suggestion regarding how to divide up the tasks.",
     "level": "B2",
     "skill": "sprechen",
     "task": {
@@ -11995,7 +11995,7 @@
       "Aufgaben."
     ],
     "distractors": [
-      "habe",
+      "hatte",
       "mit",
       "Vorschläge"
     ],
@@ -12034,7 +12034,7 @@
       "einbringen?"
     ],
     "distractors": [
-      "darf",
+      "dürfen",
       "einbringt",
       "bringen"
     ],
@@ -12354,7 +12354,7 @@
     "distractors": [
       "leuchten",
       "mich",
-      "ein,"
+      "aus,"
     ],
     "clozeTemplate": "Das {{leuchtet}} mir ein, machen wir es so.",
     "notes": "jemandem leuchtet etwas ein: idiomatisch für überzeugen.",
@@ -12714,7 +12714,7 @@
       "lohnt."
     ],
     "distractors": [
-      "muss",
+      "müsstest",
       "dass",
       "abgewogen"
     ],
@@ -12838,7 +12838,7 @@
     "distractors": [
       "macht",
       "wird",
-      "das"
+      "ihn"
     ],
     "clozeTemplate": "Gut, dann {{machen}} wir es so.",
     "notes": "Einfacher Abschluss einer Einigung.",
@@ -13031,7 +13031,7 @@
       "gefunden."
     ],
     "distractors": [
-      "haben",
+      "hatten",
       "einem",
       "finden"
     ],
@@ -13964,7 +13964,7 @@
     ],
     "distractors": [
       "Warten",
-      "betrachtet,",
+      "betrachten,",
       "Vorteil"
     ],
     "clozeTemplate": "Aus meiner ganz persönlichen {{Warte}} betrachtet, überwiegen die Vorteile.",
@@ -14019,7 +14019,7 @@
     "id": "a45bfc2f5dd7",
     "phrase": "Ich finde, dass die Vorteile überwiegen.",
     "frame": "ich finde, dass …",
-    "translation": "I think that the advantages outweigh the disadvantages.",
+    "translation": "I think that the advantages prevail.",
     "level": "B1",
     "skill": "sprechen",
     "task": {
@@ -14138,7 +14138,7 @@
     "id": "12c030ebfb5c",
     "phrase": "Alles in allem überwiegen für mich die Vorteile.",
     "frame": "alles in allem überwiegen die Vorteile",
-    "translation": "All in all, the advantages outweigh the rest for me.",
+    "translation": "All in all, for me the advantages prevail.",
     "level": "C1",
     "skill": "sprechen",
     "task": {
@@ -14802,7 +14802,7 @@
       "Präsentation."
     ],
     "distractors": [
-      "ab,",
+      "auf,",
       "einen",
       "Präsentationen"
     ],
@@ -14917,8 +14917,8 @@
       "nennen?"
     ],
     "distractors": [
-      "kannst",
-      "das",
+      "könnte",
+      "dem",
       "Beispiele"
     ],
     "clozeTemplate": "{{Könntest}} du dazu ein Beispiel nennen?",
@@ -15038,7 +15038,7 @@
       "nachhaken?"
     ],
     "distractors": [
-      "darf",
+      "dürfen",
       "der",
       "nachgehakt"
     ],
@@ -15167,7 +15167,7 @@
     "id": "cd34e6dd8963",
     "phrase": "Das kann ich gut nachvollziehen.",
     "frame": "das kann ich nachvollziehen",
-    "translation": "I can well understand that.",
+    "translation": "I can really understand that.",
     "level": "B2",
     "skill": "sprechen",
     "task": {
@@ -15286,7 +15286,7 @@
     "id": "1aec92f7a365",
     "phrase": "Lassen Sie mich das gern etwas genauer ausführen.",
     "frame": "lassen Sie mich das genauer ausführen",
-    "translation": "Let me elaborate on that a bit, gladly.",
+    "translation": "Let me gladly elaborate on that a bit.",
     "level": "C1",
     "skill": "sprechen",
     "task": {
@@ -15670,12 +15670,12 @@
       "treffen?"
     ],
     "distractors": [
-      "wollen",
+      "sollt",
       "uns,",
       "getroffen"
     ],
     "clozeTemplate": "Sollen wir uns morgen {{treffen}}?",
-    "notes": "Einfacher Vorschlag mit sollen.",
+    "notes": "Vorschlag als Frage mit sollen + Infinitiv am Satzende.",
     "tags": [
       "vorschlag"
     ],
@@ -16332,7 +16332,7 @@
     ],
     "distractors": [
       "stimmt",
-      "habe",
+      "hatte",
       "Anmerkungen"
     ],
     "clozeTemplate": "Im Prinzip {{stimme}} ich zu, hätte aber eine Anmerkung.",
@@ -16371,7 +16371,7 @@
       "hinaus."
     ],
     "distractors": [
-      "läuft",
+      "liefst",
       "einem",
       "hinausgelaufen"
     ],

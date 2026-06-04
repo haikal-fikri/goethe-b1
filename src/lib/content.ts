@@ -44,7 +44,7 @@ const FUNCTION_ORDER: Record<string, string[]> = {
   ],
 };
 
-function functionRank(taskCode: string, functionCode: string): number {
+export function functionRank(taskCode: string, functionCode: string): number {
   const i = FUNCTION_ORDER[taskCode]?.indexOf(functionCode) ?? -1;
   return i === -1 ? Number.POSITIVE_INFINITY : i;
 }

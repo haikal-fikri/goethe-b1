@@ -3,7 +3,7 @@ import { ExamRunner } from "@/components/schreiben/ExamRunner";
 import { getSimulations } from "@/lib/exam";
 
 export const metadata = {
-  title: "Schreiben · KI-Prüfer · Redemittel-Trainer",
+  title: "Schreiben · KI-Prüfer · B1-Trainer",
 };
 
 // Aufgaben werden zur Laufzeit aus der Datenbank gelesen.
