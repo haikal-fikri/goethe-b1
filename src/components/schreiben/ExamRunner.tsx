@@ -192,7 +192,7 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
               onChange={(e) => setText(e.target.value)}
               disabled={status === "loading"}
               placeholder="Schreibe hier deine Antwort …"
-              className="min-h-[240px] flex-1 resize-y rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] p-4 text-[15px] leading-relaxed text-[var(--fg)] outline-none focus:border-[var(--border)] disabled:opacity-60"
+              className="min-h-[240px] flex-1 resize-y rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] p-4 text-[16px] leading-relaxed text-[var(--fg)] outline-none focus:border-[var(--border)] disabled:opacity-60 sm:text-[15px]"
             />
             <div className="mt-2 flex items-center justify-between text-xs">
               <span
