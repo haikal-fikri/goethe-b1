@@ -4,6 +4,16 @@ import { useEffect, useState } from "react";
 
 type Theme = "light" | "dark";
 
+// Ersetzt den theme-color-<meta>-Knoten (statt nur das content-Attribut zu
+// ändern), damit iOS Safari die Notch/Statusleiste sofort neu einfärbt.
+function setThemeColor(color: string) {
+  document.querySelector("meta[name=theme-color]")?.remove();
+  const meta = document.createElement("meta");
+  meta.name = "theme-color";
+  meta.content = color;
+  document.head.appendChild(meta);
+}
+
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme | null>(null);
 
@@ -15,10 +25,10 @@ export function ThemeToggle() {
   function toggle() {
     const next: Theme = theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
-    // theme-color mitführen, damit die iPhone-Notch/Statusleiste dem Header folgt
-    document
-      .querySelector("meta[name=theme-color]")
-      ?.setAttribute("content", next === "light" ? "#faf7f1" : "#17191b");
+    // theme-color mitführen, damit die iPhone-Notch/Statusleiste dem Header folgt.
+    // iOS Safari liest theme-color nur beim Einfügen des <meta> – ein bloßes
+    // Ändern des content-Attributs wird ignoriert. Darum den Knoten ersetzen.
+    setThemeColor(next === "light" ? "#faf7f1" : "#17191b");
     try {
       localStorage.setItem("theme", next);
     } catch {
