@@ -34,7 +34,6 @@ export function HomeBrowser({ groups }: { groups: SkillGroup[] }) {
       >
         {groups.map((g) => {
           const isActive = g.skill === activeSkill;
-          const a = SKILL_ACCENT[g.skill];
           return (
             <button
               key={g.skill}
@@ -43,13 +42,9 @@ export function HomeBrowser({ groups }: { groups: SkillGroup[] }) {
               onClick={() => setActiveSkill(g.skill)}
               className="shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors"
               style={{
-                borderColor: isActive
-                  ? `color-mix(in srgb, ${a} 55%, transparent)`
-                  : "var(--border-soft)",
-                color: isActive ? a : "var(--fg-muted)",
-                backgroundColor: isActive
-                  ? `color-mix(in srgb, ${a} 12%, transparent)`
-                  : "transparent",
+                borderColor: isActive ? "var(--fg)" : "var(--border-soft)",
+                color: isActive ? "var(--bg)" : "var(--fg-muted)",
+                backgroundColor: isActive ? "var(--fg)" : "transparent",
               }}
             >
               {SKILL_LABEL[g.skill]}
@@ -69,11 +64,9 @@ export function HomeBrowser({ groups }: { groups: SkillGroup[] }) {
               onClick={() => setMinLevel(f.min)}
               className="rounded-full border px-3 py-1 text-xs transition-colors"
               style={{
-                borderColor: isActive ? accent : "var(--border-soft)",
-                color: isActive ? "var(--fg)" : "var(--fg-muted)",
-                backgroundColor: isActive
-                  ? `color-mix(in srgb, ${accent} 14%, transparent)`
-                  : "transparent",
+                borderColor: isActive ? "var(--fg)" : "var(--border-soft)",
+                color: isActive ? "var(--bg)" : "var(--fg-muted)",
+                backgroundColor: isActive ? "var(--fg)" : "transparent",
               }}
             >
               {f.label}
@@ -116,7 +109,11 @@ function TaskSection({
       functions
         .map((f) => {
           const levels = f.levels.filter((l) => LEVEL_RANK[l] >= min);
-          return { ...f, visibleLevels: levels };
+          const visibleCount = levels.reduce(
+            (sum, l) => sum + (f.countByLevel[l] ?? 0),
+            0
+          );
+          return { ...f, visibleLevels: levels, visibleCount };
         })
         .filter((f) => f.visibleLevels.length > 0),
     [functions, min]
@@ -134,7 +131,7 @@ function TaskSection({
           <Link
             key={f.lessonId}
             href={`/uebung/${f.lessonId}?min=${minLevel}`}
-            className="group flex flex-col gap-2 rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] p-4 transition-colors hover:border-[var(--border-base)]"
+            className="group flex flex-col gap-2 rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4 transition-colors hover:bg-[var(--bg-elev)]"
           >
             <div className="flex items-start justify-between gap-2">
               <span className="font-medium text-[var(--fg)]">
@@ -153,9 +150,7 @@ function TaskSection({
                 <LevelBadge key={l} level={l} />
               ))}
               <span className="ml-auto text-xs text-[var(--fg-dim)]">
-                {f.visibleLevels.length === f.levels.length
-                  ? `${f.count} Wendungen`
-                  : "Wendungen"}
+                {f.visibleCount} Wendungen
               </span>
             </div>
           </Link>

@@ -3,7 +3,7 @@
 /* ============================================================
    Themen-Tokens
    - dark  = Tafel / Blackboard (dunkles Grün-Grau, Kreide-Akzente)
-   - light = Papier (warmes Creme, Tinten-Akzente)
+   - light = Flat White (reines Weiß, neutrale monochrome Grautöne)
    Das Theme wird über data-theme am <html> gesetzt (siehe layout.tsx).
    ============================================================ */
 :root,
@@ -19,6 +19,8 @@
   --fg: #eceae4; /* Kreideweiß, leicht warm */
   --fg-muted: #a7a9a4;
   --fg-dim: #797b77;
+
+  --outline: #e7e5de; /* kräftige Kontur (Karten, Outline-Stil) — hier weiß */
 
   --accent-write: #e8c468; /* Schreiben — Kreidegelb */
   --accent-speak: #6fcad6; /* Sprechen — Kreideblau */
@@ -50,36 +52,38 @@
 [data-theme="light"] {
   color-scheme: light;
 
-  --bg: #faf7f1; /* helleres Papier */
-  --bg-elev: #fffdf8;
-  --bg-elev-2: #f3eee3;
-  --border: #e4dccd;
-  --border-soft: #efe8da;
+  --bg: #ffffff; /* flaches Reinweiß */
+  --bg-elev: #f6f6f7; /* dezent abgesetzte Flächen (Karten, Eingaben) */
+  --bg-elev-2: #ececee;
+  --border: #e2e2e5;
+  --border-soft: #eeeef0;
 
-  --fg: #2c2a26; /* warme Tinte */
-  --fg-muted: #6b6458;
-  --fg-dim: #968d7d;
+  --fg: #18181b; /* neutrale Tinte (Tiefgrau) */
+  --fg-muted: #5b5b61;
+  --fg-dim: #9a9aa0;
 
-  --accent-write: #b9852a; /* dunkleres Gold/Ocker für Kontrast auf Creme */
-  --accent-speak: #2f93a3;
-  --accent-shared: #6f7770;
+  --outline: #18181b; /* kräftige Kontur (Karten, Outline-Stil) — hier schwarz */
 
+  /* Akzente monochrom: abgestufte Graphittöne statt Farbe.
+     Die Skills bleiben über Beschriftung und Aktiv-Zustand lesbar. */
+  --accent-write: #27272a;
+  --accent-speak: #3f3f46;
+  --accent-shared: #52525b;
+
+  /* Niveaus bleiben farbcodiert (CEFR-Orientierung). */
   --level-b1: #2f9e4f;
-  --level-b2: #b9822a;
+  --level-b2: #b07d18;
   --level-c1: #c0504d;
   --level-c2: #7e57c2;
 
+  /* Richtig/Falsch bleiben funktional grün/rot. */
   --ok: #2f9e4f;
   --bad: #c0504d;
 
   --radius: 10px;
 
-  /* Papier: nur ein sehr dezenter warmer Schimmer, keine Linien */
-  --bg-texture: radial-gradient(
-      1000px 600px at 100% 0%,
-      rgba(190, 160, 100, 0.05),
-      transparent 60%
-    );
+  /* Flat: keine Textur, kein Schimmer. */
+  --bg-texture: none;
 }
 
 @theme inline {

@@ -54,6 +54,8 @@ export interface FunctionGroup {
   functionName: string;
   lessonId: string;
   count: number;
+  /** Anzahl je Niveau — für korrekte Zähler bei aktivem Niveau-Filter */
+  countByLevel: Partial<Record<CEFRLevel, number>>;
   levels: CEFRLevel[];
 }
 
@@ -114,11 +116,13 @@ export function getSkillGroups(): SkillGroup[] {
         functionName: item.function.nameDe,
         lessonId: makeLessonId(item.skill, item.task.code, item.function.code),
         count: 0,
+        countByLevel: {},
         levels: [],
       });
     }
     const fg = fnMap.get(item.function.code)!;
     fg.count += 1;
+    fg.countByLevel[item.level] = (fg.countByLevel[item.level] ?? 0) + 1;
     if (!fg.levels.includes(item.level)) fg.levels.push(item.level);
   }
 

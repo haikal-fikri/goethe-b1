@@ -34,7 +34,7 @@ export function AppHeader() {
             ))}
           </nav>
 
-          {/* Theme-Umschalter (Tafel ↔ Papier) — immer sichtbar */}
+          {/* Theme-Umschalter (Tafel ↔ Weiß) — immer sichtbar */}
           <ThemeToggle />
 
           {/* Mobile-Hamburger (2 Linien) */}

@@ -28,7 +28,7 @@ export function ThemeToggle() {
     // theme-color mitführen, damit die iPhone-Notch/Statusleiste dem Header folgt.
     // iOS Safari liest theme-color nur beim Einfügen des <meta> – ein bloßes
     // Ändern des content-Attributs wird ignoriert. Darum den Knoten ersetzen.
-    setThemeColor(next === "light" ? "#f4efe4" : "#17191b");
+    setThemeColor(next === "light" ? "#ffffff" : "#17191b");
     try {
       localStorage.setItem("theme", next);
     } catch {
@@ -39,7 +39,7 @@ export function ThemeToggle() {
 
   // Vor dem Mount: neutraler Platzhalter gleicher Größe (kein Hydration-Mismatch).
   const label =
-    theme === "light" ? "Zur Tafel wechseln" : "Zu Papier wechseln";
+    theme === "light" ? "Zur Tafel wechseln" : "Zu Weiß wechseln";
 
   return (
     <button
@@ -52,7 +52,7 @@ export function ThemeToggle() {
       {theme === null ? (
         <span className="block h-[18px] w-[18px]" aria-hidden />
       ) : theme === "dark" ? (
-        // Mond → Klick wechselt zu Papier (hell)
+        // Mond → Klick wechselt zu Weiß (hell)
         <svg
           width="18"
           height="18"

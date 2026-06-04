@@ -132,7 +132,7 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
       {task && (
         <>
           {/* Aufgabenstellung */}
-          <div className="mt-5 rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] p-4">
+          <div className="mt-5 rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4">
             <div className="mb-1 flex items-center gap-2">
               <span
                 className="rounded-full px-2 py-0.5 text-[11px] font-medium"
@@ -223,7 +223,7 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
       {status === "loading" && (
         <div
           aria-busy="true"
-          className="mt-5 animate-fade-in rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] p-4 text-sm text-[var(--fg-muted)]"
+          className="mt-5 animate-fade-in rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4 text-sm text-[var(--fg-muted)]"
         >
           Dein Text wird von der KI-Prüferin bewertet …
         </div>
@@ -268,7 +268,7 @@ function GradeResult({
   return (
     <div className="mt-6 animate-fade-in">
       {/* Kopf: Gesamtpunkte + bestanden */}
-      <div className="flex items-center justify-between rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] p-4">
+      <div className="flex items-center justify-between rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4">
         <div>
           <div className="text-xs text-[var(--fg-dim)]">Gesamtergebnis</div>
           <div className="text-2xl font-semibold text-[var(--fg)]">
@@ -297,7 +297,7 @@ function GradeResult({
         {grade.criteria.map((c) => (
           <li
             key={c.key}
-            className="rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] p-4"
+            className="rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -327,7 +327,7 @@ function GradeResult({
       </ul>
 
       {/* Gesamtrückmeldung */}
-      <div className="mt-3 rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] p-4">
+      <div className="mt-3 rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4">
         <h3 className="text-sm font-semibold text-[var(--fg)]">Rückmeldung</h3>
         <p className="mt-1 text-sm text-[var(--fg-muted)]">{grade.summaryDe}</p>
         {grade.korrekturen && grade.korrekturen.length > 0 && (
@@ -378,11 +378,9 @@ function Chip({
       onClick={onClick}
       className="rounded-full border px-3 py-1.5 text-xs transition-colors"
       style={{
-        borderColor: active ? ACCENT : "var(--border-soft)",
-        color: active ? "var(--fg)" : "var(--fg-muted)",
-        backgroundColor: active
-          ? `color-mix(in srgb, ${ACCENT} 14%, transparent)`
-          : "transparent",
+        borderColor: active ? "var(--fg)" : "var(--border-soft)",
+        color: active ? "var(--bg)" : "var(--fg-muted)",
+        backgroundColor: active ? "var(--fg)" : "transparent",
       }}
     >
       {children}

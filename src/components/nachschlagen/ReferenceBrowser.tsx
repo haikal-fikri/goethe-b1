@@ -121,7 +121,6 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
       <div role="tablist" className="flex gap-2 overflow-x-auto pb-1">
         {skills.map((s) => {
           const isActive = s === activeSkill;
-          const a = SKILL_ACCENT[s];
           return (
             <button
               key={s}
@@ -130,13 +129,9 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
               onClick={() => pickSkill(s)}
               className="shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors"
               style={{
-                borderColor: isActive
-                  ? `color-mix(in srgb, ${a} 55%, transparent)`
-                  : "var(--border-soft)",
-                color: isActive ? a : "var(--fg-muted)",
-                backgroundColor: isActive
-                  ? `color-mix(in srgb, ${a} 12%, transparent)`
-                  : "transparent",
+                borderColor: isActive ? "var(--fg)" : "var(--border-soft)",
+                color: isActive ? "var(--bg)" : "var(--fg-muted)",
+                backgroundColor: isActive ? "var(--fg)" : "transparent",
               }}
             >
               {SKILL_LABEL[s]}
@@ -154,11 +149,9 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
               onClick={() => setMinLevel(f.min)}
               className="rounded-full border px-3 py-1 text-xs transition-colors"
               style={{
-                borderColor: isActive ? accent : "var(--border-soft)",
-                color: isActive ? "var(--fg)" : "var(--fg-muted)",
-                backgroundColor: isActive
-                  ? `color-mix(in srgb, ${accent} 14%, transparent)`
-                  : "transparent",
+                borderColor: isActive ? "var(--fg)" : "var(--border-soft)",
+                color: isActive ? "var(--bg)" : "var(--fg-muted)",
+                backgroundColor: isActive ? "var(--fg)" : "transparent",
               }}
             >
               {f.label}
@@ -189,11 +182,9 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
               onClick={() => setActiveTask(t.code)}
               className="shrink-0 rounded-full border px-3 py-1.5 text-xs transition-colors"
               style={{
-                borderColor: isActive ? accent : "var(--border-soft)",
-                color: isActive ? "var(--fg)" : "var(--fg-muted)",
-                backgroundColor: isActive
-                  ? `color-mix(in srgb, ${accent} 14%, transparent)`
-                  : "transparent",
+                borderColor: isActive ? "var(--fg)" : "var(--border-soft)",
+                color: isActive ? "var(--bg)" : "var(--fg-muted)",
+                backgroundColor: isActive ? "var(--fg)" : "transparent",
               }}
             >
               {label}
@@ -219,7 +210,7 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
               {g.functions.map((fn) => (
                 <div
                   key={fn.code}
-                  className="rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] p-4"
+                  className="rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4"
                 >
                   <h3 className="mb-2 font-serif text-base font-medium text-[var(--fg)]">
                     {fn.name}
