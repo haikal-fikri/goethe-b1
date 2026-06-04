@@ -10,6 +10,45 @@ const ITEMS = corpus as RedemittelItem[];
 
 const SKILL_ORDER: SkillCode[] = ["schreiben", "sprechen", "shared"];
 
+/**
+ * Kanonische Reihenfolge der Funktions-Karten pro Aufgabe/Teil — so, wie die
+ * Bausteine in einem echten Aufsatz/einer E-Mail/Präsentation aufeinanderfolgen
+ * (Einleitung → … → Schluss). Quelle: redemittel-goethe-b1.html.
+ * Funktionen, die hier nicht gelistet sind, landen ans Ende (nach Häufigkeit).
+ */
+const FUNCTION_ORDER: Record<string, string[]> = {
+  schreiben_a1: ["einleitung_kontakt", "danken_bedauern", "vorschlag_bitte", "schluss_fazit"],
+  schreiben_a2: [
+    "einleitung_kontakt",
+    "meinung_aeussern",
+    "zustimmen",
+    "widersprechen",
+    "argumentieren",
+    "beispiele",
+    "konzession",
+    "schluss_fazit",
+  ],
+  schreiben_a3: ["anliegen", "absagen_entschuldigen", "vorschlag_bitte", "danken_bedauern", "schluss_fazit"],
+  sprechen_t1: ["vorschlag_bitte", "zustimmen", "abwaegen", "sich_einigen"],
+  sprechen_t2: ["gliedern", "uebergaenge", "erfahrung", "bewerten", "abschluss_praesentation"],
+  sprechen_t3: ["rueckmeldung_lob", "nachfragen", "souveraen_antworten", "zeit_gewinnen"],
+  shared_konnektoren: [
+    "konnektor_grund",
+    "konnektor_gegensatz",
+    "konnektor_folge",
+    "konnektor_einraeumung",
+    "konnektor_aufzaehlung",
+    "konnektor_einschraenkung",
+    "konnektor_bedingung",
+    "konnektor_bezug",
+  ],
+};
+
+function functionRank(taskCode: string, functionCode: string): number {
+  const i = FUNCTION_ORDER[taskCode]?.indexOf(functionCode) ?? -1;
+  return i === -1 ? Number.POSITIVE_INFINITY : i;
+}
+
 export interface FunctionGroup {
   functionCode: string;
   functionName: string;
@@ -90,7 +129,11 @@ export function getSkillGroups(): SkillGroup[] {
     const tasks: TaskGroup[] = [];
     for (const [taskCode, fnMap] of taskMap) {
       const functions = [...fnMap.values()].sort(
-        (a, b) => b.count - a.count || a.functionName.localeCompare(b.functionName)
+        (a, b) =>
+          functionRank(taskCode, a.functionCode) -
+            functionRank(taskCode, b.functionCode) ||
+          b.count - a.count ||
+          a.functionName.localeCompare(b.functionName)
       );
       functions.forEach((f) => f.levels.sort(LEVEL_SORT));
       tasks.push({

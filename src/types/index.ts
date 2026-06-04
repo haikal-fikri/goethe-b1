@@ -44,3 +44,58 @@ export const SKILL_LABEL: Record<SkillCode, string> = {
   sprechen: "Sprechen",
   shared: "Konnektoren",
 };
+
+// --- Prüfung (KI-Prüfer Schreiben) ---
+
+export type AufgabeNr = 1 | 2 | 3;
+
+export interface ExamTask {
+  id: string; // z.B. "s1-a1"
+  simulation: number; // 1..4
+  aufgabe: AufgabeNr;
+  taskType: string; // z.B. "Persönliche E-Mail"
+  titleDe: string;
+  promptDe: string; // Aufgabentext, den der/die Kandidat:in liest
+  bulletPointsDe?: string[]; // Leitpunkte
+  minWords: number; // Wortvorgabe (Richtwert)
+  recommendedMinutes?: number;
+}
+
+export interface ExamSimulation {
+  id: number;
+  titleDe: string;
+  tasks: ExamTask[]; // 3 Aufgaben
+}
+
+export type CriterionBand = "A" | "B" | "C" | "D" | "E";
+export type CriterionKey =
+  | "erfuellung"
+  | "kohaerenz"
+  | "wortschatz"
+  | "strukturen";
+
+export interface CriterionEvaluation {
+  key: CriterionKey;
+  labelDe: string;
+  band: CriterionBand;
+  punkte: number;
+  maxPunkte: number;
+  begruendungDe: string;
+}
+
+export interface ExamGrade {
+  aufgabe: AufgabeNr;
+  criteria: CriterionEvaluation[]; // genau 4
+  gesamtpunkte: number;
+  maxPunkte: number;
+  bestanden: boolean;
+  summaryDe: string;
+  korrekturen?: string[];
+}
+
+export const CRITERION_LABEL: Record<CriterionKey, string> = {
+  erfuellung: "Erfüllung",
+  kohaerenz: "Kohärenz",
+  wortschatz: "Wortschatz",
+  strukturen: "Strukturen",
+};

@@ -1,26 +1,37 @@
 import { AppHeader } from "@/components/AppHeader";
-import { SchreibenPractice } from "@/components/schreiben/SchreibenPractice";
-import { getAllItems } from "@/lib/content";
+import { ExamRunner } from "@/components/schreiben/ExamRunner";
+import { getSimulations } from "@/lib/exam";
 
 export const metadata = {
-  title: "Schreiben · Redemittel-Trainer",
+  title: "Schreiben · KI-Prüfer · Redemittel-Trainer",
 };
 
-export default function SchreibenPage() {
-  const items = getAllItems().filter((i) => i.skill === "schreiben");
+// Aufgaben werden zur Laufzeit aus der Datenbank gelesen.
+export const dynamic = "force-dynamic";
+
+export default async function SchreibenPage() {
+  const simulations = await getSimulations();
+
   return (
     <>
       <AppHeader />
       <main className="flex-1">
         <div className="mx-auto max-w-3xl px-4 pt-6">
           <h1 className="text-2xl font-semibold tracking-tight text-[var(--fg)]">
-            Freies Schreiben
+            Schreiben · KI-Prüfer
           </h1>
           <p className="mt-1 text-sm text-[var(--fg-muted)]">
-            Übe einen kurzen Text und baue die vorgeschlagenen Redemittel ein.
+            Wähle eine Simulation und Aufgabe, schreibe deinen Text und lass ihn
+            nach den offiziellen Goethe-B1-Kriterien bewerten.
           </p>
         </div>
-        <SchreibenPractice items={items} />
+        {simulations.length > 0 ? (
+          <ExamRunner simulations={simulations} />
+        ) : (
+          <div className="mx-auto max-w-3xl px-4 pt-6 text-sm text-[var(--fg-muted)]">
+            Es sind noch keine Prüfungsaufgaben verfügbar.
+          </div>
+        )}
       </main>
     </>
   );

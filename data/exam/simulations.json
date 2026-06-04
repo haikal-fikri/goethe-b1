@@ -1,0 +1,162 @@
+[
+  {
+    "id": 1,
+    "titleDe": "Simulation 1",
+    "tasks": [
+      {
+        "id": "s1-a1",
+        "aufgabe": 1,
+        "taskType": "Persönliche E-Mail",
+        "titleDe": "E-Mail über einen Ausflug",
+        "promptDe": "Schreiben Sie eine E-Mail an einen Freund, der nicht an Ihrem Ausflug teilnehmen konnte, weil er für die Uni lernen musste.",
+        "bulletPointsDe": [
+          "Beschreiben Sie, wo Sie waren und wie der Ausflug war.",
+          "Begründen Sie, warum Ihnen der Ausflug besonders gefallen hat.",
+          "Schlagen Sie ein Treffen vor."
+        ],
+        "minWords": 80,
+        "recommendedMinutes": 20
+      },
+      {
+        "id": "s1-a2",
+        "aufgabe": 2,
+        "taskType": "Meinungsäußerung",
+        "titleDe": "Sind junge Menschen heute schlecht erzogen?",
+        "promptDe": "Schreiben Sie Ihre Meinung zu dem Diskussionsthema aus dem Fernsehen: „Sind junge Menschen heute schlecht erzogen?“.",
+        "bulletPointsDe": [],
+        "minWords": 80,
+        "recommendedMinutes": 25
+      },
+      {
+        "id": "s1-a3",
+        "aufgabe": 3,
+        "taskType": "Formelle E-Mail",
+        "titleDe": "Anfrage zu einem Praktikumsangebot",
+        "promptDe": "Schreiben Sie eine E-Mail an Herrn Giessler von der Personalabteilung, um Informationen zu einem Praktikumsangebot (Zeit, Aufgaben etc.) zu erhalten.",
+        "bulletPointsDe": [],
+        "minWords": 40,
+        "recommendedMinutes": 15
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "titleDe": "Simulation 2",
+    "tasks": [
+      {
+        "id": "s2-a1",
+        "aufgabe": 1,
+        "taskType": "Persönliche E-Mail",
+        "titleDe": "E-Mail über ein neues Einkaufszentrum",
+        "promptDe": "Schreiben Sie eine E-Mail an einen Freund über ein neues Einkaufszentrum, das Sie gestern besucht haben.",
+        "bulletPointsDe": [
+          "Beschreiben Sie, was Ihnen gut gefallen hat.",
+          "Begründen Sie, warum Ihr Freund/Ihre Freundin mitkommen sollte.",
+          "Schlagen Sie einen Termin vor."
+        ],
+        "minWords": 80,
+        "recommendedMinutes": 20
+      },
+      {
+        "id": "s2-a2",
+        "aufgabe": 2,
+        "taskType": "Meinungsäußerung",
+        "titleDe": "Schule schon ab 4",
+        "promptDe": "Schreiben Sie Ihre Meinung zu dem Diskussionsthema: „Schule schon ab 4“.",
+        "bulletPointsDe": [],
+        "minWords": 80,
+        "recommendedMinutes": 25
+      },
+      {
+        "id": "s2-a3",
+        "aufgabe": 3,
+        "taskType": "Formelle E-Mail",
+        "titleDe": "Reservierung beim Autoverleih ändern",
+        "promptDe": "Schreiben Sie eine E-Mail an Herrn Cervantes von einem Autoverleih. Erklären Sie, dass Sie Ihre Reservierung von einem Kleinwagen auf ein größeres Auto ändern möchten, und entschuldigen Sie sich höflich für die Umstände.",
+        "bulletPointsDe": [],
+        "minWords": 40,
+        "recommendedMinutes": 15
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "titleDe": "Simulation 3",
+    "tasks": [
+      {
+        "id": "s3-a1",
+        "aufgabe": 1,
+        "taskType": "Persönliche E-Mail",
+        "titleDe": "Bericht über das Online-Deutschlernen",
+        "promptDe": "Berichten Sie einem Freund über das Online-Deutschlernen.",
+        "bulletPointsDe": [
+          "Beschreiben Sie, wie Sie gelernt haben.",
+          "Begründen Sie die Vorteile des Lernens mit dem Computer.",
+          "Schlagen Sie ein Treffen vor."
+        ],
+        "minWords": 80,
+        "recommendedMinutes": 20
+      },
+      {
+        "id": "s3-a2",
+        "aufgabe": 2,
+        "taskType": "Meinungsäußerung",
+        "titleDe": "Persönliche Kontakte und Internet",
+        "promptDe": "Schreiben Sie Ihre Meinung zum Thema „Persönliche Kontakte und Internet“, basierend auf einem Kommentar über feste Arbeitszeiten und Flexibilität.",
+        "bulletPointsDe": [],
+        "minWords": 80,
+        "recommendedMinutes": 25
+      },
+      {
+        "id": "s3-a3",
+        "aufgabe": 3,
+        "taskType": "Formelle E-Mail",
+        "titleDe": "Entschuldigung beim Kursleiter",
+        "promptDe": "Schreiben Sie an Ihren Kursleiter, Herrn Weber, um sich höflich zu entschuldigen und zu berichten, warum Sie nicht zum ersten Termin des Kurses „Erfolgreich präsentieren“ kommen können.",
+        "bulletPointsDe": [],
+        "minWords": 40,
+        "recommendedMinutes": 15
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "titleDe": "Simulation 4",
+    "tasks": [
+      {
+        "id": "s4-a1",
+        "aufgabe": 1,
+        "taskType": "Persönliche E-Mail",
+        "titleDe": "E-Mail über eine Geburtstagsfeier",
+        "promptDe": "Schreiben Sie an einen Freund, der wegen Krankheit nicht zu Ihrer Geburtstagsfeier kommen konnte.",
+        "bulletPointsDe": [
+          "Beschreiben Sie die Feier.",
+          "Begründen Sie, welches Geschenk Sie besonders toll fanden.",
+          "Schlagen Sie ein Treffen vor."
+        ],
+        "minWords": 80,
+        "recommendedMinutes": 20
+      },
+      {
+        "id": "s4-a2",
+        "aufgabe": 2,
+        "taskType": "Meinungsäußerung",
+        "titleDe": "Persönliche Kontakte und Internet",
+        "promptDe": "Schreiben Sie Ihre Meinung zum Thema „Persönliche Kontakte und Internet“, basierend auf einem Kommentar, der besagt, dass Internetkontakte persönliche Treffen nicht ersetzen können.",
+        "bulletPointsDe": [],
+        "minWords": 80,
+        "recommendedMinutes": 25
+      },
+      {
+        "id": "s4-a3",
+        "aufgabe": 3,
+        "taskType": "Formelle E-Mail",
+        "titleDe": "Entschuldigung bei der Kursleiterin",
+        "promptDe": "Schreiben Sie an Ihre Kursleiterin, Frau Müller, um sich höflich zu entschuldigen und zu erklären, warum Sie den Termin zum Gespräch über Ihre persönlichen Lernziele nicht wahrnehmen können.",
+        "bulletPointsDe": [],
+        "minWords": 40,
+        "recommendedMinutes": 15
+      }
+    ]
+  }
+]

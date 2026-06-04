@@ -38,6 +38,7 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
         LEVEL_RANK[i.level] >= min &&
         (q === "" ||
           i.phrase.toLowerCase().includes(q) ||
+          i.frame?.toLowerCase().includes(q) ||
           i.translation.toLowerCase().includes(q))
     );
 
@@ -133,21 +134,39 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
                   <h3 className="mb-2 text-sm font-medium text-[var(--fg)]">
                     {fn.name}
                   </h3>
-                  <ul className="flex flex-col gap-2">
+                  <ul className="flex flex-col gap-1">
                     {fn.items.map((it) => (
-                      <li key={it.id} className="flex flex-col gap-0.5">
-                        <div className="flex items-start gap-2">
-                          <span style={{ color: accent }} aria-hidden>
-                            ›
-                          </span>
-                          <span className="flex-1 text-[var(--fg)]">
-                            {it.phrase}
-                          </span>
-                          <LevelBadge level={it.level} />
-                        </div>
-                        <span className="pl-4 text-xs italic text-[var(--fg-dim)]">
-                          {it.translation}
-                        </span>
+                      <li key={it.id}>
+                        <details className="group/item">
+                          <summary className="flex cursor-pointer list-none items-start gap-2 rounded-[calc(var(--radius)-4px)] py-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-base)]">
+                            <span
+                              className="mt-0.5 shrink-0 text-[var(--fg-dim)] transition-transform group-open/item:rotate-90"
+                              style={{ color: accent }}
+                              aria-hidden
+                            >
+                              ›
+                            </span>
+                            <span className="flex-1 text-[var(--fg)]">
+                              {it.frame ?? it.phrase}
+                            </span>
+                            <LevelBadge level={it.level} />
+                          </summary>
+                          <div className="mt-1 flex flex-col gap-0.5 border-l-2 pl-3 pt-0.5"
+                            style={{ borderColor: `color-mix(in srgb, ${accent} 35%, transparent)`, marginLeft: "0.3rem" }}
+                          >
+                            <span className="text-sm text-[var(--fg)]">
+                              {it.phrase}
+                            </span>
+                            <span className="text-xs italic text-[var(--fg-dim)]">
+                              {it.translation}
+                            </span>
+                            {it.notes && (
+                              <span className="mt-1 text-xs text-[var(--fg-muted)]">
+                                {it.notes}
+                              </span>
+                            )}
+                          </div>
+                        </details>
                       </li>
                     ))}
                   </ul>

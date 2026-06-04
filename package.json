@@ -7,12 +7,17 @@
     "build": "next build",
     "start": "next start",
     "corpus": "node scripts/build-corpus.mjs",
-    "seed:sql": "node scripts/generate-seed-sql.mjs"
+    "seed:sql": "node scripts/generate-seed-sql.mjs",
+    "seed:exam": "node scripts/generate-exam-seed.mjs"
   },
   "dependencies": {
+    "@ai-sdk/groq": "^3.0.39",
+    "ai": "^6.0.196",
     "next": "16.2.7",
+    "postgres": "^3.4.9",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
