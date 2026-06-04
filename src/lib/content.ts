@@ -1,0 +1,150 @@
+import corpus from "@/content/corpus.json";
+import type {
+  CEFRLevel,
+  RedemittelItem,
+  SkillCode,
+} from "@/types";
+import { LEVEL_RANK } from "@/types";
+
+const ITEMS = corpus as RedemittelItem[];
+
+const SKILL_ORDER: SkillCode[] = ["schreiben", "sprechen", "shared"];
+
+export interface FunctionGroup {
+  functionCode: string;
+  functionName: string;
+  lessonId: string;
+  count: number;
+  levels: CEFRLevel[];
+}
+
+export interface TaskGroup {
+  taskCode: string;
+  taskLabel: string;
+  functions: FunctionGroup[];
+}
+
+export interface SkillGroup {
+  skill: SkillCode;
+  tasks: TaskGroup[];
+}
+
+const LEVEL_SORT = (a: CEFRLevel, b: CEFRLevel) => LEVEL_RANK[a] - LEVEL_RANK[b];
+
+export function getAllItems(): RedemittelItem[] {
+  return ITEMS;
+}
+
+/** lessonId kodiert skill + task + function */
+export function makeLessonId(
+  skill: SkillCode,
+  taskCode: string,
+  functionCode: string
+): string {
+  return `${skill}__${taskCode}__${functionCode}`;
+}
+
+export function parseLessonId(
+  lessonId: string
+): { skill: SkillCode; taskCode: string; functionCode: string } | null {
+  const parts = lessonId.split("__");
+  if (parts.length !== 3) return null;
+  return {
+    skill: parts[0] as SkillCode,
+    taskCode: parts[1],
+    functionCode: parts[2],
+  };
+}
+
+/** Vollständiger Baum skill → task → function mit Zählern und vorhandenen Niveaus */
+export function getSkillGroups(): SkillGroup[] {
+  const skillMap = new Map<SkillCode, Map<string, Map<string, FunctionGroup>>>();
+  const taskLabels = new Map<string, string>();
+
+  for (const item of ITEMS) {
+    if (!skillMap.has(item.skill)) skillMap.set(item.skill, new Map());
+    const taskMap = skillMap.get(item.skill)!;
+
+    taskLabels.set(item.task.code, item.task.labelDe);
+    if (!taskMap.has(item.task.code)) taskMap.set(item.task.code, new Map());
+    const fnMap = taskMap.get(item.task.code)!;
+
+    if (!fnMap.has(item.function.code)) {
+      fnMap.set(item.function.code, {
+        functionCode: item.function.code,
+        functionName: item.function.nameDe,
+        lessonId: makeLessonId(item.skill, item.task.code, item.function.code),
+        count: 0,
+        levels: [],
+      });
+    }
+    const fg = fnMap.get(item.function.code)!;
+    fg.count += 1;
+    if (!fg.levels.includes(item.level)) fg.levels.push(item.level);
+  }
+
+  const result: SkillGroup[] = [];
+  for (const skill of SKILL_ORDER) {
+    const taskMap = skillMap.get(skill);
+    if (!taskMap) continue;
+    const tasks: TaskGroup[] = [];
+    for (const [taskCode, fnMap] of taskMap) {
+      const functions = [...fnMap.values()].sort(
+        (a, b) => b.count - a.count || a.functionName.localeCompare(b.functionName)
+      );
+      functions.forEach((f) => f.levels.sort(LEVEL_SORT));
+      tasks.push({
+        taskCode,
+        taskLabel: taskLabels.get(taskCode) ?? taskCode,
+        functions,
+      });
+    }
+    tasks.sort((a, b) => a.taskCode.localeCompare(b.taskCode));
+    result.push({ skill, tasks });
+  }
+  return result;
+}
+
+/** Items einer Lektion (task+function), optional ab einem Mindestniveau */
+export function getLessonItems(
+  lessonId: string,
+  minLevel: CEFRLevel = "B1"
+): RedemittelItem[] {
+  const parsed = parseLessonId(lessonId);
+  if (!parsed) return [];
+  const min = LEVEL_RANK[minLevel];
+  return ITEMS.filter(
+    (it) =>
+      it.skill === parsed.skill &&
+      it.task.code === parsed.taskCode &&
+      it.function.code === parsed.functionCode &&
+      LEVEL_RANK[it.level] >= min
+  );
+}
+
+export function getLessonMeta(lessonId: string) {
+  const parsed = parseLessonId(lessonId);
+  if (!parsed) return null;
+  const sample = ITEMS.find(
+    (it) =>
+      it.skill === parsed.skill &&
+      it.task.code === parsed.taskCode &&
+      it.function.code === parsed.functionCode
+  );
+  if (!sample) return null;
+  return {
+    skill: parsed.skill,
+    taskLabel: sample.task.labelDe,
+    functionName: sample.function.nameDe,
+  };
+}
+
+export function getStats() {
+  const byLevel: Record<string, number> = {};
+  const bySkill: Record<string, number> = {};
+  for (const it of ITEMS) {
+    byLevel[it.level] = (byLevel[it.level] || 0) + 1;
+    bySkill[it.skill] = (bySkill[it.skill] || 0) + 1;
+  }
+  return { total: ITEMS.length, byLevel, bySkill };
+}

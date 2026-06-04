@@ -1,26 +1,103 @@
 @import "tailwindcss";
 
+/* ============================================================
+   Design tokens — adaptiert aus redemittel-goethe-b1.html
+   ============================================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0d1117;
+  --bg-elev: #161b22;
+  --bg-elev-2: #1c2230;
+  --border: #2a313c;
+  --border-soft: #21262d;
+
+  --fg: #e6edf3;
+  --fg-muted: #9aa6b2;
+  --fg-dim: #6e7681;
+
+  --accent-write: #e3b341; /* Schreiben — golden */
+  --accent-speak: #4cc4d4; /* Sprechen — cyan */
+  --accent-shared: #8b95a3; /* Konnektoren — neutral */
+
+  --level-b1: #3fb950;
+  --level-b2: #d29922;
+  --level-c1: #db6d6d;
+  --level-c2: #bc8cff;
+
+  --ok: #3fb950;
+  --bad: #db6d6d;
+
+  --radius: 10px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-bg-elev: var(--bg-elev);
+  --color-bg-elev-2: var(--bg-elev-2);
+  --color-border-base: var(--border);
+  --color-border-soft: var(--border-soft);
+
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-dim: var(--fg-dim);
+
+  --color-write: var(--accent-write);
+  --color-speak: var(--accent-speak);
+  --color-shared: var(--accent-shared);
+
+  --color-b1: var(--level-b1);
+  --color-b2: var(--level-b2);
+  --color-c1: var(--level-c1);
+  --color-c2: var(--level-c2);
+
+  --color-ok: var(--ok);
+  --color-bad: var(--bad);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  background-image: radial-gradient(
+      900px 500px at 85% -10%,
+      rgba(76, 196, 212, 0.05),
+      transparent 60%
+    ),
+    radial-gradient(900px 500px at 0% 0%, rgba(227, 179, 65, 0.045), transparent 55%);
+  background-attachment: fixed;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.25s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
 }

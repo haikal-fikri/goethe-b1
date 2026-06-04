@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redemittel · Goethe-Zertifikat B1 (gehobenes Niveau)</title>
+<style>
+  :root {
+    --bg:           #0d1117;
+    --bg-elev:      #161b22;
+    --bg-elev-2:    #1c2230;
+    --border:       #2a313c;
+    --border-soft:  #21262d;
+    --fg:           #e6edf3;
+    --fg-muted:     #9aa6b2;
+    --fg-dim:       #6e7681;
+    --accent-write: #e3b341;
+    --accent-speak: #4cc4d4;
+    --b1:           #3fb950;
+    --b2:           #d29922;
+    --c1:           #db6d6d;
+    --c2:           #bc8cff;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font-family: var(--sans); font-size: 14px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(900px 500px at 85% -10%, rgba(76,196,212,.05), transparent 60%),
+      radial-gradient(900px 500px at 0% 0%, rgba(227,179,65,.045), transparent 55%);
+    background-attachment: fixed;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px 80px; }
+
+  header { position: sticky; top: 0; z-index: 20; background: rgba(13,17,23,.86); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-soft); }
+  .head-inner { max-width: 980px; margin: 0 auto; padding: 18px 20px 0; }
+  .title-row { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  h1 { font-size: 18px; font-weight: 650; letter-spacing: -.01em; }
+  .subtitle { font-family: var(--mono); font-size: 11px; color: var(--fg-dim); letter-spacing: .02em; }
+
+  .tabs { display: flex; gap: 4px; margin-top: 16px; }
+  .tab { appearance: none; border: none; cursor: pointer; background: transparent; color: var(--fg-muted); font-family: var(--sans); font-size: 14px; font-weight: 550; padding: 10px 16px 13px; border-radius: 8px 8px 0 0; border-bottom: 2px solid transparent; transition: color .15s, border-color .15s, background .15s; display: inline-flex; align-items: center; gap: 8px; }
+  .tab:hover { color: var(--fg); background: rgba(255,255,255,.03); }
+  .tab .dot { width: 7px; height: 7px; border-radius: 50%; opacity: .55; }
+  .tab[data-tab="schreiben"] .dot { background: var(--accent-write); }
+  .tab[data-tab="sprechen"]  .dot { background: var(--accent-speak); }
+  .tab.active { color: var(--fg); }
+  .tab.active .dot { opacity: 1; }
+  .tab[data-tab="schreiben"].active { border-color: var(--accent-write); }
+  .tab[data-tab="sprechen"].active  { border-color: var(--accent-speak); }
+  .tab .count { font-family: var(--mono); font-size: 10px; color: var(--fg-dim); background: var(--bg-elev-2); padding: 1px 6px; border-radius: 10px; }
+
+  .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0 4px; flex-wrap: wrap; }
+  .hint { font-size: 12px; color: var(--fg-dim); }
+  .filters { display: inline-flex; gap: 6px; }
+  .chip { appearance: none; cursor: pointer; user-select: none; font-family: var(--mono); font-size: 11px; letter-spacing: .03em; padding: 5px 11px; border-radius: 999px; background: var(--bg-elev); color: var(--fg-muted); border: 1px solid var(--border-soft); transition: all .14s; }
+  .chip:hover { border-color: var(--border); color: var(--fg); }
+  .chip.active { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+  .panel { display: none; animation: fade .25s ease; padding-top: 18px; }
+  .panel.active { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .lead { font-size: 13px; color: var(--fg-muted); margin-bottom: 22px; padding-left: 12px; border-left: 2px solid var(--border); }
+
+  .section { margin-bottom: 30px; }
+  .section-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; }
+  .section-num { font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; }
+  .schreiben .section-num { color: var(--accent-write); background: rgba(227,179,65,.1); }
+  .sprechen  .section-num { color: var(--accent-speak); background: rgba(76,196,212,.1); }
+  .section-title { font-size: 15px; font-weight: 600; }
+  .section-meta { font-size: 12px; color: var(--fg-dim); margin: 2px 0 14px; font-style: italic; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+  .card { background: var(--bg-elev); border: 1px solid var(--border-soft); border-radius: 10px; padding: 14px 15px 6px; transition: border-color .15s; }
+  .card:hover { border-color: var(--border); }
+  .card h3 { font-size: 12px; font-weight: 600; color: var(--fg); text-transform: uppercase; letter-spacing: .045em; margin-bottom: 9px; padding-bottom: 8px; border-bottom: 1px dashed var(--border-soft); }
+  ul.phrases { list-style: none; }
+  ul.phrases li { font-size: 13.5px; line-height: 1.5; color: var(--fg); padding: 5px 0; display: flex; gap: 8px; align-items: flex-start; border-bottom: 1px solid rgba(255,255,255,.025); }
+  ul.phrases li:last-child { border-bottom: none; }
+  ul.phrases li::before { content: "›"; color: var(--fg-dim); flex: 0 0 auto; line-height: 1.45; }
+  .ph-text { flex: 1; }
+  .ph-text .note { color: var(--fg-dim); font-style: italic; }
+
+  .lv { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .04em; padding: 1px 5px; border-radius: 4px; flex: 0 0 auto; margin-top: 2px; line-height: 1.5; }
+  .lv.b1 { color: var(--b1); background: rgba(63,185,80,.12); }
+  .lv.b2 { color: var(--b2); background: rgba(210,153,34,.12); }
+  .lv.c1 { color: var(--c1); background: rgba(219,109,109,.12); }
+  .lv.c2 { color: var(--c2); background: rgba(188,140,255,.13); }
+  ul.phrases li.hidden { display: none !important; }
+
+  .shared { margin-top: 40px; padding-top: 26px; border-top: 1px solid var(--border-soft); }
+  .shared-label { font-family: var(--mono); font-size: 11px; color: var(--fg-dim); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--bg-elev); border: 1px solid var(--border-soft); border-radius: 10px; overflow: hidden; margin-bottom: 18px; }
+  th, td { text-align: left; padding: 9px 13px; border-bottom: 1px solid var(--border-soft); vertical-align: top; }
+  th { font-family: var(--mono); font-size: 10px; letter-spacing: .05em; text-transform: uppercase; color: var(--fg-dim); background: var(--bg-elev-2); }
+  tr:last-child td { border-bottom: none; }
+  td.fn { color: var(--fg-muted); font-weight: 550; white-space: nowrap; }
+  td code { font-family: var(--mono); font-size: 12px; color: var(--fg); }
+  .hi code { color: var(--c2); }
+
+  .tip { background: linear-gradient(180deg, rgba(188,140,255,.06), transparent); border: 1px solid rgba(188,140,255,.18); border-radius: 10px; padding: 14px 16px; font-size: 13px; color: var(--fg-muted); }
+  .tip strong { color: var(--c2); }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: var(--fg-dim); margin-top: 6px; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+    .tab { padding: 9px 11px 12px; font-size: 13px; }
+    .head-inner { padding-top: 14px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <div class="title-row">
+      <h1>Redemittel — Goethe-Zertifikat B1</h1>
+      <span class="subtitle">Schreiben &amp; Sprechen · Schwerpunkt B2–C2</span>
+    </div>
+    <nav class="tabs">
+      <button class="tab active" data-tab="schreiben"><span class="dot"></span> Schreiben <span class="count">60 Min · 3 Aufgaben</span></button>
+      <button class="tab" data-tab="sprechen"><span class="dot"></span> Sprechen <span class="count">15 Min · 3 Teile</span></button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="toolbar">
+    <div class="hint">Schwerpunkt auf gehobenem Ausdruck. Filter zeigt nur Wendungen <strong style="color:var(--fg-muted)">ab</strong> dem gewählten Niveau.</div>
+    <div class="filters">
+      <button class="chip active" data-min="0">Alle</button>
+      <button class="chip" data-min="2">ab B2</button>
+      <button class="chip" data-min="3">ab C1</button>
+    </div>
+  </div>
+
+  <!-- ============ SCHREIBEN ============ -->
+  <section class="panel schreiben active" id="panel-schreiben">
+    <p class="lead">Drei Aufgaben: informelle E-Mail, Diskussionsbeitrag, halbformelle E-Mail. Die folgenden Wendungen heben den Stil bewusst über das Pflicht-B1 hinaus — schon ein, zwei gehobene Formulierungen pro Text wirken deutlich.</p>
+
+    <!-- Aufgabe 1 -->
+    <div class="section">
+      <div class="section-head"><span class="section-num">AUFGABE 1</span><span class="section-title">Informelle E-Mail an eine/n Freund/in</span></div>
+      <div class="section-meta">ca. 80 Wörter · auch im persönlichen Register lässt sich variieren und nuancieren</div>
+      <div class="grid">
+        <div class="card"><h3>Einleitung / Kontakt</h3><ul class="phrases">
+          <li data-level="b1"><span class="ph-text">vielen Dank für deine Nachricht!</span></li>
+          <li data-level="b2"><span class="ph-text">ich wollte mich schon längst bei dir melden.</span><span class="lv b2">B2</span></li>
+          <li data-level="b2"><span class="ph-text">ich hoffe, bei dir ist alles in bester Ordnung.</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">es ist eine halbe Ewigkeit her, dass wir uns gehört haben.</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">verzeih, dass ich mich erst jetzt zurückmelde — es ging drunter und drüber.</span><span class="lv c1">C1</span></li>
+        </ul></div>
+        <div class="card"><h3>Danken / Bedauern</h3><ul class="phrases">
+          <li data-level="b1"><span class="ph-text">vielen Dank, dass du an mich gedacht hast.</span></li>
+          <li data-level="b2"><span class="ph-text">es war wirklich aufmerksam von dir, dass …</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">ich weiß es sehr zu schätzen, dass du dir die Zeit genommen hast.</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">es tut mir aufrichtig leid, dass es nicht geklappt hat.</span><span class="lv c1">C1</span></li>
+          <li data-level="b2"><span class="ph-text">ich bedauere sehr, dass …</span><span class="lv b2">B2</span></li>
+        </ul></div>
+        <div class="card"><h3>Vorschlag / Bitte</h3><ul class="phrases">
+          <li data-level="b1"><span class="ph-text">wie wäre es, wenn wir uns am … treffen?</span></li>
+          <li data-level="b2"><span class="ph-text">was würdest du davon halten, … zu …?</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">ich hätte da eine Idee — sag mir, ob sie dir zusagt.</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">falls es dir zeitlich passt, könnten wir ja …</span><span class="lv c1">C1</span></li>
+        </ul></div>
+        <div class="card"><h3>Schluss</h3><ul class="phrases">
+          <li data-level="b1"><span class="ph-text">ich freue mich auf deine Antwort.</span></li>
+          <li data-level="b2"><span class="ph-text">lass bald von dir hören!</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">ich bin gespannt, was du dazu sagst.</span><span class="lv c1">C1</span></li>
+          <li data-level="b1"><span class="ph-text">Liebe Grüße, dein/e …</span></li>
+        </ul></div>
+      </div>
+    </div>
+
+    <!-- Aufgabe 2 -->
+    <div class="section">
+      <div class="section-head"><span class="section-num">AUFGABE 2</span><span class="section-title">Diskussionsbeitrag / Meinung im Forum</span></div>
+      <div class="section-meta">ca. 80 Wörter · hier zahlt sich gehobener Ausdruck am stärksten aus</div>
+      <div class="grid">
+        <div class="card"><h3>Einleitung / Bezug</h3><ul class="phrases">
+          <li data-level="b1"><span class="ph-text">in dem Beitrag geht es um die Frage, ob …</span></li>
+          <li data-level="b2"><span class="ph-text">die Debatte um … ist so aktuell wie nie.</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">an der Frage, ob …, scheiden sich die Geister.</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">kaum ein Thema wird derzeit so kontrovers diskutiert wie …</span><span class="lv c1">C1</span></li>
+          <li data-level="c2"><span class="ph-text">der vorliegende Beitrag wirft die grundsätzliche Frage auf, inwiefern …</span><span class="lv c2">C2</span></li>
+        </ul></div>
+        <div class="card"><h3>Meinung äußern</h3><ul class="phrases">
+          <li data-level="b1"><span class="ph-text">meiner Meinung nach …</span></li>
+          <li data-level="b2"><span class="ph-text">aus meiner Sicht spricht vieles dafür, dass …</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">meines Erachtens …</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">ich vertrete den Standpunkt, dass …</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">ich neige zu der Auffassung, dass …</span><span class="lv c1">C1</span></li>
+          <li data-level="c2"><span class="ph-text">es lässt sich kaum von der Hand weisen, dass …</span><span class="lv c2">C2</span></li>
+        </ul></div>
+        <div class="card"><h3>Zustimmen</h3><ul class="phrases">
+          <li data-level="b2"><span class="ph-text">in diesem Punkt sind wir uns einig.</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">dem ist im Grunde nichts hinzuzufügen.</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">da gehe ich völlig konform.</span><span class="lv c1">C1</span></li>
+        </ul></div>
+        <div class="card"><h3>Widersprechen</h3><ul class="phrases">
+          <li data-level="b1"><span class="ph-text">ich bin (ganz) anderer Meinung.</span></li>
+          <li data-level="b2"><span class="ph-text">so pauschal lässt sich das nicht sagen.</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">dieser Auffassung möchte ich entschieden widersprechen.</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">das greift meines Erachtens deutlich zu kurz.</span><span class="lv c1">C1</span></li>
+          <li data-level="c2"><span class="ph-text">hier liegt meiner Ansicht nach ein Trugschluss vor.</span><span class="lv c2">C2</span></li>
+        </ul></div>
+        <div class="card"><h3>Argumentieren</h3><ul class="phrases">
+          <li data-level="b2"><span class="ph-text">ein gewichtiges Argument dafür ist, dass …</span><span class="lv b2">B2</span></li>
+          <li data-level="b2"><span class="ph-text">dies lässt sich damit begründen, dass …</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">ausschlaggebend ist hierbei, dass …</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">nicht zu unterschätzen ist der Umstand, dass …</span><span class="lv c1">C1</span></li>
+          <li data-level="c2"><span class="ph-text">letztlich läuft alles auf die Frage hinaus, ob …</span><span class="lv c2">C2</span></li>
+        </ul></div>
+        <div class="card"><h3>Beispiele geben</h3><ul class="phrases">
+          <li data-level="b2"><span class="ph-text">dies lässt sich an einem Beispiel verdeutlichen: …</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">man denke nur an …</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">ein anschauliches Beispiel hierfür liefert …</span><span class="lv c1">C1</span></li>
+          <li data-level="c2"><span class="ph-text">exemplarisch sei in diesem Zusammenhang … genannt.</span><span class="lv c2">C2</span></li>
+        </ul></div>
+        <div class="card"><h3>Einräumen / Konzession</h3><ul class="phrases">
+          <li data-level="b2"><span class="ph-text">es stimmt zwar, dass …, trotzdem …</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">zugegebenermaßen …, gleichwohl …</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">bei aller berechtigten Kritik darf nicht übersehen werden, dass …</span><span class="lv c1">C1</span></li>
+          <li data-level="c2"><span class="ph-text">so berechtigt dieser Einwand auch sein mag, …</span><span class="lv c2">C2</span></li>
+        </ul></div>
+        <div class="card"><h3>Schluss / Fazit</h3><ul class="phrases">
+          <li data-level="b2"><span class="ph-text">unter dem Strich …</span><span class="lv b2">B2</span></li>
+          <li data-level="b2"><span class="ph-text">letzten Endes …</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">festzuhalten bleibt, dass …</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">wägt man beide Seiten gegeneinander ab, so …</span><span class="lv c1">C1</span></li>
+          <li data-level="c2"><span class="ph-text">all diese Überlegungen führen zu dem Schluss, dass …</span><span class="lv c2">C2</span></li>
+        </ul></div>
+      </div>
+    </div>
+
+    <!-- Aufgabe 3 -->
+    <div class="section">
+      <div class="section-head"><span class="section-num">AUFGABE 3</span><span class="section-title">Halbformelle / formelle E-Mail</span></div>
+      <div class="section-meta">ca. 40 Wörter · gehobenes, geschäftliches Register</div>
+      <div class="grid">
+        <div class="card"><h3>Einleitung / Anliegen</h3><ul class="phrases">
+          <li data-level="b1"><span class="ph-text">ich schreibe Ihnen, weil …</span></li>
+          <li data-level="b2"><span class="ph-text">mit Bedauern muss ich Ihnen mitteilen, dass …</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">hiermit möchte ich Sie davon in Kenntnis setzen, dass …</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">ich erlaube mir, Sie auf … hinzuweisen.</span><span class="lv c1">C1</span></li>
+        </ul></div>
+        <div class="card"><h3>Absagen / entschuldigen</h3><ul class="phrases">
+          <li data-level="b1"><span class="ph-text">leider kann ich den Termin nicht wahrnehmen.</span></li>
+          <li data-level="b2"><span class="ph-text">ich bitte um Verständnis für die entstandenen Umstände.</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">ich bedauere die hierdurch entstehenden Unannehmlichkeiten.</span><span class="lv c1">C1</span></li>
+          <li data-level="c2"><span class="ph-text">für das mir entgegengebrachte Verständnis bedanke ich mich.</span><span class="lv c2">C2</span></li>
+        </ul></div>
+        <div class="card"><h3>Bitte formulieren</h3><ul class="phrases">
+          <li data-level="b2"><span class="ph-text">wäre es Ihnen möglich, …?</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">ich wäre Ihnen zu großem Dank verpflichtet, wenn Sie …</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">dürfte ich Sie bitten, mir … mitzuteilen?</span><span class="lv c1">C1</span></li>
+        </ul></div>
+        <div class="card"><h3>Schluss</h3><ul class="phrases">
+          <li data-level="b2"><span class="ph-text">sollten Sie Rückfragen haben, stehe ich gerne zur Verfügung.</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">für Ihr Entgegenkommen danke ich Ihnen im Voraus.</span><span class="lv c1">C1</span></li>
+          <li data-level="b1"><span class="ph-text">Mit freundlichen Grüßen, …</span></li>
+        </ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SPRECHEN ============ -->
+  <section class="panel sprechen" id="panel-sprechen">
+    <p class="lead">Drei Teile, meist zu zweit: planen, präsentieren, Feedback geben. Gehobene Wendungen wirken im freien Sprechen besonders, wenn sie sicher sitzen — lieber wenige souverän als viele holprig.</p>
+
+    <!-- Teil 1 -->
+    <div class="section">
+      <div class="section-head"><span class="section-num">TEIL 1</span><span class="section-title">Gemeinsam etwas planen</span></div>
+      <div class="section-meta">ca. 3 Min. · Vorschläge machen, abwägen, sich einigen</div>
+      <div class="grid">
+        <div class="card"><h3>Vorschläge machen</h3><ul class="phrases">
+          <li data-level="b1"><span class="ph-text">ich schlage vor, dass wir …</span></li>
+          <li data-level="b2"><span class="ph-text">wäre es nicht sinnvoller, zunächst … zu …?</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">ich würde dafür plädieren, dass wir …</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">man könnte erwägen, …</span><span class="lv c1">C1</span></li>
+        </ul></div>
+        <div class="card"><h3>Zustimmen</h3><ul class="phrases">
+          <li data-level="b1"><span class="ph-text">das ist eine gute Idee.</span></li>
+          <li data-level="b2"><span class="ph-text">da bin ich ganz bei dir.</span><span class="lv b2">B2</span></li>
+          <li data-level="b2"><span class="ph-text">das leuchtet mir ein.</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">dem kann ich mich ohne Weiteres anschließen.</span><span class="lv c1">C1</span></li>
+        </ul></div>
+        <div class="card"><h3>Abwägen / Bedenken</h3><ul class="phrases">
+          <li data-level="b2"><span class="ph-text">ich sehe das mit gemischten Gefühlen.</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">da hätte ich gewisse Bedenken, denn …</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">das sollten wir uns gut überlegen.</span><span class="lv c1">C1</span></li>
+          <li data-level="c2"><span class="ph-text">ich frage mich, ob das wirklich zielführend ist.</span><span class="lv c2">C2</span></li>
+        </ul></div>
+        <div class="card"><h3>Sich einigen</h3><ul class="phrases">
+          <li data-level="b2"><span class="ph-text">lass uns einen Kompromiss finden.</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">können wir uns darauf verständigen, dass …?</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">damit wäre die Sache aus meiner Sicht geklärt.</span><span class="lv c1">C1</span></li>
+        </ul></div>
+      </div>
+    </div>
+
+    <!-- Teil 2 -->
+    <div class="section">
+      <div class="section-head"><span class="section-num">TEIL 2</span><span class="section-title">Ein Thema präsentieren</span></div>
+      <div class="section-meta">ca. 3 Min. · fünf Folien — Einleitung → Erfahrung → Heimatland → Vor-/Nachteile → Abschluss</div>
+      <div class="grid">
+        <div class="card"><h3>Einleiten / gliedern</h3><ul class="phrases">
+          <li data-level="b1"><span class="ph-text">mein Thema heute ist …</span></li>
+          <li data-level="b2"><span class="ph-text">im Folgenden möchte ich näher auf … eingehen.</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">ich gliedere meine Ausführungen in drei Abschnitte.</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">lassen Sie mich zunächst … beleuchten.</span><span class="lv c1">C1</span></li>
+        </ul></div>
+        <div class="card"><h3>Übergänge</h3><ul class="phrases">
+          <li data-level="b2"><span class="ph-text">dies bringt mich zu meinem nächsten Punkt: …</span><span class="lv b2">B2</span></li>
+          <li data-level="b2"><span class="ph-text">besonders hervorheben möchte ich, dass …</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">an dieser Stelle ist anzumerken, dass …</span><span class="lv c1">C1</span></li>
+          <li data-level="c2"><span class="ph-text">damit eng verknüpft ist die Frage, inwieweit …</span><span class="lv c2">C2</span></li>
+        </ul></div>
+        <div class="card"><h3>Erfahrung / Heimatland</h3><ul class="phrases">
+          <li data-level="b2"><span class="ph-text">aus eigener Erfahrung kann ich sagen, dass …</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">in meinem Heimatland verhält es sich insofern anders, als …</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">verglichen mit Deutschland fällt auf, dass …</span><span class="lv c1">C1</span></li>
+        </ul></div>
+        <div class="card"><h3>Abwägen / bewerten</h3><ul class="phrases">
+          <li data-level="b2"><span class="ph-text">dem steht allerdings der Nachteil gegenüber, dass …</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">man muss hier sorgfältig zwischen … und … unterscheiden.</span><span class="lv c1">C1</span></li>
+          <li data-level="c2"><span class="ph-text">bei genauerer Betrachtung überwiegen meines Erachtens die Vorteile.</span><span class="lv c2">C2</span></li>
+        </ul></div>
+        <div class="card"><h3>Abschluss</h3><ul class="phrases">
+          <li data-level="b2"><span class="ph-text">zusammenfassend lässt sich festhalten, dass …</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">damit komme ich zum Schluss meiner Ausführungen.</span><span class="lv c1">C1</span></li>
+          <li data-level="b1"><span class="ph-text">vielen Dank für Ihre Aufmerksamkeit.</span></li>
+        </ul></div>
+      </div>
+    </div>
+
+    <!-- Teil 3 -->
+    <div class="section">
+      <div class="section-head"><span class="section-num">TEIL 3</span><span class="section-title">Rückmeldung geben &amp; Fragen beantworten</span></div>
+      <div class="section-meta">Feedback, eine Frage stellen, souverän auf Fragen reagieren</div>
+      <div class="grid">
+        <div class="card"><h3>Rückmeldung / Lob</h3><ul class="phrases">
+          <li data-level="b2"><span class="ph-text">dein Vortrag war wirklich aufschlussreich.</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">du hast die Thematik sehr differenziert dargestellt.</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">an einer Stelle hätte ich mir noch … gewünscht.</span><span class="lv c1">C1</span></li>
+        </ul></div>
+        <div class="card"><h3>Nachfragen</h3><ul class="phrases">
+          <li data-level="b2"><span class="ph-text">wie stehst du zu …?</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">darf ich an dieser Stelle kurz nachhaken?</span><span class="lv c1">C1</span></li>
+          <li data-level="c1"><span class="ph-text">könntest du das noch etwas ausführen?</span><span class="lv c1">C1</span></li>
+        </ul></div>
+        <div class="card"><h3>Souverän antworten</h3><ul class="phrases">
+          <li data-level="b2"><span class="ph-text">das ist ein berechtigter Einwand.</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">wenn ich dich richtig verstehe, zielst du darauf ab, dass …</span><span class="lv c1">C1</span></li>
+          <li data-level="c2"><span class="ph-text">das lässt sich nicht pauschal beantworten — es kommt darauf an, ob …</span><span class="lv c2">C2</span></li>
+        </ul></div>
+        <div class="card"><h3>Zeit gewinnen</h3><ul class="phrases">
+          <li data-level="b2"><span class="ph-text">das ist eine interessante Frage — lass mich kurz überlegen.</span><span class="lv b2">B2</span></li>
+          <li data-level="c1"><span class="ph-text">darüber habe ich mir noch keine abschließende Meinung gebildet.</span><span class="lv c1">C1</span></li>
+        </ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SHARED ============ -->
+  <div class="shared">
+    <div class="shared-label">// Gehobene Konnektoren — für Schreiben &amp; Sprechen</div>
+    <table>
+      <thead><tr><th>Funktion</th><th>geläufig (B1–B2)</th><th class="hi">gehoben (C1–C2)</th></tr></thead>
+      <tbody>
+        <tr><td class="fn">Grund</td><td><code>weil, denn, deshalb</code></td><td class="hi"><code>da, zumal, aufgrund + Gen., infolgedessen</code></td></tr>
+        <tr><td class="fn">Gegensatz</td><td><code>aber, trotzdem, jedoch</code></td><td class="hi"><code>dennoch, indes, im Gegensatz dazu, wohingegen</code></td></tr>
+        <tr><td class="fn">Folge</td><td><code>also, daher, darum</code></td><td class="hi"><code>folglich, somit, demzufolge, mithin</code></td></tr>
+        <tr><td class="fn">Einräumung</td><td><code>obwohl, trotzdem</code></td><td class="hi"><code>obgleich, wenngleich, ungeachtet dessen</code></td></tr>
+        <tr><td class="fn">Aufzählung</td><td><code>außerdem, auch, zudem</code></td><td class="hi"><code>darüber hinaus, ferner, überdies, nicht zuletzt</code></td></tr>
+        <tr><td class="fn">Einschränkung</td><td><code>aber, nur</code></td><td class="hi"><code>allerdings, freilich, gleichwohl, insofern</code></td></tr>
+        <tr><td class="fn">Bedingung</td><td><code>wenn, falls</code></td><td class="hi"><code>sofern, andernfalls, vorausgesetzt, dass</code></td></tr>
+        <tr><td class="fn">Bezug</td><td><code>dazu, dafür</code></td><td class="hi"><code>diesbezüglich, hinsichtlich + Gen., in Bezug auf</code></td></tr>
+      </tbody>
+    </table>
+    <div class="tip">
+      <strong>Strategie fürs gehobene Niveau:</strong> Wer von B1 nach oben will, gewinnt am meisten durch <em>Nominalstil</em> („aufgrund der Tatsache, dass …"), <em>Passiv</em> und unpersönliche Konstruktionen („es lässt sich festhalten, dass …") sowie präzise Konnektoren. Schon zwei, drei gehobene Wendungen pro Text oder Redebeitrag verschieben den Gesamteindruck spürbar — Vielfalt zählt weniger als korrekte, sichere Verwendung.
+    </div>
+    <div class="legend">
+      <span><span class="lv b1" style="margin:0">B1</span> Basis</span>
+      <span><span class="lv b2" style="margin:0">B2</span> erweitert</span>
+      <span><span class="lv c1" style="margin:0">C1</span> gehoben</span>
+      <span><span class="lv c2" style="margin:0">C2</span> akademisch / idiomatisch</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  const RANK = { b1: 1, b2: 2, c1: 3, c2: 4 };
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.panel');
+  tabs.forEach(tab => tab.addEventListener('click', () => {
+    const target = tab.dataset.tab;
+    tabs.forEach(t => t.classList.toggle('active', t === tab));
+    panels.forEach(p => p.classList.toggle('active', p.id === 'panel-' + target));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }));
+  const chips = document.querySelectorAll('.chip');
+  const items = document.querySelectorAll('li[data-level]');
+  chips.forEach(chip => chip.addEventListener('click', () => {
+    chips.forEach(c => c.classList.toggle('active', c === chip));
+    const min = parseInt(chip.dataset.min, 10);
+    items.forEach(li => {
+      const rank = RANK[li.dataset.level] || 1;
+      li.classList.toggle('hidden', rank < min);
+    });
+  }));
+</script>
+</body>
+</html>

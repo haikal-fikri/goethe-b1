@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "corpus": "node scripts/build-corpus.mjs",
+    "seed:sql": "node scripts/generate-seed-sql.mjs"
   },
   "dependencies": {
     "next": "16.2.7",

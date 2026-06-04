@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Redemittel-Trainer · Goethe B1 (Schreiben & Sprechen)
 
-## Getting Started
+Eine Duolingo-artige Web-App zum Üben deutscher **Redemittel** für die
+Goethe-B1-Prüfung. Kernmechanik: Zu einer **englischen Übersetzung** baust du
+aus einer **Wortbank** den richtigen deutschen Satz zusammen. Inhalte von
+**B1 bis C2**, Oberfläche auf Deutsch, mobile-first.
 
-First, run the development server:
+Stack: **Next.js 16 (App Router, TS) · Tailwind v4 · Supabase (Content-DB) · Vercel**.
+
+## Schnellstart
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000 (oder nächster freier Port)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Die App läuft **ohne Datenbank**: Inhalte kommen aus dem gebündelten Snapshot
+`src/content/corpus.json` (414 validierte Redemittel).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Seiten
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Route | Inhalt |
+|-------|--------|
+| `/` | Übungsauswahl: Tabs Schreiben/Sprechen/Konnektoren, Niveau-Filter, Karten je Funktion |
+| `/uebung/[lessonId]` | Übungs-Player mit Wortbank (Wörter zuordnen), Feedback, Tastatursteuerung |
+| `/nachschlagen` | Read-only Referenz aller Wendungen mit Übersetzung + Suche |
+| `/schreiben` | Freies Schreiben mit Redemittel-Checkliste (Selbstabgleich, ohne KI) |
 
-## Learn More
+Tastatur im Player: Ziffern **1–9** wählen Bank-Kacheln, **Enter** prüft/weiter,
+**Backspace** entfernt die letzte Kachel.
 
-To learn more about Next.js, take a look at the following resources:
+## Korpus (Inhalte)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Die Rohdaten liegen pro Bereich in `data/corpus/*.json` (von Research-Subagenten
+erzeugt). Der Merge konsolidiert, validiert und dedupliziert sie:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run corpus     # data/corpus/*.json → src/content/corpus.json
+```
 
-## Deploy on Vercel
+Validierte Invariante: `tokens.join(" ") === phrase` für 100 % der Items.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Aktuell: **414 Items** — Schreiben 222 · Sprechen 118 · Konnektoren 74;
+Niveaus B1 125 · B2 123 · C1 110 · C2 56.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Supabase (optional, „Source of Truth")
+
+Schema und idempotenter Seed liegen unter `supabase/`:
+
+```bash
+npm run seed:sql   # src/content/corpus.json → supabase/seed.sql
+
+# Schema + Daten einspielen:
+psql "$DATABASE_URL" -f supabase/migrations/0001_content_schema.sql
+psql "$DATABASE_URL" -f supabase/seed.sql
+```
+
+**Welcher Connection-String?** Für Migration + Seed (DDL + Bulk-Insert via psql)
+den **Session-Pooler**- oder **Direct-Connection**-String verwenden — *nicht*
+den Transaction-Pooler (Port 6543), da dieser keine Session-Features/DDL
+zuverlässig unterstützt. Setze ihn als `DATABASE_URL` (siehe `.env.example`).
+
+Alle Content-Tabellen sind `public read` (RLS); Schreibzugriff nur Service-Role.
+
+## Deployment (Vercel)
+
+`npm run build` ist grün; das Repo lässt sich direkt auf Vercel deployen. Da der
+Korpus-Snapshot mitgebaut wird, sind für den MVP keine Env-Variablen nötig.

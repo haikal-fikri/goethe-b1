@@ -1,0 +1,4588 @@
+[
+  {
+    "phrase": "Wie wäre es, wenn wir am Samstag anfangen?",
+    "frame": "wie wäre es, wenn …?",
+    "translation": "How about we start on Saturday?",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "vorschlag_bitte",
+      "nameDe": "Vorschläge machen",
+      "nameEn": "Making suggestions"
+    },
+    "registerGroup": "suggestion",
+    "tokens": [
+      "Wie",
+      "wäre",
+      "es,",
+      "wenn",
+      "wir",
+      "am",
+      "Samstag",
+      "anfangen?"
+    ],
+    "distractors": [
+      "dass",
+      "ist",
+      "werden"
+    ],
+    "clozeTemplate": "Wie {{wäre}} es, wenn wir am Samstag anfangen?",
+    "notes": "Gängiger, höflicher Vorschlag mit Konjunktiv II.",
+    "tags": [
+      "vorschlag",
+      "konjunktiv"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Ich schlage vor, dass wir uns das Programm teilen.",
+    "frame": "ich schlage vor, dass …",
+    "translation": "I suggest that we split up the program.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "vorschlag_bitte",
+      "nameDe": "Vorschläge machen",
+      "nameEn": "Making suggestions"
+    },
+    "registerGroup": "suggestion",
+    "tokens": [
+      "Ich",
+      "schlage",
+      "vor,",
+      "dass",
+      "wir",
+      "uns",
+      "das",
+      "Programm",
+      "teilen."
+    ],
+    "distractors": [
+      "vorschlagen",
+      "ob",
+      "wird"
+    ],
+    "clozeTemplate": "Ich schlage {{vor}}, dass wir uns das Programm teilen.",
+    "notes": "Trennbares Verb: vorschlagen.",
+    "tags": [
+      "vorschlag"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Wir könnten zuerst die Kosten besprechen.",
+    "frame": "wir könnten zuerst …",
+    "translation": "We could discuss the costs first.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "vorschlag_bitte",
+      "nameDe": "Vorschläge machen",
+      "nameEn": "Making suggestions"
+    },
+    "registerGroup": "suggestion",
+    "tokens": [
+      "Wir",
+      "könnten",
+      "zuerst",
+      "die",
+      "Kosten",
+      "besprechen."
+    ],
+    "distractors": [
+      "müssen",
+      "besprochen",
+      "kann"
+    ],
+    "clozeTemplate": "Wir {{könnten}} zuerst die Kosten besprechen.",
+    "notes": "könnten signalisiert einen unverbindlichen Vorschlag.",
+    "tags": [
+      "vorschlag",
+      "konjunktiv"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Was hältst du davon, am Abend zu üben?",
+    "frame": "was hältst du davon, … zu …?",
+    "translation": "What do you think about practicing in the evening?",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "vorschlag_bitte",
+      "nameDe": "Vorschläge machen",
+      "nameEn": "Making suggestions"
+    },
+    "registerGroup": "suggestion",
+    "tokens": [
+      "Was",
+      "hältst",
+      "du",
+      "davon,",
+      "am",
+      "Abend",
+      "zu",
+      "üben?"
+    ],
+    "distractors": [
+      "denkst",
+      "über",
+      "macht"
+    ],
+    "clozeTemplate": "Was {{hältst}} du davon, am Abend zu üben?",
+    "notes": "Idiomatische Wendung: etwas von etwas halten.",
+    "tags": [
+      "vorschlag",
+      "meinung"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Ich würde vorschlagen, dass wir uns am Freitag treffen.",
+    "frame": "ich würde vorschlagen, dass …",
+    "translation": "I would suggest that we meet on Friday.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "vorschlag_bitte",
+      "nameDe": "Vorschläge machen",
+      "nameEn": "Making suggestions"
+    },
+    "registerGroup": "suggestion",
+    "tokens": [
+      "Ich",
+      "würde",
+      "vorschlagen,",
+      "dass",
+      "wir",
+      "uns",
+      "am",
+      "Freitag",
+      "treffen."
+    ],
+    "distractors": [
+      "das",
+      "wird",
+      "vorgeschlagen"
+    ],
+    "clozeTemplate": "Ich würde {{vorschlagen}}, dass wir uns am Freitag treffen.",
+    "notes": "Besonders höflicher Vorschlag mit würde + Konjunktiv II.",
+    "tags": [
+      "vorschlag",
+      "konjunktiv"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Vielleicht sollten wir die Aufgaben gleich verteilen.",
+    "frame": "vielleicht sollten wir …",
+    "translation": "Maybe we should divide up the tasks right away.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "vorschlag_bitte",
+      "nameDe": "Vorschläge machen",
+      "nameEn": "Making suggestions"
+    },
+    "registerGroup": "suggestion",
+    "tokens": [
+      "Vielleicht",
+      "sollten",
+      "wir",
+      "die",
+      "Aufgaben",
+      "gleich",
+      "verteilen."
+    ],
+    "distractors": [
+      "wollen",
+      "verteilt",
+      "kann"
+    ],
+    "clozeTemplate": "Vielleicht {{sollten}} wir die Aufgaben gleich verteilen.",
+    "notes": "sollten + vielleicht klingt vorsichtig und kooperativ.",
+    "tags": [
+      "vorschlag",
+      "konjunktiv"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Ich hätte da einen Vorschlag zur Verteilung der Aufgaben.",
+    "frame": "ich hätte da einen Vorschlag zu …",
+    "translation": "I have a suggestion regarding the distribution of tasks.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "vorschlag_bitte",
+      "nameDe": "Vorschläge machen",
+      "nameEn": "Making suggestions"
+    },
+    "registerGroup": "suggestion",
+    "tokens": [
+      "Ich",
+      "hätte",
+      "da",
+      "einen",
+      "Vorschlag",
+      "zur",
+      "Verteilung",
+      "der",
+      "Aufgaben."
+    ],
+    "distractors": [
+      "habe",
+      "mit",
+      "Vorschläge"
+    ],
+    "clozeTemplate": "Ich {{hätte}} da einen Vorschlag zur Verteilung der Aufgaben.",
+    "notes": "hätte da einen Vorschlag wirkt zugleich höflich und konkret.",
+    "tags": [
+      "vorschlag",
+      "konjunktiv"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Dürfte ich einen alternativen Vorschlag einbringen?",
+    "frame": "dürfte ich … einbringen?",
+    "translation": "Might I put forward an alternative suggestion?",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "vorschlag_bitte",
+      "nameDe": "Vorschläge machen",
+      "nameEn": "Making suggestions"
+    },
+    "registerGroup": "suggestion",
+    "tokens": [
+      "Dürfte",
+      "ich",
+      "einen",
+      "alternativen",
+      "Vorschlag",
+      "einbringen?"
+    ],
+    "distractors": [
+      "darf",
+      "einbringt",
+      "bringen"
+    ],
+    "clozeTemplate": "{{Dürfte}} ich einen alternativen Vorschlag einbringen?",
+    "notes": "dürfte ich … signalisiert besonders höfliche Distanz.",
+    "tags": [
+      "vorschlag",
+      "konjunktiv",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "An dieser Stelle würde ich folgendes Vorgehen vorschlagen.",
+    "frame": "ich würde folgendes Vorgehen vorschlagen",
+    "translation": "At this point I would propose the following approach.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "vorschlag_bitte",
+      "nameDe": "Vorschläge machen",
+      "nameEn": "Making suggestions"
+    },
+    "registerGroup": "suggestion",
+    "tokens": [
+      "An",
+      "dieser",
+      "Stelle",
+      "würde",
+      "ich",
+      "folgendes",
+      "Vorgehen",
+      "vorschlagen."
+    ],
+    "distractors": [
+      "dieses",
+      "vorgeschlagen",
+      "wird"
+    ],
+    "clozeTemplate": "An dieser Stelle {{würde}} ich folgendes Vorgehen vorschlagen.",
+    "notes": "Gehobene Formulierung für strukturierte Planung.",
+    "tags": [
+      "vorschlag",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Mir schwebt vor, das Projekt in zwei Phasen zu gliedern.",
+    "frame": "mir schwebt vor, … zu …",
+    "translation": "I have in mind to organize the project into two phases.",
+    "level": "C2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "vorschlag_bitte",
+      "nameDe": "Vorschläge machen",
+      "nameEn": "Making suggestions"
+    },
+    "registerGroup": "suggestion",
+    "tokens": [
+      "Mir",
+      "schwebt",
+      "vor,",
+      "das",
+      "Projekt",
+      "in",
+      "zwei",
+      "Phasen",
+      "zu",
+      "gliedern."
+    ],
+    "distractors": [
+      "schwebt,",
+      "gliedert",
+      "über"
+    ],
+    "clozeTemplate": "Mir {{schwebt}} vor, das Projekt in zwei Phasen zu gliedern.",
+    "notes": "jemandem schwebt etwas vor: gehoben für eine vage Vorstellung.",
+    "tags": [
+      "vorschlag",
+      "idiom"
+    ],
+    "difficulty": 4
+  },
+  {
+    "phrase": "Ja, das finde ich auch eine gute Idee.",
+    "frame": "das finde ich auch …",
+    "translation": "Yes, I think that's a good idea too.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "zustimmen",
+      "nameDe": "Zustimmen",
+      "nameEn": "Agreeing"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Ja,",
+      "das",
+      "finde",
+      "ich",
+      "auch",
+      "eine",
+      "gute",
+      "Idee."
+    ],
+    "distractors": [
+      "denke",
+      "sehr",
+      "schlecht"
+    ],
+    "clozeTemplate": "Ja, das {{finde}} ich auch eine gute Idee.",
+    "notes": "Einfache, freundliche Zustimmung.",
+    "tags": [
+      "zustimmung"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Da bin ich ganz deiner Meinung.",
+    "frame": "da bin ich deiner Meinung",
+    "translation": "I completely agree with you there.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "zustimmen",
+      "nameDe": "Zustimmen",
+      "nameEn": "Agreeing"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Da",
+      "bin",
+      "ich",
+      "ganz",
+      "deiner",
+      "Meinung."
+    ],
+    "distractors": [
+      "meiner",
+      "Meinungen",
+      "hast"
+    ],
+    "clozeTemplate": "Da bin ich ganz deiner {{Meinung}}.",
+    "notes": "Feste Wendung zur Zustimmung.",
+    "tags": [
+      "zustimmung",
+      "idiom"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Genau, so sehe ich das auch.",
+    "frame": "so sehe ich das auch",
+    "translation": "Exactly, that's how I see it too.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "zustimmen",
+      "nameDe": "Zustimmen",
+      "nameEn": "Agreeing"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Genau,",
+      "so",
+      "sehe",
+      "ich",
+      "das",
+      "auch."
+    ],
+    "distractors": [
+      "sehen",
+      "dass",
+      "nicht"
+    ],
+    "clozeTemplate": "Genau, so {{sehe}} ich das auch.",
+    "notes": "Kurze, lebendige Zustimmung im Gespräch.",
+    "tags": [
+      "zustimmung"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Das klingt nach einem vernünftigen Plan.",
+    "frame": "das klingt nach …",
+    "translation": "That sounds like a sensible plan.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "zustimmen",
+      "nameDe": "Zustimmen",
+      "nameEn": "Agreeing"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Das",
+      "klingt",
+      "nach",
+      "einem",
+      "vernünftigen",
+      "Plan."
+    ],
+    "distractors": [
+      "klingen",
+      "an",
+      "einen"
+    ],
+    "clozeTemplate": "Das {{klingt}} nach einem vernünftigen Plan.",
+    "notes": "klingen nach + Dativ.",
+    "tags": [
+      "zustimmung"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Dem kann ich nur zustimmen.",
+    "frame": "dem kann ich nur zustimmen",
+    "translation": "I can only agree with that.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "zustimmen",
+      "nameDe": "Zustimmen",
+      "nameEn": "Agreeing"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Dem",
+      "kann",
+      "ich",
+      "nur",
+      "zustimmen."
+    ],
+    "distractors": [
+      "das",
+      "zugestimmt",
+      "muss"
+    ],
+    "clozeTemplate": "Dem kann ich nur {{zustimmen}}.",
+    "notes": "zustimmen + Dativ (dem). Betonte Zustimmung.",
+    "tags": [
+      "zustimmung"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Das leuchtet mir ein, machen wir es so.",
+    "frame": "das leuchtet mir ein",
+    "translation": "That makes sense to me, let's do it that way.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "zustimmen",
+      "nameDe": "Zustimmen",
+      "nameEn": "Agreeing"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Das",
+      "leuchtet",
+      "mir",
+      "ein,",
+      "machen",
+      "wir",
+      "es",
+      "so."
+    ],
+    "distractors": [
+      "leuchten",
+      "mich",
+      "ein,"
+    ],
+    "clozeTemplate": "Das {{leuchtet}} mir ein, machen wir es so.",
+    "notes": "jemandem leuchtet etwas ein: idiomatisch für überzeugen.",
+    "tags": [
+      "zustimmung",
+      "idiom"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Da gehe ich völlig mit dir konform.",
+    "frame": "da gehe ich mit dir konform",
+    "translation": "I'm completely in agreement with you there.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "zustimmen",
+      "nameDe": "Zustimmen",
+      "nameEn": "Agreeing"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Da",
+      "gehe",
+      "ich",
+      "völlig",
+      "mit",
+      "dir",
+      "konform."
+    ],
+    "distractors": [
+      "gehst",
+      "dich",
+      "konkret"
+    ],
+    "clozeTemplate": "Da gehe ich völlig mit dir {{konform}}.",
+    "notes": "mit jemandem konform gehen: gehobene Zustimmung.",
+    "tags": [
+      "zustimmung",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Dieser Einschätzung schließe ich mich an.",
+    "frame": "dieser Einschätzung schließe ich mich an",
+    "translation": "I align myself with that assessment.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "zustimmen",
+      "nameDe": "Zustimmen",
+      "nameEn": "Agreeing"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Dieser",
+      "Einschätzung",
+      "schließe",
+      "ich",
+      "mich",
+      "an."
+    ],
+    "distractors": [
+      "diese",
+      "mir",
+      "ein"
+    ],
+    "clozeTemplate": "Dieser Einschätzung schließe ich mich {{an}}.",
+    "notes": "sich einer Sache anschließen (Dativ).",
+    "tags": [
+      "zustimmung",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Dem ist im Grunde nichts hinzuzufügen.",
+    "frame": "dem ist nichts hinzuzufügen",
+    "translation": "There's essentially nothing to add to that.",
+    "level": "C2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "zustimmen",
+      "nameDe": "Zustimmen",
+      "nameEn": "Agreeing"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Dem",
+      "ist",
+      "im",
+      "Grunde",
+      "nichts",
+      "hinzuzufügen."
+    ],
+    "distractors": [
+      "das",
+      "etwas",
+      "hinzufügen"
+    ],
+    "clozeTemplate": "Dem ist im Grunde nichts {{hinzuzufügen}}.",
+    "notes": "Gehobene, nachdrückliche Zustimmung mit zu-Infinitiv.",
+    "tags": [
+      "zustimmung",
+      "formell"
+    ],
+    "difficulty": 4
+  },
+  {
+    "phrase": "Das stimmt, aber wir haben wenig Zeit.",
+    "frame": "das stimmt, aber …",
+    "translation": "That's true, but we have little time.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "abwaegen",
+      "nameDe": "Abwägen / Bedenken",
+      "nameEn": "Weighing / Concerns"
+    },
+    "registerGroup": "concern",
+    "tokens": [
+      "Das",
+      "stimmt,",
+      "aber",
+      "wir",
+      "haben",
+      "wenig",
+      "Zeit."
+    ],
+    "distractors": [
+      "stimmen",
+      "oder",
+      "viel"
+    ],
+    "clozeTemplate": "Das {{stimmt}}, aber wir haben wenig Zeit.",
+    "notes": "Höfliches Einräumen mit anschließendem Einwand.",
+    "tags": [
+      "einwand",
+      "abwaegen"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Einerseits ist das günstig, andererseits dauert es lange.",
+    "frame": "einerseits …, andererseits …",
+    "translation": "On the one hand it's cheap, on the other it takes a long time.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "abwaegen",
+      "nameDe": "Abwägen / Bedenken",
+      "nameEn": "Weighing / Concerns"
+    },
+    "registerGroup": "concern",
+    "tokens": [
+      "Einerseits",
+      "ist",
+      "das",
+      "günstig,",
+      "andererseits",
+      "dauert",
+      "es",
+      "lange."
+    ],
+    "distractors": [
+      "einseits",
+      "aber",
+      "kurz"
+    ],
+    "clozeTemplate": "Einerseits ist das günstig, {{andererseits}} dauert es lange.",
+    "notes": "Klassische Abwägung mit einerseits/andererseits.",
+    "tags": [
+      "abwaegen"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Ich sehe da allerdings ein kleines Problem.",
+    "frame": "ich sehe da ein Problem",
+    "translation": "I do see a small problem there, though.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "abwaegen",
+      "nameDe": "Abwägen / Bedenken",
+      "nameEn": "Weighing / Concerns"
+    },
+    "registerGroup": "concern",
+    "tokens": [
+      "Ich",
+      "sehe",
+      "da",
+      "allerdings",
+      "ein",
+      "kleines",
+      "Problem."
+    ],
+    "distractors": [
+      "sehen",
+      "den",
+      "großes"
+    ],
+    "clozeTemplate": "Ich sehe da {{allerdings}} ein kleines Problem.",
+    "notes": "allerdings schwächt höflich ab und leitet einen Einwand ein.",
+    "tags": [
+      "einwand",
+      "abwaegen"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Wir sollten aber bedenken, dass das Geld kostet.",
+    "frame": "wir sollten bedenken, dass …",
+    "translation": "But we should keep in mind that this costs money.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "abwaegen",
+      "nameDe": "Abwägen / Bedenken",
+      "nameEn": "Weighing / Concerns"
+    },
+    "registerGroup": "concern",
+    "tokens": [
+      "Wir",
+      "sollten",
+      "aber",
+      "bedenken,",
+      "dass",
+      "das",
+      "Geld",
+      "kostet."
+    ],
+    "distractors": [
+      "bedacht",
+      "ob",
+      "wird"
+    ],
+    "clozeTemplate": "Wir sollten aber {{bedenken}}, dass das Geld kostet.",
+    "notes": "bedenken, dass … zur Einleitung von Bedenken.",
+    "tags": [
+      "abwaegen",
+      "bedenken"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Das hat allerdings den Nachteil, dass es teurer wird.",
+    "frame": "das hat den Nachteil, dass …",
+    "translation": "That does have the disadvantage of becoming more expensive.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "abwaegen",
+      "nameDe": "Abwägen / Bedenken",
+      "nameEn": "Weighing / Concerns"
+    },
+    "registerGroup": "concern",
+    "tokens": [
+      "Das",
+      "hat",
+      "allerdings",
+      "den",
+      "Nachteil,",
+      "dass",
+      "es",
+      "teurer",
+      "wird."
+    ],
+    "distractors": [
+      "Vorteil",
+      "ob",
+      "teuer"
+    ],
+    "clozeTemplate": "Das hat allerdings den {{Nachteil}}, dass es teurer wird.",
+    "notes": "Vor- und Nachteile sachlich gegenüberstellen.",
+    "tags": [
+      "abwaegen"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Man müsste abwägen, ob sich der Aufwand wirklich lohnt.",
+    "frame": "man müsste abwägen, ob …",
+    "translation": "One would have to weigh up whether the effort is really worth it.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "abwaegen",
+      "nameDe": "Abwägen / Bedenken",
+      "nameEn": "Weighing / Concerns"
+    },
+    "registerGroup": "concern",
+    "tokens": [
+      "Man",
+      "müsste",
+      "abwägen,",
+      "ob",
+      "sich",
+      "der",
+      "Aufwand",
+      "wirklich",
+      "lohnt."
+    ],
+    "distractors": [
+      "muss",
+      "dass",
+      "abgewogen"
+    ],
+    "clozeTemplate": "Man müsste {{abwägen}}, ob sich der Aufwand wirklich lohnt.",
+    "notes": "müsste + abwägen, ob …: distanziert-reflektierend.",
+    "tags": [
+      "abwaegen",
+      "konjunktiv"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Bei aller Begeisterung sollten wir die Risiken nicht unterschätzen.",
+    "frame": "bei aller Begeisterung sollten wir …",
+    "translation": "For all our enthusiasm, we shouldn't underestimate the risks.",
+    "level": "C2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "abwaegen",
+      "nameDe": "Abwägen / Bedenken",
+      "nameEn": "Weighing / Concerns"
+    },
+    "registerGroup": "concern",
+    "tokens": [
+      "Bei",
+      "aller",
+      "Begeisterung",
+      "sollten",
+      "wir",
+      "die",
+      "Risiken",
+      "nicht",
+      "unterschätzen."
+    ],
+    "distractors": [
+      "allen",
+      "wird",
+      "überschätzen"
+    ],
+    "clozeTemplate": "Bei aller Begeisterung sollten wir die Risiken nicht {{unterschätzen}}.",
+    "notes": "Gehobene Wendung 'bei aller …' relativiert höflich.",
+    "tags": [
+      "abwaegen",
+      "formell"
+    ],
+    "difficulty": 4
+  },
+  {
+    "phrase": "So verlockend das klingt, praktikabel ist es kaum.",
+    "frame": "so … das klingt, … ist es kaum",
+    "translation": "As tempting as that sounds, it's hardly practical.",
+    "level": "C2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "abwaegen",
+      "nameDe": "Abwägen / Bedenken",
+      "nameEn": "Weighing / Concerns"
+    },
+    "registerGroup": "concern",
+    "tokens": [
+      "So",
+      "verlockend",
+      "das",
+      "klingt,",
+      "praktikabel",
+      "ist",
+      "es",
+      "kaum."
+    ],
+    "distractors": [
+      "wie",
+      "sehr",
+      "klingen"
+    ],
+    "clozeTemplate": "So {{verlockend}} das klingt, praktikabel ist es kaum.",
+    "notes": "Konzessive 'so … das auch …'-Konstruktion, hier verkürzt.",
+    "tags": [
+      "abwaegen",
+      "konzessiv"
+    ],
+    "difficulty": 4
+  },
+  {
+    "phrase": "Gut, dann machen wir es so.",
+    "frame": "dann machen wir es so",
+    "translation": "Okay, then let's do it that way.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "sich_einigen",
+      "nameDe": "Sich einigen",
+      "nameEn": "Reaching agreement"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Gut,",
+      "dann",
+      "machen",
+      "wir",
+      "es",
+      "so."
+    ],
+    "distractors": [
+      "macht",
+      "wird",
+      "das"
+    ],
+    "clozeTemplate": "Gut, dann {{machen}} wir es so.",
+    "notes": "Einfacher Abschluss einer Einigung.",
+    "tags": [
+      "einigung"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Dann sind wir uns ja einig.",
+    "frame": "dann sind wir uns einig",
+    "translation": "Then we're in agreement.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "sich_einigen",
+      "nameDe": "Sich einigen",
+      "nameEn": "Reaching agreement"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Dann",
+      "sind",
+      "wir",
+      "uns",
+      "ja",
+      "einig."
+    ],
+    "distractors": [
+      "seid",
+      "uns,",
+      "einigen"
+    ],
+    "clozeTemplate": "Dann sind wir uns ja {{einig}}.",
+    "notes": "sich einig sein: feste Wendung.",
+    "tags": [
+      "einigung",
+      "idiom"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Einigen wir uns auf den Samstag.",
+    "frame": "einigen wir uns auf …",
+    "translation": "Let's settle on Saturday.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "sich_einigen",
+      "nameDe": "Sich einigen",
+      "nameEn": "Reaching agreement"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Einigen",
+      "wir",
+      "uns",
+      "auf",
+      "den",
+      "Samstag."
+    ],
+    "distractors": [
+      "einig",
+      "an",
+      "den,"
+    ],
+    "clozeTemplate": "Einigen wir {{uns}} auf den Samstag.",
+    "notes": "sich einigen auf + Akkusativ.",
+    "tags": [
+      "einigung"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Können wir uns darauf verständigen?",
+    "frame": "können wir uns darauf verständigen?",
+    "translation": "Can we agree on that?",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "sich_einigen",
+      "nameDe": "Sich einigen",
+      "nameEn": "Reaching agreement"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Können",
+      "wir",
+      "uns",
+      "darauf",
+      "verständigen?"
+    ],
+    "distractors": [
+      "darauf,",
+      "verständigt",
+      "wir,"
+    ],
+    "clozeTemplate": "Können wir uns darauf {{verständigen}}?",
+    "notes": "sich verständigen auf: etwas formellere Einigung.",
+    "tags": [
+      "einigung",
+      "formell"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Dann halten wir als Kompromiss die Mitte fest.",
+    "frame": "dann halten wir … fest",
+    "translation": "Then let's settle on the middle ground as a compromise.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "sich_einigen",
+      "nameDe": "Sich einigen",
+      "nameEn": "Reaching agreement"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Dann",
+      "halten",
+      "wir",
+      "als",
+      "Kompromiss",
+      "die",
+      "Mitte",
+      "fest."
+    ],
+    "distractors": [
+      "festhalten",
+      "Kompromisse",
+      "auf"
+    ],
+    "clozeTemplate": "Dann halten wir als Kompromiss die Mitte {{fest}}.",
+    "notes": "etwas festhalten (trennbar): ein Ergebnis festschreiben.",
+    "tags": [
+      "einigung",
+      "kompromiss"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Damit hätten wir einen tragfähigen Kompromiss gefunden.",
+    "frame": "damit hätten wir einen Kompromiss gefunden",
+    "translation": "With that we'd have found a workable compromise.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "sich_einigen",
+      "nameDe": "Sich einigen",
+      "nameEn": "Reaching agreement"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Damit",
+      "hätten",
+      "wir",
+      "einen",
+      "tragfähigen",
+      "Kompromiss",
+      "gefunden."
+    ],
+    "distractors": [
+      "haben",
+      "einem",
+      "finden"
+    ],
+    "clozeTemplate": "Damit {{hätten}} wir einen tragfähigen Kompromiss gefunden.",
+    "notes": "tragfähig: gehoben für 'belastbar, dauerhaft'.",
+    "tags": [
+      "einigung",
+      "kompromiss"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Lassen Sie uns das so festhalten und morgen fortfahren.",
+    "frame": "lassen Sie uns … festhalten",
+    "translation": "Let's record it that way and continue tomorrow.",
+    "level": "C2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "sich_einigen",
+      "nameDe": "Sich einigen",
+      "nameEn": "Reaching agreement"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Lassen",
+      "Sie",
+      "uns",
+      "das",
+      "so",
+      "festhalten",
+      "und",
+      "morgen",
+      "fortfahren."
+    ],
+    "distractors": [
+      "Sie,",
+      "uns,",
+      "fortsetzen"
+    ],
+    "clozeTemplate": "Lassen Sie uns das so {{festhalten}} und morgen fortfahren.",
+    "notes": "'Lassen Sie uns …' höflicher Appell im formellen Register.",
+    "tags": [
+      "einigung",
+      "formell"
+    ],
+    "difficulty": 4
+  },
+  {
+    "phrase": "In meiner Präsentation geht es um das Reisen.",
+    "frame": "in meiner Präsentation geht es um …",
+    "translation": "My presentation is about traveling.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "gliedern",
+      "nameDe": "Einleiten / Gliedern",
+      "nameEn": "Structuring a talk"
+    },
+    "registerGroup": "structuring",
+    "tokens": [
+      "In",
+      "meiner",
+      "Präsentation",
+      "geht",
+      "es",
+      "um",
+      "das",
+      "Reisen."
+    ],
+    "distractors": [
+      "geht,",
+      "über",
+      "der"
+    ],
+    "clozeTemplate": "In meiner Präsentation geht es {{um}} das Reisen.",
+    "notes": "es geht um + Akkusativ: Thema nennen.",
+    "tags": [
+      "einleitung"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Ich möchte euch heute das Thema Umweltschutz vorstellen.",
+    "frame": "ich möchte euch heute … vorstellen",
+    "translation": "Today I'd like to present the topic of environmental protection to you.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "gliedern",
+      "nameDe": "Einleiten / Gliedern",
+      "nameEn": "Structuring a talk"
+    },
+    "registerGroup": "structuring",
+    "tokens": [
+      "Ich",
+      "möchte",
+      "euch",
+      "heute",
+      "das",
+      "Thema",
+      "Umweltschutz",
+      "vorstellen."
+    ],
+    "distractors": [
+      "will",
+      "der",
+      "vorgestellt"
+    ],
+    "clozeTemplate": "Ich möchte euch heute das Thema Umweltschutz {{vorstellen}}.",
+    "notes": "jemandem etwas vorstellen.",
+    "tags": [
+      "einleitung"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Mein Vortrag besteht aus drei Teilen.",
+    "frame": "mein Vortrag besteht aus … Teilen",
+    "translation": "My talk consists of three parts.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "gliedern",
+      "nameDe": "Einleiten / Gliedern",
+      "nameEn": "Structuring a talk"
+    },
+    "registerGroup": "structuring",
+    "tokens": [
+      "Mein",
+      "Vortrag",
+      "besteht",
+      "aus",
+      "drei",
+      "Teilen."
+    ],
+    "distractors": [
+      "bestehen",
+      "aus,",
+      "Teile"
+    ],
+    "clozeTemplate": "Mein Vortrag {{besteht}} aus drei Teilen.",
+    "notes": "bestehen aus + Dativ: Struktur ankündigen.",
+    "tags": [
+      "gliederung"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Zuerst gebe ich einen kurzen Überblick.",
+    "frame": "zuerst gebe ich einen Überblick",
+    "translation": "First I'll give a brief overview.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "gliedern",
+      "nameDe": "Einleiten / Gliedern",
+      "nameEn": "Structuring a talk"
+    },
+    "registerGroup": "structuring",
+    "tokens": [
+      "Zuerst",
+      "gebe",
+      "ich",
+      "einen",
+      "kurzen",
+      "Überblick."
+    ],
+    "distractors": [
+      "geben",
+      "einem",
+      "Überblicke"
+    ],
+    "clozeTemplate": "{{Zuerst}} gebe ich einen kurzen Überblick.",
+    "notes": "Reihenfolge mit zuerst, danach, zum Schluss.",
+    "tags": [
+      "gliederung"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Ich habe meinen Vortrag in drei Abschnitte gegliedert.",
+    "frame": "ich habe … in … gegliedert",
+    "translation": "I have structured my talk into three sections.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "gliedern",
+      "nameDe": "Einleiten / Gliedern",
+      "nameEn": "Structuring a talk"
+    },
+    "registerGroup": "structuring",
+    "tokens": [
+      "Ich",
+      "habe",
+      "meinen",
+      "Vortrag",
+      "in",
+      "drei",
+      "Abschnitte",
+      "gegliedert."
+    ],
+    "distractors": [
+      "meinem",
+      "gliedern",
+      "Abschnitt"
+    ],
+    "clozeTemplate": "Ich habe meinen Vortrag in drei Abschnitte {{gegliedert}}.",
+    "notes": "etwas in Abschnitte gliedern.",
+    "tags": [
+      "gliederung"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Lassen Sie mich kurz den Aufbau meines Vortrags skizzieren.",
+    "frame": "lassen Sie mich den Aufbau skizzieren",
+    "translation": "Let me briefly outline the structure of my talk.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "gliedern",
+      "nameDe": "Einleiten / Gliedern",
+      "nameEn": "Structuring a talk"
+    },
+    "registerGroup": "structuring",
+    "tokens": [
+      "Lassen",
+      "Sie",
+      "mich",
+      "kurz",
+      "den",
+      "Aufbau",
+      "meines",
+      "Vortrags",
+      "skizzieren."
+    ],
+    "distractors": [
+      "mir",
+      "Aufbauten",
+      "skizziert"
+    ],
+    "clozeTemplate": "Lassen Sie mich kurz den Aufbau meines Vortrags {{skizzieren}}.",
+    "notes": "den Aufbau skizzieren: gehobene Ankündigung.",
+    "tags": [
+      "gliederung",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Zunächst möchte ich auf den Hintergrund des Themas eingehen.",
+    "frame": "zunächst möchte ich auf … eingehen",
+    "translation": "First I'd like to go into the background of the topic.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "gliedern",
+      "nameDe": "Einleiten / Gliedern",
+      "nameEn": "Structuring a talk"
+    },
+    "registerGroup": "structuring",
+    "tokens": [
+      "Zunächst",
+      "möchte",
+      "ich",
+      "auf",
+      "den",
+      "Hintergrund",
+      "des",
+      "Themas",
+      "eingehen."
+    ],
+    "distractors": [
+      "zuerst,",
+      "über",
+      "eingegangen"
+    ],
+    "clozeTemplate": "Zunächst möchte ich auf den Hintergrund des Themas {{eingehen}}.",
+    "notes": "auf etwas eingehen: ein Thema vertieft behandeln.",
+    "tags": [
+      "gliederung",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Erlauben Sie mir, einleitend einige Vorbemerkungen zu machen.",
+    "frame": "erlauben Sie mir, … zu machen",
+    "translation": "Allow me to make a few introductory remarks.",
+    "level": "C2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "gliedern",
+      "nameDe": "Einleiten / Gliedern",
+      "nameEn": "Structuring a talk"
+    },
+    "registerGroup": "structuring",
+    "tokens": [
+      "Erlauben",
+      "Sie",
+      "mir,",
+      "einleitend",
+      "einige",
+      "Vorbemerkungen",
+      "zu",
+      "machen."
+    ],
+    "distractors": [
+      "Sie,",
+      "mich",
+      "gemacht"
+    ],
+    "clozeTemplate": "Erlauben Sie mir, einleitend einige {{Vorbemerkungen}} zu machen.",
+    "notes": "Sehr formelle, gehobene Einleitung.",
+    "tags": [
+      "einleitung",
+      "formell"
+    ],
+    "difficulty": 4
+  },
+  {
+    "phrase": "Kommen wir nun zum nächsten Punkt.",
+    "frame": "kommen wir nun zum … Punkt",
+    "translation": "Let's now move on to the next point.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "uebergaenge",
+      "nameDe": "Übergänge",
+      "nameEn": "Transitions"
+    },
+    "registerGroup": "transition",
+    "tokens": [
+      "Kommen",
+      "wir",
+      "nun",
+      "zum",
+      "nächsten",
+      "Punkt."
+    ],
+    "distractors": [
+      "kommt",
+      "zur",
+      "Punkte"
+    ],
+    "clozeTemplate": "Kommen wir {{nun}} zum nächsten Punkt.",
+    "notes": "Standardübergang in Präsentationen.",
+    "tags": [
+      "uebergang"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Danach spreche ich über die Vorteile.",
+    "frame": "danach spreche ich über …",
+    "translation": "After that I'll talk about the advantages.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "uebergaenge",
+      "nameDe": "Übergänge",
+      "nameEn": "Transitions"
+    },
+    "registerGroup": "transition",
+    "tokens": [
+      "Danach",
+      "spreche",
+      "ich",
+      "über",
+      "die",
+      "Vorteile."
+    ],
+    "distractors": [
+      "sprechen",
+      "auf",
+      "Vorteil"
+    ],
+    "clozeTemplate": "{{Danach}} spreche ich über die Vorteile.",
+    "notes": "über etwas sprechen + Akkusativ.",
+    "tags": [
+      "uebergang"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Soweit zum ersten Teil, jetzt zum zweiten.",
+    "frame": "soweit zu …, jetzt zu …",
+    "translation": "So much for the first part, now on to the second.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "uebergaenge",
+      "nameDe": "Übergänge",
+      "nameEn": "Transitions"
+    },
+    "registerGroup": "transition",
+    "tokens": [
+      "Soweit",
+      "zum",
+      "ersten",
+      "Teil,",
+      "jetzt",
+      "zum",
+      "zweiten."
+    ],
+    "distractors": [
+      "zum,",
+      "zur",
+      "Teile"
+    ],
+    "clozeTemplate": "{{Soweit}} zum ersten Teil, jetzt zum zweiten.",
+    "notes": "'Soweit zu …' schließt einen Abschnitt ab.",
+    "tags": [
+      "uebergang"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Das bringt mich auch schon zum nächsten Aspekt.",
+    "frame": "das bringt mich zum nächsten Aspekt",
+    "translation": "That brings me right to the next aspect.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "uebergaenge",
+      "nameDe": "Übergänge",
+      "nameEn": "Transitions"
+    },
+    "registerGroup": "transition",
+    "tokens": [
+      "Das",
+      "bringt",
+      "mich",
+      "auch",
+      "schon",
+      "zum",
+      "nächsten",
+      "Aspekt."
+    ],
+    "distractors": [
+      "bringen",
+      "mir",
+      "Aspekte"
+    ],
+    "clozeTemplate": "Das {{bringt}} mich auch schon zum nächsten Aspekt.",
+    "notes": "Flüssiger Übergang, der Inhalte verknüpft.",
+    "tags": [
+      "uebergang"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Damit komme ich zu einem zentralen Aspekt meines Themas.",
+    "frame": "damit komme ich zu einem Aspekt",
+    "translation": "This brings me to a central aspect of my topic.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "uebergaenge",
+      "nameDe": "Übergänge",
+      "nameEn": "Transitions"
+    },
+    "registerGroup": "transition",
+    "tokens": [
+      "Damit",
+      "komme",
+      "ich",
+      "zu",
+      "einem",
+      "zentralen",
+      "Aspekt",
+      "meines",
+      "Themas."
+    ],
+    "distractors": [
+      "kommen",
+      "einen",
+      "zentrale"
+    ],
+    "clozeTemplate": "Damit {{komme}} ich zu einem zentralen Aspekt meines Themas.",
+    "notes": "Verbindet Abschnitte und betont die Relevanz.",
+    "tags": [
+      "uebergang",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Bevor ich fortfahre, möchte ich das kurz zusammenfassen.",
+    "frame": "bevor ich fortfahre, …",
+    "translation": "Before I continue, I'd like to briefly summarize this.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "uebergaenge",
+      "nameDe": "Übergänge",
+      "nameEn": "Transitions"
+    },
+    "registerGroup": "transition",
+    "tokens": [
+      "Bevor",
+      "ich",
+      "fortfahre,",
+      "möchte",
+      "ich",
+      "das",
+      "kurz",
+      "zusammenfassen."
+    ],
+    "distractors": [
+      "fortfahren",
+      "will",
+      "zusammengefasst"
+    ],
+    "clozeTemplate": "Bevor ich {{fortfahre}}, möchte ich das kurz zusammenfassen.",
+    "notes": "fortfahren: gehoben für weitermachen.",
+    "tags": [
+      "uebergang",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Nahtlos daran anknüpfen lässt sich die Frage der Kosten.",
+    "frame": "daran anknüpfen lässt sich …",
+    "translation": "The question of costs follows on seamlessly from this.",
+    "level": "C2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "uebergaenge",
+      "nameDe": "Übergänge",
+      "nameEn": "Transitions"
+    },
+    "registerGroup": "transition",
+    "tokens": [
+      "Nahtlos",
+      "daran",
+      "anknüpfen",
+      "lässt",
+      "sich",
+      "die",
+      "Frage",
+      "der",
+      "Kosten."
+    ],
+    "distractors": [
+      "anknüpft",
+      "sich,",
+      "Kosten,"
+    ],
+    "clozeTemplate": "Nahtlos daran {{anknüpfen}} lässt sich die Frage der Kosten.",
+    "notes": "an etwas anknüpfen: gehobener, eleganter Übergang.",
+    "tags": [
+      "uebergang",
+      "formell"
+    ],
+    "difficulty": 4
+  },
+  {
+    "phrase": "In meinem Heimatland ist das ganz anders.",
+    "frame": "in meinem Heimatland ist … anders",
+    "translation": "In my home country it's completely different.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "erfahrung",
+      "nameDe": "Erfahrung / Heimatland",
+      "nameEn": "Personal experience"
+    },
+    "registerGroup": "experience",
+    "tokens": [
+      "In",
+      "meinem",
+      "Heimatland",
+      "ist",
+      "das",
+      "ganz",
+      "anders."
+    ],
+    "distractors": [
+      "meinen",
+      "Heimatländer",
+      "gleich"
+    ],
+    "clozeTemplate": "In meinem {{Heimatland}} ist das ganz anders.",
+    "notes": "Persönlicher Bezug zur Heimat.",
+    "tags": [
+      "erfahrung",
+      "heimat"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Bei uns zu Hause macht man das oft so.",
+    "frame": "bei uns zu Hause macht man …",
+    "translation": "Back home we often do it this way.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "erfahrung",
+      "nameDe": "Erfahrung / Heimatland",
+      "nameEn": "Personal experience"
+    },
+    "registerGroup": "experience",
+    "tokens": [
+      "Bei",
+      "uns",
+      "zu",
+      "Hause",
+      "macht",
+      "man",
+      "das",
+      "oft",
+      "so."
+    ],
+    "distractors": [
+      "man,",
+      "Hause,",
+      "selten"
+    ],
+    "clozeTemplate": "Bei uns zu Hause macht {{man}} das oft so.",
+    "notes": "'bei uns zu Hause' für kulturellen Vergleich.",
+    "tags": [
+      "erfahrung",
+      "heimat"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Ich habe selbst die Erfahrung gemacht, dass das hilft.",
+    "frame": "ich habe die Erfahrung gemacht, dass …",
+    "translation": "I myself have had the experience that this helps.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "erfahrung",
+      "nameDe": "Erfahrung / Heimatland",
+      "nameEn": "Personal experience"
+    },
+    "registerGroup": "experience",
+    "tokens": [
+      "Ich",
+      "habe",
+      "selbst",
+      "die",
+      "Erfahrung",
+      "gemacht,",
+      "dass",
+      "das",
+      "hilft."
+    ],
+    "distractors": [
+      "machen",
+      "Erfahrungen",
+      "ob"
+    ],
+    "clozeTemplate": "Ich habe selbst die {{Erfahrung}} gemacht, dass das hilft.",
+    "notes": "eine Erfahrung machen: feste Wendung.",
+    "tags": [
+      "erfahrung"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Aus eigener Erfahrung kann ich das nur bestätigen.",
+    "frame": "aus eigener Erfahrung kann ich …",
+    "translation": "From my own experience I can only confirm this.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "erfahrung",
+      "nameDe": "Erfahrung / Heimatland",
+      "nameEn": "Personal experience"
+    },
+    "registerGroup": "experience",
+    "tokens": [
+      "Aus",
+      "eigener",
+      "Erfahrung",
+      "kann",
+      "ich",
+      "das",
+      "nur",
+      "bestätigen."
+    ],
+    "distractors": [
+      "eigene",
+      "Erfahrungen",
+      "bestätigt"
+    ],
+    "clozeTemplate": "Aus eigener {{Erfahrung}} kann ich das nur bestätigen.",
+    "notes": "aus eigener Erfahrung: persönliche Glaubwürdigkeit.",
+    "tags": [
+      "erfahrung"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Als ich noch in meiner Heimat lebte, war alles langsamer.",
+    "frame": "als ich in meiner Heimat lebte, …",
+    "translation": "When I still lived in my home country, everything was slower.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "erfahrung",
+      "nameDe": "Erfahrung / Heimatland",
+      "nameEn": "Personal experience"
+    },
+    "registerGroup": "experience",
+    "tokens": [
+      "Als",
+      "ich",
+      "noch",
+      "in",
+      "meiner",
+      "Heimat",
+      "lebte,",
+      "war",
+      "alles",
+      "langsamer."
+    ],
+    "distractors": [
+      "wenn",
+      "Heimaten",
+      "lebt"
+    ],
+    "clozeTemplate": "Als ich noch in meiner Heimat {{lebte}}, war alles langsamer.",
+    "notes": "als + Präteritum für einmalige Vergangenheit.",
+    "tags": [
+      "erfahrung",
+      "heimat"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "In dieser Hinsicht unterscheidet sich meine Heimat deutlich.",
+    "frame": "in dieser Hinsicht unterscheidet sich …",
+    "translation": "In this respect my home country differs noticeably.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "erfahrung",
+      "nameDe": "Erfahrung / Heimatland",
+      "nameEn": "Personal experience"
+    },
+    "registerGroup": "experience",
+    "tokens": [
+      "In",
+      "dieser",
+      "Hinsicht",
+      "unterscheidet",
+      "sich",
+      "meine",
+      "Heimat",
+      "deutlich."
+    ],
+    "distractors": [
+      "Hinsichten",
+      "unterscheidet,",
+      "sie"
+    ],
+    "clozeTemplate": "In dieser Hinsicht {{unterscheidet}} sich meine Heimat deutlich.",
+    "notes": "sich unterscheiden: gehobener Vergleich.",
+    "tags": [
+      "erfahrung",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Aus meiner ganz persönlichen Warte betrachtet, überwiegen die Vorteile.",
+    "frame": "aus meiner Warte betrachtet, …",
+    "translation": "Viewed from my own personal perspective, the advantages prevail.",
+    "level": "C2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "erfahrung",
+      "nameDe": "Erfahrung / Heimatland",
+      "nameEn": "Personal experience"
+    },
+    "registerGroup": "experience",
+    "tokens": [
+      "Aus",
+      "meiner",
+      "ganz",
+      "persönlichen",
+      "Warte",
+      "betrachtet,",
+      "überwiegen",
+      "die",
+      "Vorteile."
+    ],
+    "distractors": [
+      "Warten",
+      "betrachtet,",
+      "Vorteil"
+    ],
+    "clozeTemplate": "Aus meiner ganz persönlichen {{Warte}} betrachtet, überwiegen die Vorteile.",
+    "notes": "'aus jemandes Warte' gehoben für 'aus jemandes Sicht'.",
+    "tags": [
+      "erfahrung",
+      "formell"
+    ],
+    "difficulty": 4
+  },
+  {
+    "phrase": "Meiner Meinung nach ist das sehr wichtig.",
+    "frame": "meiner Meinung nach ist …",
+    "translation": "In my opinion this is very important.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "bewerten",
+      "nameDe": "Abwägen / Bewerten",
+      "nameEn": "Evaluating"
+    },
+    "registerGroup": "evaluation",
+    "tokens": [
+      "Meiner",
+      "Meinung",
+      "nach",
+      "ist",
+      "das",
+      "sehr",
+      "wichtig."
+    ],
+    "distractors": [
+      "Meinung,",
+      "an",
+      "unwichtig"
+    ],
+    "clozeTemplate": "Meiner {{Meinung}} nach ist das sehr wichtig.",
+    "notes": "Meiner Meinung nach: Standardeinleitung einer Bewertung.",
+    "tags": [
+      "bewertung",
+      "meinung"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Ich finde, dass die Vorteile überwiegen.",
+    "frame": "ich finde, dass …",
+    "translation": "I think that the advantages outweigh the disadvantages.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "bewerten",
+      "nameDe": "Abwägen / Bewerten",
+      "nameEn": "Evaluating"
+    },
+    "registerGroup": "evaluation",
+    "tokens": [
+      "Ich",
+      "finde,",
+      "dass",
+      "die",
+      "Vorteile",
+      "überwiegen."
+    ],
+    "distractors": [
+      "finden",
+      "ob",
+      "Vorteil"
+    ],
+    "clozeTemplate": "Ich {{finde}}, dass die Vorteile überwiegen.",
+    "notes": "finden, dass …: persönliche Bewertung.",
+    "tags": [
+      "bewertung"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Ein klarer Vorteil ist, dass es viel Zeit spart.",
+    "frame": "ein Vorteil ist, dass …",
+    "translation": "A clear advantage is that it saves a lot of time.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "bewerten",
+      "nameDe": "Abwägen / Bewerten",
+      "nameEn": "Evaluating"
+    },
+    "registerGroup": "evaluation",
+    "tokens": [
+      "Ein",
+      "klarer",
+      "Vorteil",
+      "ist,",
+      "dass",
+      "es",
+      "viel",
+      "Zeit",
+      "spart."
+    ],
+    "distractors": [
+      "Vorteile",
+      "ob",
+      "gespart"
+    ],
+    "clozeTemplate": "Ein klarer {{Vorteil}} ist, dass es viel Zeit spart.",
+    "notes": "Vorteile/Nachteile sachlich benennen.",
+    "tags": [
+      "bewertung"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Besonders positiv finde ich, dass es flexibel ist.",
+    "frame": "besonders positiv finde ich, dass …",
+    "translation": "I find it particularly positive that it's flexible.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "bewerten",
+      "nameDe": "Abwägen / Bewerten",
+      "nameEn": "Evaluating"
+    },
+    "registerGroup": "evaluation",
+    "tokens": [
+      "Besonders",
+      "positiv",
+      "finde",
+      "ich,",
+      "dass",
+      "es",
+      "flexibel",
+      "ist."
+    ],
+    "distractors": [
+      "positive",
+      "finden",
+      "negativ"
+    ],
+    "clozeTemplate": "Besonders {{positiv}} finde ich, dass es flexibel ist.",
+    "notes": "Bewertung mit besonders + Adjektiv.",
+    "tags": [
+      "bewertung"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Alles in allem überwiegen für mich die Vorteile.",
+    "frame": "alles in allem überwiegen die Vorteile",
+    "translation": "All in all, the advantages outweigh the rest for me.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "bewerten",
+      "nameDe": "Abwägen / Bewerten",
+      "nameEn": "Evaluating"
+    },
+    "registerGroup": "evaluation",
+    "tokens": [
+      "Alles",
+      "in",
+      "allem",
+      "überwiegen",
+      "für",
+      "mich",
+      "die",
+      "Vorteile."
+    ],
+    "distractors": [
+      "allem,",
+      "überwiegt",
+      "Vorteil"
+    ],
+    "clozeTemplate": "Alles in allem {{überwiegen}} für mich die Vorteile.",
+    "notes": "'Alles in allem' fasst eine Bewertung zusammen.",
+    "tags": [
+      "bewertung"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Kritisch anzumerken ist allerdings der hohe Aufwand.",
+    "frame": "kritisch anzumerken ist …",
+    "translation": "What must be noted critically, however, is the high effort involved.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "bewerten",
+      "nameDe": "Abwägen / Bewerten",
+      "nameEn": "Evaluating"
+    },
+    "registerGroup": "evaluation",
+    "tokens": [
+      "Kritisch",
+      "anzumerken",
+      "ist",
+      "allerdings",
+      "der",
+      "hohe",
+      "Aufwand."
+    ],
+    "distractors": [
+      "anmerken",
+      "der,",
+      "niedrige"
+    ],
+    "clozeTemplate": "Kritisch {{anzumerken}} ist allerdings der hohe Aufwand.",
+    "notes": "anzumerken ist: gehobene, sachliche Kritik.",
+    "tags": [
+      "bewertung",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Unterm Strich fällt meine Bilanz eindeutig positiv aus.",
+    "frame": "unterm Strich fällt meine Bilanz … aus",
+    "translation": "On balance, my verdict comes out clearly positive.",
+    "level": "C2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "bewerten",
+      "nameDe": "Abwägen / Bewerten",
+      "nameEn": "Evaluating"
+    },
+    "registerGroup": "evaluation",
+    "tokens": [
+      "Unterm",
+      "Strich",
+      "fällt",
+      "meine",
+      "Bilanz",
+      "eindeutig",
+      "positiv",
+      "aus."
+    ],
+    "distractors": [
+      "Striche",
+      "fällt,",
+      "aus,"
+    ],
+    "clozeTemplate": "Unterm {{Strich}} fällt meine Bilanz eindeutig positiv aus.",
+    "notes": "'unterm Strich' idiomatisch für 'letztlich'.",
+    "tags": [
+      "bewertung",
+      "idiom"
+    ],
+    "difficulty": 4
+  },
+  {
+    "phrase": "Zum Schluss möchte ich kurz zusammenfassen.",
+    "frame": "zum Schluss möchte ich zusammenfassen",
+    "translation": "To conclude, I'd like to briefly summarize.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "abschluss_praesentation",
+      "nameDe": "Abschluss",
+      "nameEn": "Closing a presentation"
+    },
+    "registerGroup": "closing",
+    "tokens": [
+      "Zum",
+      "Schluss",
+      "möchte",
+      "ich",
+      "kurz",
+      "zusammenfassen."
+    ],
+    "distractors": [
+      "Schlüsse",
+      "will",
+      "zusammengefasst"
+    ],
+    "clozeTemplate": "Zum {{Schluss}} möchte ich kurz zusammenfassen.",
+    "notes": "Klassische Abschlussformel.",
+    "tags": [
+      "abschluss"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Vielen Dank für eure Aufmerksamkeit.",
+    "frame": "vielen Dank für eure Aufmerksamkeit",
+    "translation": "Thank you very much for your attention.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "abschluss_praesentation",
+      "nameDe": "Abschluss",
+      "nameEn": "Closing a presentation"
+    },
+    "registerGroup": "closing",
+    "tokens": [
+      "Vielen",
+      "Dank",
+      "für",
+      "eure",
+      "Aufmerksamkeit."
+    ],
+    "distractors": [
+      "Danke,",
+      "euer",
+      "Aufmerksamkeiten"
+    ],
+    "clozeTemplate": "Vielen Dank für eure {{Aufmerksamkeit}}.",
+    "notes": "Höfliche Standardformel am Ende.",
+    "tags": [
+      "abschluss",
+      "dank"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Damit bin ich am Ende meiner Präsentation.",
+    "frame": "damit bin ich am Ende meiner Präsentation",
+    "translation": "That brings me to the end of my presentation.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "abschluss_praesentation",
+      "nameDe": "Abschluss",
+      "nameEn": "Closing a presentation"
+    },
+    "registerGroup": "closing",
+    "tokens": [
+      "Damit",
+      "bin",
+      "ich",
+      "am",
+      "Ende",
+      "meiner",
+      "Präsentation."
+    ],
+    "distractors": [
+      "beim",
+      "Ende,",
+      "Präsentationen"
+    ],
+    "clozeTemplate": "Damit bin ich am {{Ende}} meiner Präsentation.",
+    "notes": "Signalisiert das Ende klar und höflich.",
+    "tags": [
+      "abschluss"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Gerne beantworte ich jetzt eure Fragen.",
+    "frame": "gerne beantworte ich eure Fragen",
+    "translation": "I'll be happy to answer your questions now.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "abschluss_praesentation",
+      "nameDe": "Abschluss",
+      "nameEn": "Closing a presentation"
+    },
+    "registerGroup": "closing",
+    "tokens": [
+      "Gerne",
+      "beantworte",
+      "ich",
+      "jetzt",
+      "eure",
+      "Fragen."
+    ],
+    "distractors": [
+      "beantwortet",
+      "euer",
+      "Frage"
+    ],
+    "clozeTemplate": "Gerne {{beantworte}} ich jetzt eure Fragen.",
+    "notes": "Überleitung zur Fragerunde.",
+    "tags": [
+      "abschluss",
+      "fragen"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Abschließend lässt sich festhalten, dass sich der Aufwand lohnt.",
+    "frame": "abschließend lässt sich festhalten, dass …",
+    "translation": "In conclusion, it can be said that the effort pays off.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "abschluss_praesentation",
+      "nameDe": "Abschluss",
+      "nameEn": "Closing a presentation"
+    },
+    "registerGroup": "closing",
+    "tokens": [
+      "Abschließend",
+      "lässt",
+      "sich",
+      "festhalten,",
+      "dass",
+      "sich",
+      "der",
+      "Aufwand",
+      "lohnt."
+    ],
+    "distractors": [
+      "abschließen",
+      "sich,",
+      "festgehalten"
+    ],
+    "clozeTemplate": "Abschließend lässt sich {{festhalten}}, dass sich der Aufwand lohnt.",
+    "notes": "'es lässt sich festhalten' gehoben für ein Fazit.",
+    "tags": [
+      "abschluss",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Lassen Sie mich mit einem kurzen Fazit schließen.",
+    "frame": "lassen Sie mich mit einem Fazit schließen",
+    "translation": "Let me close with a brief conclusion.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "abschluss_praesentation",
+      "nameDe": "Abschluss",
+      "nameEn": "Closing a presentation"
+    },
+    "registerGroup": "closing",
+    "tokens": [
+      "Lassen",
+      "Sie",
+      "mich",
+      "mit",
+      "einem",
+      "kurzen",
+      "Fazit",
+      "schließen."
+    ],
+    "distractors": [
+      "mir",
+      "einen",
+      "geschlossen"
+    ],
+    "clozeTemplate": "Lassen Sie mich mit einem kurzen Fazit {{schließen}}.",
+    "notes": "Formeller Abschluss mit Höflichkeitsform.",
+    "tags": [
+      "abschluss",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Ich danke Ihnen für Ihre Aufmerksamkeit und freue mich auf die Diskussion.",
+    "frame": "ich danke Ihnen … und freue mich auf …",
+    "translation": "Thank you for your attention, and I look forward to the discussion.",
+    "level": "C2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "abschluss_praesentation",
+      "nameDe": "Abschluss",
+      "nameEn": "Closing a presentation"
+    },
+    "registerGroup": "closing",
+    "tokens": [
+      "Ich",
+      "danke",
+      "Ihnen",
+      "für",
+      "Ihre",
+      "Aufmerksamkeit",
+      "und",
+      "freue",
+      "mich",
+      "auf",
+      "die",
+      "Diskussion."
+    ],
+    "distractors": [
+      "danken",
+      "euch",
+      "Diskussionen"
+    ],
+    "clozeTemplate": "Ich danke Ihnen für Ihre {{Aufmerksamkeit}} und freue mich auf die Diskussion.",
+    "notes": "Eleganter, formeller Doppelabschluss.",
+    "tags": [
+      "abschluss",
+      "formell"
+    ],
+    "difficulty": 4
+  },
+  {
+    "phrase": "Dein Vortrag hat mir sehr gut gefallen.",
+    "frame": "dein Vortrag hat mir gut gefallen",
+    "translation": "I really liked your talk.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "rueckmeldung_lob",
+      "nameDe": "Rückmeldung / Lob",
+      "nameEn": "Feedback / Praise"
+    },
+    "registerGroup": "feedback",
+    "tokens": [
+      "Dein",
+      "Vortrag",
+      "hat",
+      "mir",
+      "sehr",
+      "gut",
+      "gefallen."
+    ],
+    "distractors": [
+      "deinen",
+      "mich",
+      "gefallen,"
+    ],
+    "clozeTemplate": "Dein Vortrag hat mir sehr gut {{gefallen}}.",
+    "notes": "gefallen + Dativ: einfaches Lob.",
+    "tags": [
+      "lob"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Ich fand deine Beispiele besonders anschaulich.",
+    "frame": "ich fand deine Beispiele anschaulich",
+    "translation": "I found your examples especially vivid.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "rueckmeldung_lob",
+      "nameDe": "Rückmeldung / Lob",
+      "nameEn": "Feedback / Praise"
+    },
+    "registerGroup": "feedback",
+    "tokens": [
+      "Ich",
+      "fand",
+      "deine",
+      "Beispiele",
+      "besonders",
+      "anschaulich."
+    ],
+    "distractors": [
+      "finde",
+      "deinen",
+      "Beispiel"
+    ],
+    "clozeTemplate": "Ich fand deine Beispiele besonders {{anschaulich}}.",
+    "notes": "anschaulich: lebt von konkreten Beispielen.",
+    "tags": [
+      "lob"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Mir hat besonders gut der Einstieg gefallen.",
+    "frame": "mir hat besonders … gefallen",
+    "translation": "I particularly liked the introduction.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "rueckmeldung_lob",
+      "nameDe": "Rückmeldung / Lob",
+      "nameEn": "Feedback / Praise"
+    },
+    "registerGroup": "feedback",
+    "tokens": [
+      "Mir",
+      "hat",
+      "besonders",
+      "gut",
+      "der",
+      "Einstieg",
+      "gefallen."
+    ],
+    "distractors": [
+      "mich",
+      "Einstiege",
+      "gefallen,"
+    ],
+    "clozeTemplate": "Mir hat besonders gut der {{Einstieg}} gefallen.",
+    "notes": "Konkretes Lob für einen bestimmten Teil.",
+    "tags": [
+      "lob"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Das war wirklich klar und gut strukturiert.",
+    "frame": "das war klar und gut strukturiert",
+    "translation": "That was really clear and well structured.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "rueckmeldung_lob",
+      "nameDe": "Rückmeldung / Lob",
+      "nameEn": "Feedback / Praise"
+    },
+    "registerGroup": "feedback",
+    "tokens": [
+      "Das",
+      "war",
+      "wirklich",
+      "klar",
+      "und",
+      "gut",
+      "strukturiert."
+    ],
+    "distractors": [
+      "waren",
+      "oder",
+      "strukturiert,"
+    ],
+    "clozeTemplate": "Das war wirklich klar und gut {{strukturiert}}.",
+    "notes": "Lob für Aufbau und Verständlichkeit.",
+    "tags": [
+      "lob"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Besonders überzeugend fand ich deine Argumentation.",
+    "frame": "besonders überzeugend fand ich …",
+    "translation": "I found your line of argument particularly convincing.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "rueckmeldung_lob",
+      "nameDe": "Rückmeldung / Lob",
+      "nameEn": "Feedback / Praise"
+    },
+    "registerGroup": "feedback",
+    "tokens": [
+      "Besonders",
+      "überzeugend",
+      "fand",
+      "ich",
+      "deine",
+      "Argumentation."
+    ],
+    "distractors": [
+      "überzeugen",
+      "finde",
+      "Argumentationen"
+    ],
+    "clozeTemplate": "Besonders {{überzeugend}} fand ich deine Argumentation.",
+    "notes": "Gehobenes, präzises Lob.",
+    "tags": [
+      "lob",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Du hast das Thema wirklich auf den Punkt gebracht.",
+    "frame": "du hast das auf den Punkt gebracht",
+    "translation": "You really got to the heart of the topic.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "rueckmeldung_lob",
+      "nameDe": "Rückmeldung / Lob",
+      "nameEn": "Feedback / Praise"
+    },
+    "registerGroup": "feedback",
+    "tokens": [
+      "Du",
+      "hast",
+      "das",
+      "Thema",
+      "wirklich",
+      "auf",
+      "den",
+      "Punkt",
+      "gebracht."
+    ],
+    "distractors": [
+      "bringst",
+      "dem",
+      "Punkte"
+    ],
+    "clozeTemplate": "Du hast das Thema wirklich auf den {{Punkt}} gebracht.",
+    "notes": "'auf den Punkt bringen': idiomatisches Lob.",
+    "tags": [
+      "lob",
+      "idiom"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Hut ab, das war eine rundum gelungene Präsentation.",
+    "frame": "das war eine gelungene Präsentation",
+    "translation": "Hats off, that was an all-around successful presentation.",
+    "level": "C2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "rueckmeldung_lob",
+      "nameDe": "Rückmeldung / Lob",
+      "nameEn": "Feedback / Praise"
+    },
+    "registerGroup": "feedback",
+    "tokens": [
+      "Hut",
+      "ab,",
+      "das",
+      "war",
+      "eine",
+      "rundum",
+      "gelungene",
+      "Präsentation."
+    ],
+    "distractors": [
+      "ab,",
+      "einen",
+      "Präsentationen"
+    ],
+    "clozeTemplate": "Hut ab, das war eine rundum {{gelungene}} Präsentation.",
+    "notes": "'Hut ab' umgangssprachlich-anerkennend, gehoben im Lob.",
+    "tags": [
+      "lob",
+      "idiom"
+    ],
+    "difficulty": 4
+  },
+  {
+    "phrase": "Kannst du das bitte noch einmal erklären?",
+    "frame": "kannst du das noch einmal erklären?",
+    "translation": "Can you please explain that again?",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "nachfragen",
+      "nameDe": "Nachfragen",
+      "nameEn": "Asking follow-up questions"
+    },
+    "registerGroup": "clarify",
+    "tokens": [
+      "Kannst",
+      "du",
+      "das",
+      "bitte",
+      "noch",
+      "einmal",
+      "erklären?"
+    ],
+    "distractors": [
+      "kann",
+      "dir",
+      "erklärt"
+    ],
+    "clozeTemplate": "Kannst du das bitte noch einmal {{erklären}}?",
+    "notes": "Einfache Bitte um Erklärung.",
+    "tags": [
+      "nachfrage"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Wie meinst du das genau?",
+    "frame": "wie meinst du das genau?",
+    "translation": "What exactly do you mean by that?",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "nachfragen",
+      "nameDe": "Nachfragen",
+      "nameEn": "Asking follow-up questions"
+    },
+    "registerGroup": "clarify",
+    "tokens": [
+      "Wie",
+      "meinst",
+      "du",
+      "das",
+      "genau?"
+    ],
+    "distractors": [
+      "meinen",
+      "dir",
+      "genaue"
+    ],
+    "clozeTemplate": "Wie {{meinst}} du das genau?",
+    "notes": "Kurze Verständnisfrage.",
+    "tags": [
+      "nachfrage"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Könntest du dazu ein Beispiel nennen?",
+    "frame": "könntest du dazu ein Beispiel nennen?",
+    "translation": "Could you give an example of that?",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "nachfragen",
+      "nameDe": "Nachfragen",
+      "nameEn": "Asking follow-up questions"
+    },
+    "registerGroup": "clarify",
+    "tokens": [
+      "Könntest",
+      "du",
+      "dazu",
+      "ein",
+      "Beispiel",
+      "nennen?"
+    ],
+    "distractors": [
+      "kannst",
+      "das",
+      "Beispiele"
+    ],
+    "clozeTemplate": "{{Könntest}} du dazu ein Beispiel nennen?",
+    "notes": "könntest: höfliche Bitte mit Konjunktiv II.",
+    "tags": [
+      "nachfrage",
+      "konjunktiv"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Wie bist du eigentlich zu diesem Ergebnis gekommen?",
+    "frame": "wie bist du zu … gekommen?",
+    "translation": "How did you actually arrive at this result?",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "nachfragen",
+      "nameDe": "Nachfragen",
+      "nameEn": "Asking follow-up questions"
+    },
+    "registerGroup": "clarify",
+    "tokens": [
+      "Wie",
+      "bist",
+      "du",
+      "eigentlich",
+      "zu",
+      "diesem",
+      "Ergebnis",
+      "gekommen?"
+    ],
+    "distractors": [
+      "bin",
+      "diesen",
+      "kommen"
+    ],
+    "clozeTemplate": "Wie bist du eigentlich zu diesem Ergebnis {{gekommen}}?",
+    "notes": "zu einem Ergebnis kommen: nach Begründung fragen.",
+    "tags": [
+      "nachfrage"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Mich würde interessieren, worauf du dich dabei stützt.",
+    "frame": "mich würde interessieren, worauf …",
+    "translation": "I'd be interested to know what you base this on.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "nachfragen",
+      "nameDe": "Nachfragen",
+      "nameEn": "Asking follow-up questions"
+    },
+    "registerGroup": "clarify",
+    "tokens": [
+      "Mich",
+      "würde",
+      "interessieren,",
+      "worauf",
+      "du",
+      "dich",
+      "dabei",
+      "stützt."
+    ],
+    "distractors": [
+      "mir",
+      "worauf,",
+      "stützen"
+    ],
+    "clozeTemplate": "Mich würde {{interessieren}}, worauf du dich dabei stützt.",
+    "notes": "sich auf etwas stützen: nach der Quelle fragen.",
+    "tags": [
+      "nachfrage",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Dürfte ich an dieser Stelle kurz nachhaken?",
+    "frame": "dürfte ich kurz nachhaken?",
+    "translation": "Might I follow up briefly at this point?",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "nachfragen",
+      "nameDe": "Nachfragen",
+      "nameEn": "Asking follow-up questions"
+    },
+    "registerGroup": "clarify",
+    "tokens": [
+      "Dürfte",
+      "ich",
+      "an",
+      "dieser",
+      "Stelle",
+      "kurz",
+      "nachhaken?"
+    ],
+    "distractors": [
+      "darf",
+      "der",
+      "nachgehakt"
+    ],
+    "clozeTemplate": "Dürfte ich an dieser Stelle kurz {{nachhaken}}?",
+    "notes": "nachhaken: vertiefend nachfragen, höflich mit dürfte.",
+    "tags": [
+      "nachfrage",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Inwiefern lässt sich dieser Befund verallgemeinern?",
+    "frame": "inwiefern lässt sich … verallgemeinern?",
+    "translation": "To what extent can this finding be generalized?",
+    "level": "C2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "nachfragen",
+      "nameDe": "Nachfragen",
+      "nameEn": "Asking follow-up questions"
+    },
+    "registerGroup": "clarify",
+    "tokens": [
+      "Inwiefern",
+      "lässt",
+      "sich",
+      "dieser",
+      "Befund",
+      "verallgemeinern?"
+    ],
+    "distractors": [
+      "inwieweit,",
+      "sich,",
+      "verallgemeinert"
+    ],
+    "clozeTemplate": "{{Inwiefern}} lässt sich dieser Befund verallgemeinern?",
+    "notes": "Anspruchsvolle, präzise Rückfrage.",
+    "tags": [
+      "nachfrage",
+      "formell"
+    ],
+    "difficulty": 4
+  },
+  {
+    "phrase": "Das ist eine gute Frage.",
+    "frame": "das ist eine gute Frage",
+    "translation": "That's a good question.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "souveraen_antworten",
+      "nameDe": "Souverän antworten",
+      "nameEn": "Answering confidently"
+    },
+    "registerGroup": "answering",
+    "tokens": [
+      "Das",
+      "ist",
+      "eine",
+      "gute",
+      "Frage."
+    ],
+    "distractors": [
+      "eine,",
+      "guter",
+      "Fragen"
+    ],
+    "clozeTemplate": "Das ist eine gute {{Frage}}.",
+    "notes": "Wertschätzt die Frage und gewinnt kurz Zeit.",
+    "tags": [
+      "antwort"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Da haben Sie völlig recht.",
+    "frame": "da haben Sie recht",
+    "translation": "You're completely right about that.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "souveraen_antworten",
+      "nameDe": "Souverän antworten",
+      "nameEn": "Answering confidently"
+    },
+    "registerGroup": "answering",
+    "tokens": [
+      "Da",
+      "haben",
+      "Sie",
+      "völlig",
+      "recht."
+    ],
+    "distractors": [
+      "hat",
+      "sie",
+      "Recht,"
+    ],
+    "clozeTemplate": "Da haben Sie völlig {{recht}}.",
+    "notes": "recht haben: souveränes Einräumen.",
+    "tags": [
+      "antwort"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Das kann ich gut nachvollziehen.",
+    "frame": "das kann ich nachvollziehen",
+    "translation": "I can well understand that.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "souveraen_antworten",
+      "nameDe": "Souverän antworten",
+      "nameEn": "Answering confidently"
+    },
+    "registerGroup": "answering",
+    "tokens": [
+      "Das",
+      "kann",
+      "ich",
+      "gut",
+      "nachvollziehen."
+    ],
+    "distractors": [
+      "kann,",
+      "dir",
+      "nachvollzogen"
+    ],
+    "clozeTemplate": "Das kann ich gut {{nachvollziehen}}.",
+    "notes": "nachvollziehen: zeigt Verständnis ohne nachzugeben.",
+    "tags": [
+      "antwort"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Genau darauf wollte ich noch zu sprechen kommen.",
+    "frame": "darauf wollte ich noch zu sprechen kommen",
+    "translation": "That's exactly what I was going to come to.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "souveraen_antworten",
+      "nameDe": "Souverän antworten",
+      "nameEn": "Answering confidently"
+    },
+    "registerGroup": "answering",
+    "tokens": [
+      "Genau",
+      "darauf",
+      "wollte",
+      "ich",
+      "noch",
+      "zu",
+      "sprechen",
+      "kommen."
+    ],
+    "distractors": [
+      "dorthin",
+      "will",
+      "gesprochen"
+    ],
+    "clozeTemplate": "Genau {{darauf}} wollte ich noch zu sprechen kommen.",
+    "notes": "'zu sprechen kommen auf': souverän überleiten.",
+    "tags": [
+      "antwort"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Das ist ein berechtigter Einwand, dem ich gern begegne.",
+    "frame": "das ist ein berechtigter Einwand",
+    "translation": "That's a valid objection, which I'm happy to address.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "souveraen_antworten",
+      "nameDe": "Souverän antworten",
+      "nameEn": "Answering confidently"
+    },
+    "registerGroup": "answering",
+    "tokens": [
+      "Das",
+      "ist",
+      "ein",
+      "berechtigter",
+      "Einwand,",
+      "dem",
+      "ich",
+      "gern",
+      "begegne."
+    ],
+    "distractors": [
+      "berechtigt",
+      "den",
+      "Einwände"
+    ],
+    "clozeTemplate": "Das ist ein berechtigter {{Einwand}}, dem ich gern begegne.",
+    "notes": "einem Einwand begegnen: souverän kontern.",
+    "tags": [
+      "antwort",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Lassen Sie mich das gern etwas genauer ausführen.",
+    "frame": "lassen Sie mich das genauer ausführen",
+    "translation": "Let me elaborate on that a bit, gladly.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "souveraen_antworten",
+      "nameDe": "Souverän antworten",
+      "nameEn": "Answering confidently"
+    },
+    "registerGroup": "answering",
+    "tokens": [
+      "Lassen",
+      "Sie",
+      "mich",
+      "das",
+      "gern",
+      "etwas",
+      "genauer",
+      "ausführen."
+    ],
+    "distractors": [
+      "mir",
+      "der",
+      "ausgeführt"
+    ],
+    "clozeTemplate": "Lassen Sie mich das gern etwas genauer {{ausführen}}.",
+    "notes": "etwas ausführen: ausführlich darlegen.",
+    "tags": [
+      "antwort",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Diesen Punkt möchte ich entschieden, aber sachlich entkräften.",
+    "frame": "diesen Punkt möchte ich entkräften",
+    "translation": "I'd like to refute this point firmly but objectively.",
+    "level": "C2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "souveraen_antworten",
+      "nameDe": "Souverän antworten",
+      "nameEn": "Answering confidently"
+    },
+    "registerGroup": "answering",
+    "tokens": [
+      "Diesen",
+      "Punkt",
+      "möchte",
+      "ich",
+      "entschieden,",
+      "aber",
+      "sachlich",
+      "entkräften."
+    ],
+    "distractors": [
+      "diesem",
+      "will",
+      "entkräftet"
+    ],
+    "clozeTemplate": "Diesen Punkt möchte ich entschieden, aber sachlich {{entkräften}}.",
+    "notes": "ein Argument entkräften: gehoben für widerlegen.",
+    "tags": [
+      "antwort",
+      "formell"
+    ],
+    "difficulty": 4
+  },
+  {
+    "phrase": "Lass mich kurz überlegen.",
+    "frame": "lass mich kurz überlegen",
+    "translation": "Let me think for a moment.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "zeit_gewinnen",
+      "nameDe": "Zeit gewinnen",
+      "nameEn": "Buying time"
+    },
+    "registerGroup": "stalling",
+    "tokens": [
+      "Lass",
+      "mich",
+      "kurz",
+      "überlegen."
+    ],
+    "distractors": [
+      "lassen",
+      "mir",
+      "überlegt"
+    ],
+    "clozeTemplate": "Lass mich kurz {{überlegen}}.",
+    "notes": "Einfache Formel, um Bedenkzeit zu gewinnen.",
+    "tags": [
+      "zeit"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Das ist eine interessante Frage.",
+    "frame": "das ist eine interessante Frage",
+    "translation": "That's an interesting question.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "zeit_gewinnen",
+      "nameDe": "Zeit gewinnen",
+      "nameEn": "Buying time"
+    },
+    "registerGroup": "stalling",
+    "tokens": [
+      "Das",
+      "ist",
+      "eine",
+      "interessante",
+      "Frage."
+    ],
+    "distractors": [
+      "eine,",
+      "interessant",
+      "Fragen"
+    ],
+    "clozeTemplate": "Das ist eine {{interessante}} Frage.",
+    "notes": "Gibt Zeit, bevor man antwortet.",
+    "tags": [
+      "zeit"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Da muss ich kurz nachdenken.",
+    "frame": "da muss ich kurz nachdenken",
+    "translation": "I have to think about that for a second.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "zeit_gewinnen",
+      "nameDe": "Zeit gewinnen",
+      "nameEn": "Buying time"
+    },
+    "registerGroup": "stalling",
+    "tokens": [
+      "Da",
+      "muss",
+      "ich",
+      "kurz",
+      "nachdenken."
+    ],
+    "distractors": [
+      "müssen",
+      "mir",
+      "nachgedacht"
+    ],
+    "clozeTemplate": "Da muss ich kurz {{nachdenken}}.",
+    "notes": "Ehrlich und souverän: Bedenkzeit erbitten.",
+    "tags": [
+      "zeit"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Wenn ich das richtig verstehe, geht es dir um die Kosten.",
+    "frame": "wenn ich das richtig verstehe, …",
+    "translation": "If I understand you correctly, you mean the costs.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "zeit_gewinnen",
+      "nameDe": "Zeit gewinnen",
+      "nameEn": "Buying time"
+    },
+    "registerGroup": "stalling",
+    "tokens": [
+      "Wenn",
+      "ich",
+      "das",
+      "richtig",
+      "verstehe,",
+      "geht",
+      "es",
+      "dir",
+      "um",
+      "die",
+      "Kosten."
+    ],
+    "distractors": [
+      "verstanden",
+      "dich",
+      "Kosten,"
+    ],
+    "clozeTemplate": "Wenn ich das richtig {{verstehe}}, geht es dir um die Kosten.",
+    "notes": "Paraphrasieren gewinnt Zeit und sichert Verständnis.",
+    "tags": [
+      "zeit"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Darüber habe ich so noch gar nicht nachgedacht.",
+    "frame": "darüber habe ich noch nicht nachgedacht",
+    "translation": "I hadn't really thought about it that way yet.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "zeit_gewinnen",
+      "nameDe": "Zeit gewinnen",
+      "nameEn": "Buying time"
+    },
+    "registerGroup": "stalling",
+    "tokens": [
+      "Darüber",
+      "habe",
+      "ich",
+      "so",
+      "noch",
+      "gar",
+      "nicht",
+      "nachgedacht."
+    ],
+    "distractors": [
+      "darauf",
+      "hatte",
+      "nachdenken"
+    ],
+    "clozeTemplate": "Darüber habe ich so noch gar nicht {{nachgedacht}}.",
+    "notes": "Ehrlicher Zeitgewinn, der souverän wirkt.",
+    "tags": [
+      "zeit"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Lassen Sie mich kurz die Frage sortieren, bevor ich antworte.",
+    "frame": "lassen Sie mich die Frage sortieren",
+    "translation": "Let me sort out the question briefly before I answer.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "zeit_gewinnen",
+      "nameDe": "Zeit gewinnen",
+      "nameEn": "Buying time"
+    },
+    "registerGroup": "stalling",
+    "tokens": [
+      "Lassen",
+      "Sie",
+      "mich",
+      "kurz",
+      "die",
+      "Frage",
+      "sortieren,",
+      "bevor",
+      "ich",
+      "antworte."
+    ],
+    "distractors": [
+      "mir",
+      "der",
+      "sortiert"
+    ],
+    "clozeTemplate": "Lassen Sie mich kurz die Frage {{sortieren}}, bevor ich antworte.",
+    "notes": "Strukturierter Zeitgewinn im formellen Register.",
+    "tags": [
+      "zeit",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Erlauben Sie mir, einen Moment zu sammeln, bevor ich darauf eingehe.",
+    "frame": "erlauben Sie mir, einen Moment zu sammeln",
+    "translation": "Allow me a moment to gather my thoughts before I address this.",
+    "level": "C2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "zeit_gewinnen",
+      "nameDe": "Zeit gewinnen",
+      "nameEn": "Buying time"
+    },
+    "registerGroup": "stalling",
+    "tokens": [
+      "Erlauben",
+      "Sie",
+      "mir,",
+      "einen",
+      "Moment",
+      "zu",
+      "sammeln,",
+      "bevor",
+      "ich",
+      "darauf",
+      "eingehe."
+    ],
+    "distractors": [
+      "mich",
+      "der",
+      "gesammelt"
+    ],
+    "clozeTemplate": "Erlauben Sie mir, einen Moment zu {{sammeln}}, bevor ich darauf eingehe.",
+    "notes": "Sehr gehobene, souveräne Bitte um Bedenkzeit.",
+    "tags": [
+      "zeit",
+      "formell"
+    ],
+    "difficulty": 4
+  },
+  {
+    "phrase": "Sollen wir uns morgen treffen?",
+    "frame": "sollen wir uns … treffen?",
+    "translation": "Should we meet tomorrow?",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "vorschlag_bitte",
+      "nameDe": "Vorschläge machen",
+      "nameEn": "Making suggestions"
+    },
+    "registerGroup": "suggestion",
+    "tokens": [
+      "Sollen",
+      "wir",
+      "uns",
+      "morgen",
+      "treffen?"
+    ],
+    "distractors": [
+      "wollen",
+      "uns,",
+      "getroffen"
+    ],
+    "clozeTemplate": "Sollen wir uns morgen {{treffen}}?",
+    "notes": "Einfacher Vorschlag mit sollen.",
+    "tags": [
+      "vorschlag"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Okay, das passt mir gut.",
+    "frame": "das passt mir gut",
+    "translation": "Okay, that works well for me.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "zustimmen",
+      "nameDe": "Zustimmen",
+      "nameEn": "Agreeing"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Okay,",
+      "das",
+      "passt",
+      "mir",
+      "gut."
+    ],
+    "distractors": [
+      "passen",
+      "mich",
+      "gut,"
+    ],
+    "clozeTemplate": "Okay, das {{passt}} mir gut.",
+    "notes": "passen + Dativ: Zustimmung zum Termin.",
+    "tags": [
+      "zustimmung"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Ich bin nicht ganz sicher, ob das reicht.",
+    "frame": "ich bin nicht sicher, ob …",
+    "translation": "I'm not entirely sure whether that's enough.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "abwaegen",
+      "nameDe": "Abwägen / Bedenken",
+      "nameEn": "Weighing / Concerns"
+    },
+    "registerGroup": "concern",
+    "tokens": [
+      "Ich",
+      "bin",
+      "nicht",
+      "ganz",
+      "sicher,",
+      "ob",
+      "das",
+      "reicht."
+    ],
+    "distractors": [
+      "sind",
+      "dass",
+      "gereicht"
+    ],
+    "clozeTemplate": "Ich bin nicht ganz {{sicher}}, ob das reicht.",
+    "notes": "Vorsichtiger Zweifel mit ob-Satz.",
+    "tags": [
+      "abwaegen"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Treffen wir uns also um drei.",
+    "frame": "treffen wir uns um …",
+    "translation": "So let's meet at three.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "sich_einigen",
+      "nameDe": "Sich einigen",
+      "nameEn": "Reaching agreement"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Treffen",
+      "wir",
+      "uns",
+      "also",
+      "um",
+      "drei."
+    ],
+    "distractors": [
+      "trefft",
+      "uns,",
+      "drei,"
+    ],
+    "clozeTemplate": "Treffen wir {{uns}} also um drei.",
+    "notes": "Konkrete Uhrzeit als Einigung.",
+    "tags": [
+      "einigung"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Heute spreche ich über das Lernen von Sprachen.",
+    "frame": "heute spreche ich über …",
+    "translation": "Today I'm talking about learning languages.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "gliedern",
+      "nameDe": "Einleiten / Gliedern",
+      "nameEn": "Structuring a talk"
+    },
+    "registerGroup": "structuring",
+    "tokens": [
+      "Heute",
+      "spreche",
+      "ich",
+      "über",
+      "das",
+      "Lernen",
+      "von",
+      "Sprachen."
+    ],
+    "distractors": [
+      "sprechen",
+      "auf",
+      "Sprache"
+    ],
+    "clozeTemplate": "Heute {{spreche}} ich über das Lernen von Sprachen.",
+    "notes": "über etwas sprechen: Thema einführen.",
+    "tags": [
+      "einleitung"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Jetzt komme ich zum zweiten Punkt.",
+    "frame": "jetzt komme ich zum … Punkt",
+    "translation": "Now I come to the second point.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "uebergaenge",
+      "nameDe": "Übergänge",
+      "nameEn": "Transitions"
+    },
+    "registerGroup": "transition",
+    "tokens": [
+      "Jetzt",
+      "komme",
+      "ich",
+      "zum",
+      "zweiten",
+      "Punkt."
+    ],
+    "distractors": [
+      "kommen",
+      "zur",
+      "Punkte"
+    ],
+    "clozeTemplate": "Jetzt {{komme}} ich zum zweiten Punkt.",
+    "notes": "Einfacher Übergang.",
+    "tags": [
+      "uebergang"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Bei uns feiert man dieses Fest im Sommer.",
+    "frame": "bei uns feiert man … im Sommer",
+    "translation": "Where I'm from, this festival is celebrated in summer.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "erfahrung",
+      "nameDe": "Erfahrung / Heimatland",
+      "nameEn": "Personal experience"
+    },
+    "registerGroup": "experience",
+    "tokens": [
+      "Bei",
+      "uns",
+      "feiert",
+      "man",
+      "dieses",
+      "Fest",
+      "im",
+      "Sommer."
+    ],
+    "distractors": [
+      "feiern",
+      "den",
+      "Winter"
+    ],
+    "clozeTemplate": "Bei uns {{feiert}} man dieses Fest im Sommer.",
+    "notes": "Kultureller Bezug mit man.",
+    "tags": [
+      "erfahrung",
+      "heimat"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Ich glaube, das ist eine gute Lösung.",
+    "frame": "ich glaube, das ist …",
+    "translation": "I think that's a good solution.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "bewerten",
+      "nameDe": "Abwägen / Bewerten",
+      "nameEn": "Evaluating"
+    },
+    "registerGroup": "evaluation",
+    "tokens": [
+      "Ich",
+      "glaube,",
+      "das",
+      "ist",
+      "eine",
+      "gute",
+      "Lösung."
+    ],
+    "distractors": [
+      "glauben",
+      "der",
+      "Lösungen"
+    ],
+    "clozeTemplate": "Ich {{glaube}}, das ist eine gute Lösung.",
+    "notes": "glauben für vorsichtige Bewertung.",
+    "tags": [
+      "bewertung"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Das war mein Vortrag, danke fürs Zuhören.",
+    "frame": "das war mein Vortrag, danke …",
+    "translation": "That was my talk, thanks for listening.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "abschluss_praesentation",
+      "nameDe": "Abschluss",
+      "nameEn": "Closing a presentation"
+    },
+    "registerGroup": "closing",
+    "tokens": [
+      "Das",
+      "war",
+      "mein",
+      "Vortrag,",
+      "danke",
+      "fürs",
+      "Zuhören."
+    ],
+    "distractors": [
+      "waren",
+      "meinen",
+      "Zuhören,"
+    ],
+    "clozeTemplate": "Das war mein {{Vortrag}}, danke fürs Zuhören.",
+    "notes": "Lockerer, freundlicher Abschluss.",
+    "tags": [
+      "abschluss"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Das hast du super gemacht.",
+    "frame": "das hast du super gemacht",
+    "translation": "You did that really well.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "rueckmeldung_lob",
+      "nameDe": "Rückmeldung / Lob",
+      "nameEn": "Feedback / Praise"
+    },
+    "registerGroup": "feedback",
+    "tokens": [
+      "Das",
+      "hast",
+      "du",
+      "super",
+      "gemacht."
+    ],
+    "distractors": [
+      "hat",
+      "dir",
+      "machen"
+    ],
+    "clozeTemplate": "Das hast du {{super}} gemacht.",
+    "notes": "Spontanes, umgangssprachliches Lob.",
+    "tags": [
+      "lob"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Was meinst du mit diesem Begriff?",
+    "frame": "was meinst du mit …?",
+    "translation": "What do you mean by this term?",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "nachfragen",
+      "nameDe": "Nachfragen",
+      "nameEn": "Asking follow-up questions"
+    },
+    "registerGroup": "clarify",
+    "tokens": [
+      "Was",
+      "meinst",
+      "du",
+      "mit",
+      "diesem",
+      "Begriff?"
+    ],
+    "distractors": [
+      "meinen",
+      "dir",
+      "Begriffe"
+    ],
+    "clozeTemplate": "Was {{meinst}} du mit diesem Begriff?",
+    "notes": "Nach einem Begriff fragen.",
+    "tags": [
+      "nachfrage"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Ja, das sehe ich auch so.",
+    "frame": "das sehe ich auch so",
+    "translation": "Yes, I see it that way too.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "souveraen_antworten",
+      "nameDe": "Souverän antworten",
+      "nameEn": "Answering confidently"
+    },
+    "registerGroup": "answering",
+    "tokens": [
+      "Ja,",
+      "das",
+      "sehe",
+      "ich",
+      "auch",
+      "so."
+    ],
+    "distractors": [
+      "sehen",
+      "mir",
+      "auch,"
+    ],
+    "clozeTemplate": "Ja, das {{sehe}} ich auch so.",
+    "notes": "Bestätigt eine Rückmeldung freundlich.",
+    "tags": [
+      "antwort"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Moment, lass mich kurz nachsehen.",
+    "frame": "lass mich kurz nachsehen",
+    "translation": "One moment, let me quickly check.",
+    "level": "B1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "zeit_gewinnen",
+      "nameDe": "Zeit gewinnen",
+      "nameEn": "Buying time"
+    },
+    "registerGroup": "stalling",
+    "tokens": [
+      "Moment,",
+      "lass",
+      "mich",
+      "kurz",
+      "nachsehen."
+    ],
+    "distractors": [
+      "lassen",
+      "mir",
+      "nachgesehen"
+    ],
+    "clozeTemplate": "Moment, lass mich kurz {{nachsehen}}.",
+    "notes": "nachsehen: kurz prüfen, Zeit gewinnen.",
+    "tags": [
+      "zeit"
+    ],
+    "difficulty": 1
+  },
+  {
+    "phrase": "Ich frage mich, ob das wirklich nötig ist.",
+    "frame": "ich frage mich, ob …",
+    "translation": "I wonder whether that's really necessary.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "abwaegen",
+      "nameDe": "Abwägen / Bedenken",
+      "nameEn": "Weighing / Concerns"
+    },
+    "registerGroup": "concern",
+    "tokens": [
+      "Ich",
+      "frage",
+      "mich,",
+      "ob",
+      "das",
+      "wirklich",
+      "nötig",
+      "ist."
+    ],
+    "distractors": [
+      "fragen",
+      "dass",
+      "nötig,"
+    ],
+    "clozeTemplate": "Ich {{frage}} mich, ob das wirklich nötig ist.",
+    "notes": "sich fragen, ob …: Zweifel höflich äußern.",
+    "tags": [
+      "abwaegen"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Lass uns das gemeinsam aufteilen.",
+    "frame": "lass uns das aufteilen",
+    "translation": "Let's split this up together.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "sich_einigen",
+      "nameDe": "Sich einigen",
+      "nameEn": "Reaching agreement"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Lass",
+      "uns",
+      "das",
+      "gemeinsam",
+      "aufteilen."
+    ],
+    "distractors": [
+      "lassen",
+      "uns,",
+      "aufgeteilt"
+    ],
+    "clozeTemplate": "Lass uns das gemeinsam {{aufteilen}}.",
+    "notes": "lass uns + Infinitiv: kooperativer Vorschlag zur Einigung.",
+    "tags": [
+      "einigung"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Im Folgenden gehe ich auf drei Punkte ein.",
+    "frame": "im Folgenden gehe ich auf … ein",
+    "translation": "In what follows, I'll address three points.",
+    "level": "B2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "gliedern",
+      "nameDe": "Einleiten / Gliedern",
+      "nameEn": "Structuring a talk"
+    },
+    "registerGroup": "structuring",
+    "tokens": [
+      "Im",
+      "Folgenden",
+      "gehe",
+      "ich",
+      "auf",
+      "drei",
+      "Punkte",
+      "ein."
+    ],
+    "distractors": [
+      "folgenden",
+      "über",
+      "eingehen"
+    ],
+    "clozeTemplate": "Im Folgenden gehe ich auf drei Punkte {{ein}}.",
+    "notes": "auf etwas eingehen (trennbar).",
+    "tags": [
+      "gliederung"
+    ],
+    "difficulty": 2
+  },
+  {
+    "phrase": "Im nächsten Schritt beleuchte ich die ökonomische Seite.",
+    "frame": "im nächsten Schritt beleuchte ich …",
+    "translation": "In the next step I'll examine the economic side.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t2",
+      "labelDe": "Teil 2 — Präsentation",
+      "labelEn": "Part 2 — Presentation"
+    },
+    "function": {
+      "code": "uebergaenge",
+      "nameDe": "Übergänge",
+      "nameEn": "Transitions"
+    },
+    "registerGroup": "transition",
+    "tokens": [
+      "Im",
+      "nächsten",
+      "Schritt",
+      "beleuchte",
+      "ich",
+      "die",
+      "ökonomische",
+      "Seite."
+    ],
+    "distractors": [
+      "Schritte",
+      "beleuchtet",
+      "Seiten"
+    ],
+    "clozeTemplate": "Im nächsten Schritt {{beleuchte}} ich die ökonomische Seite.",
+    "notes": "etwas beleuchten: gehoben für 'genauer betrachten'.",
+    "tags": [
+      "uebergang",
+      "formell"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Im Prinzip stimme ich zu, hätte aber eine Anmerkung.",
+    "frame": "im Prinzip stimme ich zu, hätte aber …",
+    "translation": "In principle I agree, but I'd have one remark.",
+    "level": "C1",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "zustimmen",
+      "nameDe": "Zustimmen",
+      "nameEn": "Agreeing"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Im",
+      "Prinzip",
+      "stimme",
+      "ich",
+      "zu,",
+      "hätte",
+      "aber",
+      "eine",
+      "Anmerkung."
+    ],
+    "distractors": [
+      "stimmt",
+      "habe",
+      "Anmerkungen"
+    ],
+    "clozeTemplate": "Im Prinzip {{stimme}} ich zu, hätte aber eine Anmerkung.",
+    "notes": "Teilzustimmung mit höflichem Vorbehalt.",
+    "tags": [
+      "zustimmung",
+      "abwaegen"
+    ],
+    "difficulty": 3
+  },
+  {
+    "phrase": "Letztlich liefe es auf einen Kompromiss hinaus.",
+    "frame": "letztlich liefe es auf … hinaus",
+    "translation": "Ultimately it would come down to a compromise.",
+    "level": "C2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t1",
+      "labelDe": "Teil 1 — Gemeinsam planen",
+      "labelEn": "Part 1 — Planning together"
+    },
+    "function": {
+      "code": "sich_einigen",
+      "nameDe": "Sich einigen",
+      "nameEn": "Reaching agreement"
+    },
+    "registerGroup": "agreement",
+    "tokens": [
+      "Letztlich",
+      "liefe",
+      "es",
+      "auf",
+      "einen",
+      "Kompromiss",
+      "hinaus."
+    ],
+    "distractors": [
+      "läuft",
+      "einem",
+      "hinausgelaufen"
+    ],
+    "clozeTemplate": "Letztlich {{liefe}} es auf einen Kompromiss hinaus.",
+    "notes": "auf etwas hinauslaufen, hier im Konjunktiv II (liefe).",
+    "tags": [
+      "einigung",
+      "konjunktiv"
+    ],
+    "difficulty": 4
+  },
+  {
+    "phrase": "Erlauben Sie, dass ich diesen Aspekt etwas differenzierter beleuchte.",
+    "frame": "erlauben Sie, dass ich … beleuchte",
+    "translation": "Allow me to examine this aspect in a more nuanced way.",
+    "level": "C2",
+    "skill": "sprechen",
+    "task": {
+      "code": "sprechen_t3",
+      "labelDe": "Teil 3 — Rückmeldung & Fragen",
+      "labelEn": "Part 3 — Feedback and questions"
+    },
+    "function": {
+      "code": "souveraen_antworten",
+      "nameDe": "Souverän antworten",
+      "nameEn": "Answering confidently"
+    },
+    "registerGroup": "answering",
+    "tokens": [
+      "Erlauben",
+      "Sie,",
+      "dass",
+      "ich",
+      "diesen",
+      "Aspekt",
+      "etwas",
+      "differenzierter",
+      "beleuchte."
+    ],
+    "distractors": [
+      "erlaubt",
+      "den",
+      "beleuchtet"
+    ],
+    "clozeTemplate": "Erlauben Sie, dass ich diesen Aspekt etwas differenzierter {{beleuchte}}.",
+    "notes": "Souveräne, gehobene Antwort mit Höflichkeitsform.",
+    "tags": [
+      "antwort",
+      "formell"
+    ],
+    "difficulty": 4
+  }
+]
