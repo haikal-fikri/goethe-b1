@@ -1,10 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  DndContext,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  rectSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import type { RedemittelItem } from "@/types";
 import { arraysEqual, buildTiles, type Tile } from "@/lib/exercise";
 import { LevelBadge } from "@/components/LevelBadge";
 import { SKILL_ACCENT } from "@/lib/ui";
+import { FeedbackBar } from "./FeedbackBar";
+import { Pill } from "./dnd/Pill";
+import { useExerciseSensors } from "./dnd/sensors";
 
 type Phase = "input" | "correct" | "wrong";
 
@@ -19,34 +33,48 @@ export function WordBankExercise({
   const [selected, setSelected] = useState<Tile[]>([]);
   const [phase, setPhase] = useState<Phase>("input");
   const accent = SKILL_ACCENT[item.skill];
+  const sensors = useExerciseSensors({ keyboard: false });
 
   const selectedIds = new Set(selected.map((t) => t.id));
   const bank = tiles.filter((t) => !selectedIds.has(t.id));
+  const locked = phase !== "input";
 
   const pickTile = useCallback(
     (tile: Tile) => {
-      if (phase !== "input") return;
+      if (locked) return;
       setSelected((s) => (s.some((t) => t.id === tile.id) ? s : [...s, tile]));
     },
-    [phase]
+    [locked]
   );
 
   const removeTile = useCallback(
     (tile: Tile) => {
-      if (phase !== "input") return;
+      if (locked) return;
       setSelected((s) => s.filter((t) => t.id !== tile.id));
     },
-    [phase]
+    [locked]
   );
 
+  // Ziehen ordnet die gesetzten Kacheln um (Maus/Finger).
+  const onDragEnd = useCallback((e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    setSelected((items) => {
+      const oldI = items.findIndex((t) => t.id === active.id);
+      const newI = items.findIndex((t) => t.id === over.id);
+      if (oldI < 0 || newI < 0) return items;
+      return arrayMove(items, oldI, newI);
+    });
+  }, []);
+
   const check = useCallback(() => {
-    if (phase !== "input" || selected.length === 0) return;
+    if (locked || selected.length === 0) return;
     const correct = arraysEqual(
       selected.map((t) => t.label),
       item.tokens
     );
     setPhase(correct ? "correct" : "wrong");
-  }, [phase, selected, item.tokens]);
+  }, [locked, selected, item.tokens]);
 
   const cont = useCallback(() => {
     onContinue(phase === "correct");
@@ -97,37 +125,45 @@ export function WordBankExercise({
         </p>
       </div>
 
-      {/* Antwort-Slots */}
-      <div
-        aria-live="polite"
-        aria-label="Dein Satz"
-        className="mt-6 flex min-h-[64px] flex-wrap content-start gap-2 rounded-[var(--radius)] border border-dashed border-[var(--border-base)] bg-[color-mix(in_srgb,var(--bg-elev)_50%,transparent)] p-3"
-      >
-        {selected.length === 0 && (
-          <span className="self-center text-sm text-[var(--fg-dim)]">
-            Tippe die Wörter in der richtigen Reihenfolge an …
-          </span>
-        )}
-        {selected.map((tile) => (
-          <TileButton
-            key={tile.id}
-            tile={tile}
-            onClick={() => removeTile(tile)}
-            disabled={phase !== "input"}
-          />
-        ))}
-      </div>
+      <DndContext sensors={sensors} onDragEnd={onDragEnd}>
+        {/* Antwort-Slots (ziehbar umsortierbar) */}
+        <div
+          aria-live="polite"
+          aria-label="Dein Satz"
+          className="mt-6 flex min-h-[64px] flex-wrap content-start gap-2 rounded-[var(--radius)] border border-dashed border-[var(--border-base)] bg-[color-mix(in_srgb,var(--bg-elev)_50%,transparent)] p-3"
+        >
+          {selected.length === 0 && (
+            <span className="self-center text-sm text-[var(--fg-dim)]">
+              Tippe die Wörter in der richtigen Reihenfolge an …
+            </span>
+          )}
+          <SortableContext
+            items={selected.map((t) => t.id)}
+            strategy={rectSortingStrategy}
+          >
+            {selected.map((tile) => (
+              <SortablePill
+                key={tile.id}
+                tile={tile}
+                disabled={locked}
+                onTap={() => removeTile(tile)}
+              />
+            ))}
+          </SortableContext>
+        </div>
+      </DndContext>
 
-      {/* Wortbank */}
+      {/* Wortbank (Tippen zum Hinzufügen) */}
       <div className="mt-4 flex flex-wrap gap-2">
         {bank.map((tile, i) => (
-          <TileButton
+          <Pill
             key={tile.id}
-            tile={tile}
-            index={i < 9 ? i + 1 : undefined}
-            onClick={() => pickTile(tile)}
-            disabled={phase !== "input"}
+            label={tile.label}
             variant="bank"
+            index={i < 9 ? i + 1 : undefined}
+            disabled={locked}
+            onClick={() => pickTile(tile)}
+            aria-label={i < 9 ? `${tile.label} (Taste ${i + 1})` : tile.label}
           />
         ))}
         {bank.length === 0 && phase === "input" && (
@@ -139,7 +175,6 @@ export function WordBankExercise({
 
       <div className="flex-1" />
 
-      {/* Feedback + Aktion */}
       <FeedbackBar
         phase={phase}
         item={item}
@@ -152,118 +187,38 @@ export function WordBankExercise({
   );
 }
 
-function TileButton({
+function SortablePill({
   tile,
-  onClick,
   disabled,
-  index,
-  variant = "slot",
+  onTap,
 }: {
   tile: Tile;
-  onClick: () => void;
   disabled?: boolean;
-  index?: number;
-  variant?: "slot" | "bank";
+  onTap: () => void;
 }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: tile.id, disabled });
   return (
-    <button
-      type="button"
-      onClick={onClick}
+    <Pill
+      ref={setNodeRef}
+      label={tile.label}
+      draggable={!disabled}
+      dragging={isDragging}
       disabled={disabled}
-      aria-label={
-        index ? `${tile.label} (Taste ${index})` : tile.label
-      }
-      className="relative min-h-[44px] rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev-2)] px-3.5 py-2 text-[15px] text-[var(--fg)] transition-colors enabled:hover:border-[var(--border-base)] disabled:opacity-60"
-    >
-      {tile.label}
-      {variant === "bank" && index && (
-        <span className="ml-1.5 hidden font-mono text-[10px] text-[var(--fg-dim)] sm:inline">
-          {index}
-        </span>
-      )}
-    </button>
-  );
-}
-
-function FeedbackBar({
-  phase,
-  item,
-  accent,
-  canCheck,
-  onCheck,
-  onContinue,
-}: {
-  phase: Phase;
-  item: RedemittelItem;
-  accent: string;
-  canCheck: boolean;
-  onCheck: () => void;
-  onContinue: () => void;
-}) {
-  const isCorrect = phase === "correct";
-  const isWrong = phase === "wrong";
-
-  return (
-    <div
-      className="sticky bottom-0 -mx-4 mt-4 border-t px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4"
+      onClick={onTap}
       style={{
-        borderColor: isCorrect
-          ? "var(--ok)"
-          : isWrong
-            ? "var(--bad)"
-            : "var(--border-soft)",
-        backgroundColor: isCorrect
-          ? "color-mix(in srgb, var(--ok) 12%, var(--bg))"
-          : isWrong
-            ? "color-mix(in srgb, var(--bad) 12%, var(--bg))"
-            : "var(--bg)",
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 10 : undefined,
       }}
-      role={phase === "input" ? undefined : "status"}
-    >
-      <div className="mx-auto flex max-w-2xl flex-col gap-3">
-        {isCorrect && (
-          <div className="text-sm">
-            <span className="font-semibold text-[var(--ok)]">Richtig!</span>{" "}
-            <span className="text-[var(--fg-muted)]">
-              {item.function.nameDe}
-              {item.notes ? ` · ${item.notes}` : ""}
-            </span>
-          </div>
-        )}
-        {isWrong && (
-          <div className="text-sm">
-            <span className="font-semibold text-[var(--bad)]">
-              Nicht ganz.
-            </span>{" "}
-            <span className="text-[var(--fg-muted)]">Lösung: </span>
-            <span className="font-medium text-[var(--fg)]">{item.phrase}</span>
-          </div>
-        )}
-
-        {phase === "input" ? (
-          <button
-            type="button"
-            onClick={onCheck}
-            disabled={!canCheck}
-            className="min-h-[48px] w-full rounded-[var(--radius)] px-4 py-3 text-[15px] font-semibold text-[var(--bg)] transition-opacity disabled:opacity-40"
-            style={{ backgroundColor: accent }}
-          >
-            Prüfen
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={onContinue}
-            autoFocus
-            className="min-h-[48px] w-full rounded-[var(--radius)] px-4 py-3 text-[15px] font-semibold text-[var(--bg)]"
-            style={{
-              backgroundColor: isCorrect ? "var(--ok)" : "var(--bad)",
-            }}
-          >
-            Weiter
-          </button>
-        )}
-      </div>
-    </div>
+      {...attributes}
+      {...listeners}
+    />
   );
 }

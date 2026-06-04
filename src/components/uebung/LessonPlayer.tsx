@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { RedemittelItem } from "@/types";
 import { shuffle } from "@/lib/exercise";
 import { WordBankExercise } from "./WordBankExercise";
+import { ClozeExercise } from "./ClozeExercise";
 import { SKILL_ACCENT } from "@/lib/ui";
 
 export function LessonPlayer({
@@ -19,8 +20,13 @@ export function LessonPlayer({
 }) {
   const router = useRouter();
   const initial = useMemo(() => shuffle(items), [items]);
-  const total = initial.length;
+  const total = items.length;
   const accent = SKILL_ACCENT[items[0]?.skill ?? "schreiben"];
+
+  // Erst nach dem Mount randomisieren — sonst weichen Server- und Client-Render
+  // (Math.random in shuffle) voneinander ab → Hydration-Fehler.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const [queue, setQueue] = useState<RedemittelItem[]>(initial);
   const [pos, setPos] = useState(0);
@@ -93,11 +99,21 @@ export function LessonPlayer({
           {title} · {subtitle}
         </div>
         <div className="flex-1">
-          <WordBankExercise
-            key={`${current.id}-${pos}`}
-            item={current}
-            onContinue={handleContinue}
-          />
+          {/* Vor dem Mount nichts Zufälliges rendern (Hydration). Danach
+              abwechselnd: Wortbank ↔ Lückentext (Variation wie bei Duolingo). */}
+          {!mounted ? null : pos % 2 === 0 ? (
+            <WordBankExercise
+              key={`${current.id}-${pos}`}
+              item={current}
+              onContinue={handleContinue}
+            />
+          ) : (
+            <ClozeExercise
+              key={`${current.id}-${pos}`}
+              item={current}
+              onContinue={handleContinue}
+            />
+          )}
         </div>
       </div>
     </div>
