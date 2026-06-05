@@ -3,7 +3,7 @@ import { ReferenceBrowser } from "@/components/nachschlagen/ReferenceBrowser";
 import { getAllItems } from "@/lib/redemittel";
 
 export const metadata = {
-  title: "Nachschlagen · B1-Trainer",
+  title: "Nachschlagen · B1+Trainer",
 };
 
 export const dynamic = "force-dynamic";

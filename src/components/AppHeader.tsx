@@ -23,7 +23,7 @@ export function AppHeader() {
           className="flex items-center gap-1.5 text-[15px] font-semibold tracking-tight text-[var(--fg)]"
         >
           <SneakerMove size={20} weight="duotone" aria-hidden />
-          B1-Trainer
+          B1+Trainer
         </Link>
 
         <div className="flex items-center gap-1">

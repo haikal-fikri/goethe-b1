@@ -17,7 +17,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "B1-Trainer · Goethe B1",
+  title: "B1+Trainer · Goethe B1",
   description:
     "Übe Redemittel für die Goethe-B1-Prüfung (Schreiben & Sprechen) — baue deutsche Sätze aus einer Wortbank.",
 };
