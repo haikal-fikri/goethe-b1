@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 export const viewport = {
   // Einzelner Wert (kein media), damit genau ein <meta name="theme-color">
   // entsteht, dessen Inhalt wir je nach gewähltem Theme per JS aktualisieren.
-  themeColor: "#17191b",
+  themeColor: "#000000",
   width: "device-width",
   initialScale: 1,
   // Inhalt bis unter die Notch ziehen, damit der (fixe) Seitenhintergrund
@@ -39,7 +39,7 @@ export const viewport = {
 // Setzt das Theme vor dem ersten Paint (kein Flash): gespeicherte Wahl,
 // sonst Systemeinstellung. Fällt im Fehlerfall auf die Tafel (dark) zurück.
 // Färbt zugleich die theme-color (iPhone-Notch/Statusleiste) passend zum Header.
-const themeInitScript = `(function(){try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.dataset.theme=t;var m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',t==='light'?'#ffffff':'#17191b');}catch(e){document.documentElement.dataset.theme='dark';}})()`;
+const themeInitScript = `(function(){try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark'){t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.dataset.theme=t;var m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',t==='light'?'#ffffff':'#000000');}catch(e){document.documentElement.dataset.theme='dark';}})()`;
 
 export default function RootLayout({
   children,

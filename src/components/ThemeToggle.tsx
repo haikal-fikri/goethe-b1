@@ -28,7 +28,7 @@ export function ThemeToggle() {
     // theme-color mitführen, damit die iPhone-Notch/Statusleiste dem Header folgt.
     // iOS Safari liest theme-color nur beim Einfügen des <meta> – ein bloßes
     // Ändern des content-Attributs wird ignoriert. Darum den Knoten ersetzen.
-    setThemeColor(next === "light" ? "#ffffff" : "#17191b");
+    setThemeColor(next === "light" ? "#ffffff" : "#000000");
     try {
       localStorage.setItem("theme", next);
     } catch {

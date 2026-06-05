@@ -10,7 +10,7 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #17191b; /* das EINE Schwarz — Seite, Karten, Panels, Header */
+  --bg: #000000; /* das EINE Schwarz (Reinschwarz) — Seite, Karten, Panels, Header */
   /* Eine einzige Dunkelgrau-Stufe für erhabene/interaktive Elemente
      (Eingaben, Kacheln, Hover, Fortschrittsbalken). */
   --bg-elev: #26292e;
