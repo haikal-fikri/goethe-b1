@@ -16,7 +16,7 @@ export default async function SchreibenPage() {
     <>
       <AppHeader />
       <main className="flex-1">
-        <div className="mx-auto max-w-3xl px-4 pt-6">
+        <div className="mx-auto max-w-4xl px-4 pt-6">
           <h1 className="text-2xl font-semibold tracking-tight text-[var(--fg)]">
             Schreiben · KI-Prüfer
           </h1>
@@ -28,7 +28,7 @@ export default async function SchreibenPage() {
         {simulations.length > 0 ? (
           <ExamRunner simulations={simulations} />
         ) : (
-          <div className="mx-auto max-w-3xl px-4 pt-6 text-sm text-[var(--fg-muted)]">
+          <div className="mx-auto max-w-4xl px-4 pt-6 text-sm text-[var(--fg-muted)]">
             Es sind noch keine Prüfungsaufgaben verfügbar.
           </div>
         )}

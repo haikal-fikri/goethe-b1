@@ -54,7 +54,9 @@ export async function POST(request: Request) {
         temperature: 0.2,
         // gpt-oss ist ein Reasoning-Modell; genug Budget, damit das JSON vollständig wird.
         maxOutputTokens: 4000,
-        maxRetries: 1,
+        // Etwas mehr Widerstandsfähigkeit gegen kurzzeitige Groq-Aussetzer/Rate-Limits
+        // (zwei Bewertungen laufen parallel).
+        maxRetries: 3,
         providerOptions: {
           groq: { reasoningEffort: "low", reasoningFormat: "hidden" },
         },
@@ -75,55 +77,71 @@ export async function POST(request: Request) {
     }
   };
 
-  try {
-    // Vier-Augen-Prinzip: zwei Bewertende bewerten unabhängig (parallel).
-    const [mild, streng] = await Promise.all([
-      gradeWith("mild"),
-      gradeWith("streng"),
-    ]);
+  // NDJSON-Stream: ein JSON-Ereignis pro Zeile, damit der Client den
+  // Fortschritt der beiden Bewertungen in Echtzeit anzeigen kann.
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      const enc = new TextEncoder();
+      const send = (obj: unknown) =>
+        controller.enqueue(enc.encode(JSON.stringify(obj) + "\n"));
 
-    const examiners: ExaminerResult[] = [
-      { label: "mild", grade: mild },
-      { label: "streng", grade: streng },
-    ];
+      try {
+        send({ type: "start" });
 
-    // Drittbewertung NUR, wenn die beiden über die Bestehensgrenze uneinig sind
-    // und das Mittel unter der Grenze liegt (offizielles Verfahren).
-    const passLine = PASS_RATIO * mild.maxPunkte;
-    const mean = (mild.gesamtpunkte + streng.gesamtpunkte) / 2;
-    const straddle = mild.bestanden !== streng.bestanden && mean < passLine;
+        // Zwei Bewertende bewerten unabhängig (parallel); jedes meldet sich,
+        // sobald es fertig ist.
+        const examiners: ExaminerResult[] = [];
+        const [mild, streng] = await Promise.all([
+          gradeWith("mild").then((g) => {
+            send({ type: "examiner", label: "mild" });
+            return g;
+          }),
+          gradeWith("streng").then((g) => {
+            send({ type: "examiner", label: "streng" });
+            return g;
+          }),
+        ]);
+        examiners.push({ label: "mild", grade: mild }, { label: "streng", grade: streng });
 
-    let reconciled: ExamGrade;
-    let thirdUsed = false;
+        // Drittbewertung NUR bei Uneinigkeit über die Bestehensgrenze
+        // (offizielles Verfahren).
+        const passLine = PASS_RATIO * mild.maxPunkte;
+        const mean = (mild.gesamtpunkte + streng.gesamtpunkte) / 2;
+        const straddle = mild.bestanden !== streng.bestanden && mean < passLine;
 
-    if (straddle) {
-      const third = await gradeWith("tiebreak");
-      thirdUsed = true;
-      examiners.push({ label: "konsens", grade: third });
-      // Die Drittbewertung gibt den Ausschlag: Endergebnis = Mittel aus
-      // Drittbewertung und der gleichseitigen (bestanden/nicht bestanden) Bewertung.
-      const sameSide = third.bestanden === mild.bestanden ? mild : streng;
-      reconciled = reconcileGrades(task, [sameSide, third]);
-    } else {
-      reconciled = reconcileGrades(task, [mild, streng]);
-    }
+        let reconciled: ExamGrade;
+        let thirdUsed = false;
 
-    // `grade` bleibt die zusammengeführte Bewertung (rückwärtskompatibel).
-    return Response.json({ grade: reconciled, examiners, thirdUsed });
-  } catch (err) {
-    if (NoObjectGeneratedError.isInstance(err)) {
-      return Response.json(
-        {
+        if (straddle) {
+          send({ type: "third" });
+          const third = await gradeWith("tiebreak");
+          thirdUsed = true;
+          examiners.push({ label: "konsens", grade: third });
+          const sameSide = third.bestanden === mild.bestanden ? mild : streng;
+          reconciled = reconcileGrades(task, [sameSide, third]);
+        } else {
+          reconciled = reconcileGrades(task, [mild, streng]);
+        }
+
+        // `grade` bleibt die zusammengeführte Bewertung (rückwärtskompatibel).
+        send({ type: "done", grade: reconciled, examiners, thirdUsed });
+      } catch (err) {
+        console.error("[exam/grade] Fehler:", err);
+        send({
+          type: "error",
           error:
             "Die Bewertung konnte nicht erstellt werden. Bitte versuche es erneut.",
-        },
-        { status: 502 }
-      );
-    }
-    console.error("[exam/grade] Unerwarteter Fehler:", err);
-    return Response.json(
-      { error: "Unerwarteter Fehler bei der Bewertung." },
-      { status: 500 }
-    );
-  }
+        });
+      } finally {
+        controller.close();
+      }
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "application/x-ndjson; charset=utf-8",
+      "Cache-Control": "no-store",
+    },
+  });
 }

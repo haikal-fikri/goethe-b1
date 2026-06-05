@@ -25,7 +25,7 @@ export function HomeBrowser({ groups }: { groups: SkillGroup[] }) {
   const accent = SKILL_ACCENT[activeSkill];
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pb-20 pt-6">
+    <div className="mx-auto max-w-4xl px-4 pb-20 pt-6">
       {/* Skill-Tabs */}
       <div
         role="tablist"

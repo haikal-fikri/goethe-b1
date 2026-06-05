@@ -50,6 +50,9 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
   const [examiners, setExaminers] = useState<ExaminerResult[]>([]);
   const [thirdUsed, setThirdUsed] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  // Fortschritt der Bewertung (gestreamt vom Server).
+  const [doneExaminers, setDoneExaminers] = useState<string[]>([]);
+  const [thirdActive, setThirdActive] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
 
   // Nach der Bewertung sanft zum Ergebnis scrollen.
@@ -78,6 +81,8 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
     setExaminers([]);
     setThirdUsed(false);
     setErrorMsg("");
+    setDoneExaminers([]);
+    setThirdActive(false);
   }
 
   async function submit() {
@@ -85,22 +90,80 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
     setStatus("loading");
     setErrorMsg("");
     setGrade(null);
+    setDoneExaminers([]);
+    setThirdActive(false);
     try {
       const res = await fetch("/api/exam/grade", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ taskId: task.id, answer: text }),
       });
-      const data = await res.json();
-      if (!res.ok) {
+
+      // Vorab-Fehler (kein Stream) kommen als JSON mit non-200.
+      if (!res.ok || !res.body) {
+        let msg = "Die Bewertung ist fehlgeschlagen.";
+        try {
+          const d = await res.json();
+          msg = d?.error ?? msg;
+        } catch {
+          /* leer */
+        }
         setStatus("error");
-        setErrorMsg(data?.error ?? "Die Bewertung ist fehlgeschlagen.");
+        setErrorMsg(msg);
         return;
       }
-      setGrade(data.grade as ExamGrade);
-      setExaminers((data.examiners as ExaminerResult[]) ?? []);
-      setThirdUsed(Boolean(data.thirdUsed));
-      setStatus("done");
+
+      // NDJSON-Stream mit Fortschritts-Ereignissen lesen.
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = "";
+      let finished = false;
+
+      const handle = (ev: { type: string; [k: string]: unknown }) => {
+        if (ev.type === "examiner" && typeof ev.label === "string") {
+          const label = ev.label;
+          setDoneExaminers((p) => (p.includes(label) ? p : [...p, label]));
+        } else if (ev.type === "third") {
+          setThirdActive(true);
+        } else if (ev.type === "done") {
+          setGrade(ev.grade as ExamGrade);
+          setExaminers((ev.examiners as ExaminerResult[]) ?? []);
+          setThirdUsed(Boolean(ev.thirdUsed));
+          setStatus("done");
+          finished = true;
+        } else if (ev.type === "error") {
+          setStatus("error");
+          setErrorMsg(
+            (ev.error as string) ??
+              "Die Bewertung konnte nicht erstellt werden. Bitte versuche es erneut."
+          );
+          finished = true;
+        }
+      };
+
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        let nl: number;
+        while ((nl = buf.indexOf("\n")) >= 0) {
+          const line = buf.slice(0, nl).trim();
+          buf = buf.slice(nl + 1);
+          if (!line) continue;
+          try {
+            handle(JSON.parse(line));
+          } catch {
+            /* unvollständige/ungültige Zeile ignorieren */
+          }
+        }
+      }
+
+      if (!finished) {
+        setStatus("error");
+        setErrorMsg(
+          "Die Bewertung wurde unerwartet beendet. Bitte versuche es erneut."
+        );
+      }
     } catch {
       setStatus("error");
       setErrorMsg("Verbindung fehlgeschlagen. Bitte versuche es erneut.");
@@ -112,7 +175,7 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
   const tooShort = text.trim().length < 20;
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pb-20 pt-6">
+    <div className="mx-auto max-w-4xl px-4 pb-20 pt-6">
       {/* Simulation (Dropdown) */}
       <div className="flex flex-col gap-1">
         <label
@@ -147,9 +210,9 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
       {task && (
         /* CBT-Layout: links Aufgabe (40 %), rechts Schreibfeld (60 %) — nur Desktop. */
         <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-5">
-          {/* Aufgabenstellung (links, klebt beim Scrollen) */}
-          <div className="lg:col-span-2 lg:sticky lg:top-6 lg:self-start">
-            <div className="rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4 lg:min-h-[60vh]">
+          {/* Aufgabenstellung (links) */}
+          <div className="lg:col-span-2">
+            <div className="rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4 lg:h-full lg:min-h-[60vh]">
               <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1">
                 <span
                   className="whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-medium"
@@ -235,13 +298,33 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
         </div>
       )}
 
-      {/* Ladezustand */}
+      {/* Ladezustand — Fortschritt (Vier-Augen-Prinzip) */}
       {status === "loading" && (
         <div
           aria-busy="true"
-          className="mt-5 animate-fade-in rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4 text-sm text-[var(--fg-muted)]"
+          className="mt-5 animate-fade-in rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4"
         >
-          Dein Text wird von zwei KI-Prüfern (Vier-Augen-Prinzip) bewertet …
+          <div className="text-sm font-medium text-[var(--fg)]">
+            Vier-Augen-Prinzip — Bewertung läuft
+          </div>
+          <ul className="mt-3 flex flex-col gap-2">
+            <StepRow state="done" label="Antwort gesendet" />
+            <StepRow
+              state={doneExaminers.includes("mild") ? "done" : "active"}
+              label="Prüfer A · mild bewertet"
+            />
+            <StepRow
+              state={doneExaminers.includes("streng") ? "done" : "active"}
+              label="Prüfer B · streng bewertet"
+            />
+            {thirdActive && (
+              <StepRow state="active" label="Drittprüfer entscheidet" />
+            )}
+            <StepRow
+              state={doneExaminers.length >= 2 ? "active" : "pending"}
+              label="Ergebnis wird zusammengeführt"
+            />
+          </ul>
         </div>
       )}
 
@@ -482,6 +565,48 @@ function GradeResult({
         Neue Antwort schreiben
       </button>
     </div>
+  );
+}
+
+function Spinner() {
+  return (
+    <span
+      className="h-4 w-4 animate-spin rounded-full border-2"
+      style={{ borderColor: "var(--border-soft)", borderTopColor: ACCENT }}
+      aria-hidden
+    />
+  );
+}
+
+function StepRow({
+  state,
+  label,
+}: {
+  state: "pending" | "active" | "done";
+  label: string;
+}) {
+  return (
+    <li className="flex items-center gap-2.5 text-sm">
+      {state === "done" ? (
+        <span
+          className="grid h-4 w-4 place-items-center rounded-full text-[10px] font-bold"
+          style={{ color: "var(--bg)", backgroundColor: "var(--ok)" }}
+        >
+          ✓
+        </span>
+      ) : state === "active" ? (
+        <Spinner />
+      ) : (
+        <span className="h-4 w-4 rounded-full border border-[var(--border-soft)]" />
+      )}
+      <span
+        style={{
+          color: state === "pending" ? "var(--fg-dim)" : "var(--fg-muted)",
+        }}
+      >
+        {label}
+      </span>
+    </li>
   );
 }
 

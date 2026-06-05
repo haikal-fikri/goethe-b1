@@ -16,7 +16,7 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-20 px-3 pb-2 pt-[calc(env(safe-area-inset-top)+0.5rem)]">
-      <div className="relative mx-auto flex max-w-3xl items-center justify-between gap-3 rounded-2xl border border-[var(--border-soft)] bg-[color-mix(in_srgb,var(--bg)_82%,transparent)] px-4 py-2.5 shadow-lg backdrop-blur-md">
+      <div className="relative mx-auto flex max-w-4xl items-center justify-between gap-3 rounded-2xl border border-[var(--border-soft)] bg-[color-mix(in_srgb,var(--bg)_82%,transparent)] px-4 py-2.5 shadow-lg backdrop-blur-md">
         <Link
           href="/"
           onClick={() => setOpen(false)}

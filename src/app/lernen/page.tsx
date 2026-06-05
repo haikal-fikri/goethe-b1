@@ -14,7 +14,7 @@ export default async function NachschlagenPage() {
     <>
       <AppHeader />
       <main className="flex-1">
-        <div className="mx-auto max-w-3xl px-4 pt-6">
+        <div className="mx-auto max-w-4xl px-4 pt-6">
           <h1 className="text-2xl font-semibold tracking-tight text-[var(--fg)]">
             Redemittel nachschlagen
           </h1>
