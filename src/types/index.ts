@@ -106,3 +106,25 @@ export const CRITERION_LABEL: Record<CriterionKey, string> = {
   wortschatz: "Wortschatz",
   strukturen: "Strukturen",
 };
+
+// --- Vier-Augen-Prinzip (zwei/drei Bewertende) ---
+
+export type ExaminerLabel = "mild" | "streng" | "konsens";
+
+export const EXAMINER_LABEL_DE: Record<ExaminerLabel, string> = {
+  mild: "Prüfer A · mild",
+  streng: "Prüfer B · streng",
+  konsens: "Prüfer C · Drittbewertung",
+};
+
+export interface ExaminerResult {
+  label: ExaminerLabel;
+  grade: ExamGrade;
+}
+
+/** Ergebnis des KI-Prüfers: zusammengeführte Bewertung + einzelne Bewertende. */
+export interface ExamResult {
+  reconciled: ExamGrade; // arithmetisches Mittel (offizielles Verfahren)
+  examiners: ExaminerResult[]; // [mild, streng] (+ konsens bei Drittbewertung)
+  thirdUsed: boolean;
+}

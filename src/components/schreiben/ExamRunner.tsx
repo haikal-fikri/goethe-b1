@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   CriterionBand,
   ExamGrade,
+  ExaminerResult,
   ExamSimulation,
   ExamTask,
 } from "@/types";
@@ -46,7 +47,17 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
   const [text, setText] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [grade, setGrade] = useState<ExamGrade | null>(null);
+  const [examiners, setExaminers] = useState<ExaminerResult[]>([]);
+  const [thirdUsed, setThirdUsed] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  // Nach der Bewertung sanft zum Ergebnis scrollen.
+  useEffect(() => {
+    if (status === "done" && resultRef.current) {
+      resultRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [status]);
 
   function selectSim(id: number) {
     const next = simulations.find((s) => s.id === id);
@@ -64,6 +75,8 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
     setText("");
     setStatus("idle");
     setGrade(null);
+    setExaminers([]);
+    setThirdUsed(false);
     setErrorMsg("");
   }
 
@@ -85,6 +98,8 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
         return;
       }
       setGrade(data.grade as ExamGrade);
+      setExaminers((data.examiners as ExaminerResult[]) ?? []);
+      setThirdUsed(Boolean(data.thirdUsed));
       setStatus("done");
     } catch {
       setStatus("error");
@@ -130,75 +145,79 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
       </div>
 
       {task && (
-        <>
-          {/* Aufgabenstellung */}
-          <div className="mt-5 rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4">
-            <div className="mb-1 flex items-center gap-2">
-              <span
-                className="rounded-full px-2 py-0.5 text-[11px] font-medium"
-                style={{
-                  color: ACCENT,
-                  backgroundColor: `color-mix(in srgb, ${ACCENT} 16%, transparent)`,
-                }}
-              >
-                {task.taskType}
-              </span>
-              <span className="text-xs text-[var(--fg-dim)]">
-                ca. {task.minWords} Wörter
-                {task.recommendedMinutes
-                  ? ` · ${task.recommendedMinutes} Min.`
-                  : ""}
-              </span>
-            </div>
-            <h2 className="text-sm font-semibold text-[var(--fg)]">
-              {task.titleDe}
-            </h2>
-            <p className="mt-1 text-sm text-[var(--fg-muted)]">{task.promptDe}</p>
-            {task.bulletPointsDe && (
-              <ul className="mt-2 flex flex-col gap-1">
-                {task.bulletPointsDe.map((b, i) => (
-                  <li
-                    key={i}
-                    className="flex items-start gap-2 text-sm text-[var(--fg-muted)]"
-                  >
-                    <span style={{ color: ACCENT }}>•</span>
-                    <span>{b}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {task.sampleAnswerDe && (
-              <details className="group/sample mt-3 border-t border-[var(--border-soft)] pt-3">
-                <summary
-                  className="flex cursor-pointer list-none items-center gap-2 text-xs font-medium outline-none"
-                  style={{ color: ACCENT }}
+        /* CBT-Layout: links Aufgabe (40 %), rechts Schreibfeld (60 %) — nur Desktop. */
+        <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-5">
+          {/* Aufgabenstellung (links, klebt beim Scrollen) */}
+          <div className="lg:col-span-2 lg:sticky lg:top-6 lg:self-start">
+            <div className="rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4 lg:min-h-[60vh]">
+              <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span
+                  className="whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-medium"
+                  style={{
+                    color: ACCENT,
+                    backgroundColor: `color-mix(in srgb, ${ACCENT} 16%, transparent)`,
+                  }}
                 >
-                  <span className="transition-transform group-open/sample:rotate-90">
-                    ›
-                  </span>
-                  Beispieltext anzeigen
-                </summary>
-                <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-[var(--fg-muted)]">
-                  {task.sampleAnswerDe}
-                </p>
-              </details>
-            )}
+                  {task.taskType}
+                </span>
+                <span className="text-xs text-[var(--fg-dim)]">
+                  ca. {task.minWords} Wörter
+                  {task.recommendedMinutes
+                    ? ` · ${task.recommendedMinutes} Min.`
+                    : ""}
+                </span>
+              </div>
+              <h2 className="text-sm font-semibold text-[var(--fg)]">
+                {task.titleDe}
+              </h2>
+              <p className="mt-1 whitespace-pre-line text-sm text-[var(--fg-muted)]">
+                {task.promptDe}
+              </p>
+              {task.bulletPointsDe && (
+                <ul className="mt-2 flex flex-col gap-1">
+                  {task.bulletPointsDe.map((b, i) => (
+                    <li
+                      key={i}
+                      className="flex items-start gap-2 text-sm text-[var(--fg-muted)]"
+                    >
+                      <span style={{ color: ACCENT }}>•</span>
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {task.sampleAnswerDe && (
+                <details className="group/sample mt-3 border-t border-[var(--border-soft)] pt-3">
+                  <summary
+                    className="flex cursor-pointer list-none items-center gap-2 text-xs font-medium outline-none"
+                    style={{ color: ACCENT }}
+                  >
+                    <span className="transition-transform group-open/sample:rotate-90">
+                      ›
+                    </span>
+                    Beispieltext anzeigen
+                  </summary>
+                  <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-[var(--fg-muted)]">
+                    {task.sampleAnswerDe}
+                  </p>
+                </details>
+              )}
+            </div>
           </div>
 
-          {/* Schreibfeld */}
-          <div className="mt-4 flex flex-col">
+          {/* Schreibfeld (rechts) — Monospace wie im echten CBT */}
+          <div className="flex flex-col lg:col-span-3">
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
               disabled={status === "loading"}
               placeholder="Schreibe hier deine Antwort …"
-              className="min-h-[240px] flex-1 resize-y rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] p-4 text-[16px] leading-relaxed text-[var(--fg)] outline-none focus:border-[var(--border)] disabled:opacity-60 sm:text-[15px]"
+              spellCheck={false}
+              className="min-h-[260px] w-full resize-y rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] p-4 font-mono text-[15px] leading-relaxed text-[var(--fg)] outline-none focus:border-[var(--border)] disabled:opacity-60 lg:min-h-[60vh]"
             />
             <div className="mt-2 flex items-center justify-between text-xs">
               <span
-                style={{
-                  color: underTarget ? "var(--bad)" : "var(--fg-dim)",
-                }}
+                style={{ color: underTarget ? "var(--bad)" : "var(--fg-dim)" }}
               >
                 {words} Wörter
                 {underTarget ? ` · Ziel: ca. ${task.minWords}` : ""}
@@ -207,16 +226,13 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
                 onClick={submit}
                 disabled={status === "loading" || tooShort}
                 className="rounded-full px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40"
-                style={{
-                  color: "var(--bg)",
-                  backgroundColor: ACCENT,
-                }}
+                style={{ color: "var(--bg)", backgroundColor: ACCENT }}
               >
                 {status === "loading" ? "Wird bewertet …" : "Bewerten lassen"}
               </button>
             </div>
           </div>
-        </>
+        </div>
       )}
 
       {/* Ladezustand */}
@@ -225,7 +241,7 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
           aria-busy="true"
           className="mt-5 animate-fade-in rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4 text-sm text-[var(--fg-muted)]"
         >
-          Dein Text wird von der KI-Prüferin bewertet …
+          Dein Text wird von zwei KI-Prüfern (Vier-Augen-Prinzip) bewertet …
         </div>
       )}
 
@@ -252,25 +268,58 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
 
       {/* Ergebnis */}
       {status === "done" && grade && (
-        <GradeResult grade={grade} onReset={resetAnswer} />
+        <div ref={resultRef}>
+          <GradeResult
+            grade={grade}
+            examiners={examiners}
+            thirdUsed={thirdUsed}
+            onReset={resetAnswer}
+          />
+        </div>
       )}
     </div>
   );
 }
 
+function BandChip({ band }: { band: CriterionBand }) {
+  return (
+    <span
+      className="grid h-6 w-6 place-items-center rounded-full text-xs font-semibold"
+      style={{
+        color: BAND_COLOR[band],
+        backgroundColor: `color-mix(in srgb, ${BAND_COLOR[band]} 16%, transparent)`,
+        border: `1px solid color-mix(in srgb, ${BAND_COLOR[band]} 45%, transparent)`,
+      }}
+    >
+      {band}
+    </span>
+  );
+}
+
 function GradeResult({
   grade,
+  examiners,
+  thirdUsed,
   onReset,
 }: {
   grade: ExamGrade;
+  examiners: ExaminerResult[];
+  thirdUsed: boolean;
   onReset: () => void;
 }) {
+  const bandOf = (label: string, key: string): CriterionBand | undefined =>
+    examiners
+      .find((e) => e.label === label)
+      ?.grade.criteria.find((c) => c.key === key)?.band;
+
   return (
     <div className="mt-6 animate-fade-in">
       {/* Kopf: Gesamtpunkte + bestanden */}
       <div className="flex items-center justify-between rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4">
         <div>
-          <div className="text-xs text-[var(--fg-dim)]">Gesamtergebnis</div>
+          <div className="text-xs text-[var(--fg-dim)]">
+            Gesamtergebnis · Vier-Augen-Prinzip
+          </div>
           <div className="text-2xl font-semibold text-[var(--fg)]">
             {fmtPunkte(grade.gesamtpunkte)}
             <span className="text-base font-normal text-[var(--fg-dim)]">
@@ -292,7 +341,7 @@ function GradeResult({
         </span>
       </div>
 
-      {/* Kriterien */}
+      {/* Kriterien (zusammengeführt) */}
       <ul className="mt-3 flex flex-col gap-3">
         {grade.criteria.map((c) => (
           <li
@@ -301,16 +350,7 @@ function GradeResult({
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span
-                  className="grid h-7 w-7 place-items-center rounded-full text-sm font-semibold"
-                  style={{
-                    color: BAND_COLOR[c.band],
-                    backgroundColor: `color-mix(in srgb, ${BAND_COLOR[c.band]} 16%, transparent)`,
-                    border: `1px solid color-mix(in srgb, ${BAND_COLOR[c.band]} 45%, transparent)`,
-                  }}
-                >
-                  {c.band}
-                </span>
+                <BandChip band={c.band} />
                 <span className="text-sm font-semibold text-[var(--fg)]">
                   {c.labelDe}
                 </span>
@@ -325,6 +365,90 @@ function GradeResult({
           </li>
         ))}
       </ul>
+
+      {/* Vier-Augen-Aufschlüsselung */}
+      {examiners.length >= 2 && (
+        <details className="group/aug mt-3 rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4">
+          <summary
+            className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-[var(--fg)] outline-none"
+          >
+            <span
+              className="transition-transform group-open/aug:rotate-90"
+              style={{ color: ACCENT }}
+            >
+              ›
+            </span>
+            4-Augen-Prinzip — die zwei Prüfer im Vergleich
+          </summary>
+
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="text-left text-xs text-[var(--fg-dim)]">
+                  <th className="py-1 pr-3 font-medium">Kriterium</th>
+                  <th className="px-2 py-1 text-center font-medium">A · mild</th>
+                  <th className="px-2 py-1 text-center font-medium">B · streng</th>
+                  {thirdUsed && (
+                    <th className="px-2 py-1 text-center font-medium">Konsens</th>
+                  )}
+                  <th className="px-2 py-1 text-center font-medium">Ø Punkte</th>
+                </tr>
+              </thead>
+              <tbody>
+                {grade.criteria.map((c) => {
+                  const a = bandOf("mild", c.key);
+                  const b = bandOf("streng", c.key);
+                  const k = bandOf("konsens", c.key);
+                  return (
+                    <tr
+                      key={c.key}
+                      className="border-t border-[var(--border-soft)]"
+                    >
+                      <td className="py-2 pr-3 text-[var(--fg-muted)]">
+                        {c.labelDe}
+                      </td>
+                      <td className="px-2 py-2 text-center">
+                        {a && (
+                          <span className="inline-grid place-items-center">
+                            <BandChip band={a} />
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-2 py-2 text-center">
+                        {b && (
+                          <span className="inline-grid place-items-center">
+                            <BandChip band={b} />
+                          </span>
+                        )}
+                      </td>
+                      {thirdUsed && (
+                        <td className="px-2 py-2 text-center">
+                          {k && (
+                            <span className="inline-grid place-items-center">
+                              <BandChip band={k} />
+                            </span>
+                          )}
+                        </td>
+                      )}
+                      <td className="px-2 py-2 text-center text-[var(--fg-muted)]">
+                        {fmtPunkte(c.punkte)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <p className="mt-3 text-xs leading-relaxed text-[var(--fg-dim)]">
+            Wie in der echten Prüfung bewerten zwei Prüfer unabhängig; das
+            Endergebnis ist das arithmetische Mittel beider Bewertungen.
+            {thirdUsed
+              ? " Da sich die beiden über das Bestehen uneinig waren, gab eine Drittbewertung (Prüfer C) den Ausschlag."
+              : ""}
+          </p>
+        </details>
+      )}
 
       {/* Gesamtrückmeldung */}
       <div className="mt-3 rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4">
@@ -353,10 +477,7 @@ function GradeResult({
       <button
         onClick={onReset}
         className="mt-4 rounded-full border px-4 py-2 text-sm transition-colors"
-        style={{
-          borderColor: "var(--border-soft)",
-          color: "var(--fg-muted)",
-        }}
+        style={{ borderColor: "var(--border-soft)", color: "var(--fg-muted)" }}
       >
         Neue Antwort schreiben
       </button>

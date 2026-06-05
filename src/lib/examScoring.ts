@@ -78,3 +78,61 @@ export function buildGrade(task: ExamTask, model: ExamGradeModel): ExamGrade {
     korrekturen: model.korrekturen,
   };
 }
+
+const BANDS: CriterionBand[] = ["A", "B", "C", "D", "E"];
+
+/** Nächstgelegenes Band zu einer (gemittelten) Punktzahl; bei Gleichstand das höhere. */
+function nearestBand(points: number, scale: BandPoints): CriterionBand {
+  let best: CriterionBand = "A";
+  let bestDist = Infinity;
+  for (const b of BANDS) {
+    const d = Math.abs(scale[b] - points);
+    if (d < bestDist) {
+      bestDist = d;
+      best = b; // A→E durchlaufen, strikt '<' ⇒ bei Gleichstand bleibt das höhere Band
+    }
+  }
+  return best;
+}
+
+/**
+ * Führt mehrere unabhängige Bewertungen nach dem offiziellen Verfahren zusammen:
+ * je Kriterium das arithmetische Mittel der Punkte; das textliche Feedback
+ * (Begründungen, Rückmeldung, Korrekturen) stammt aus der LETZTEN Bewertung
+ * (i. d. R. die strenge bzw. — bei Drittbewertung — die entscheidende).
+ */
+export function reconcileGrades(task: ExamTask, grades: ExamGrade[]): ExamGrade {
+  const keys = grades[0].criteria.map((c) => c.key);
+  const last = grades[grades.length - 1];
+
+  const criteria = keys.map((key) => {
+    const cs = grades.map(
+      (g) => g.criteria.find((c) => c.key === key) ?? g.criteria[0]
+    );
+    const avg = round1(cs.reduce((s, c) => s + c.punkte, 0) / cs.length);
+    const scale = scaleFor(task.aufgabe, key);
+    const main = last.criteria.find((c) => c.key === key) ?? cs[cs.length - 1];
+    return {
+      key,
+      labelDe: CRITERION_LABEL[key],
+      band: nearestBand(avg, scale),
+      punkte: avg,
+      maxPunkte: scale.A,
+      begruendungDe: main.begruendungDe,
+    };
+  });
+
+  const gesamtpunkte = round1(criteria.reduce((s, c) => s + c.punkte, 0));
+  const maxPunkte = criteria.reduce((s, c) => s + c.maxPunkte, 0);
+  const bestanden = gesamtpunkte >= PASS_RATIO * maxPunkte;
+
+  return {
+    aufgabe: task.aufgabe,
+    criteria,
+    gesamtpunkte,
+    maxPunkte,
+    bestanden,
+    summaryDe: last.summaryDe,
+    korrekturen: last.korrekturen,
+  };
+}
