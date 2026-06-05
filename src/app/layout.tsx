@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Jost, Fraunces } from "next/font/google";
 import "./globals.css";
+import { AppFooter } from "@/components/AppFooter";
 
 // Jost = quelloffene Futura-Alternative (Fallback-Webfont, falls echtes Futura
 // nicht installiert ist). Fraunces = Serifen-Paar für die Überschriften.
@@ -52,7 +53,10 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <AppFooter />
+      </body>
     </html>
   );
 }
