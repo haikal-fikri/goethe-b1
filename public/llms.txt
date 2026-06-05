@@ -1,0 +1,17 @@
+# B1+Trainer
+
+> A free, ad-free Goethe-B1 **Redemittel** (functional-phrase) trainer for German writing and speaking. Given an English translation, the learner reconstructs the correct German sentence from a word bank or fills cloze blanks. Content spans levels B1–C2.
+
+B1+Trainer is operated by Digi.S — Digital Sprache Stiftung. The user interface is in German; this file is written in English for clarity. The app is free to use under a pay-what-you-want model. Mobile-first, no accounts required.
+
+## Practice
+- [Practice picker](/): choose a skill (Schreiben/writing or Sprechen/speaking), filter by level, and pick a function card to start. Each card opens the exercise player at `/uebung/[lessonId]`, where you rebuild German sentences from a shuffled word bank or fill cloze blanks (keyboard 1–9 / Enter / Backspace).
+
+## Reference
+- [Redemittel reference](/lernen): a searchable list of every phrase with its English translation, grouped by exam part, function, and level.
+
+## Exam
+- [Writing exam simulator](/pruefen): Goethe-B1 writing tasks graded by AI against the four official criteria (Erfüllung, Kohärenz, Wortschatz, Strukturen), with A–E bands and a 60% pass threshold.
+
+## Support
+- [Pay what you want](/pay): a voluntary payment to cover hosting, database, and AI-grading costs. Not a charitable donation.

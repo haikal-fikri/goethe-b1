@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Jost, Fraunces } from "next/font/google";
 import "./globals.css";
 import { AppFooter } from "@/components/AppFooter";
+import { siteUrl } from "@/lib/site";
 
 // Jost = quelloffene Futura-Alternative (Fallback-Webfont, falls echtes Futura
 // nicht installiert ist). Fraunces = Serifen-Paar für die Überschriften.
@@ -18,6 +19,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "B1+Trainer · Goethe B1",
   description:
     "Übe Redemittel für die Goethe-B1-Prüfung (Schreiben & Sprechen) — baue deutsche Sätze aus einer Wortbank.",
