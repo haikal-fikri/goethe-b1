@@ -73,7 +73,7 @@ export function AppHeader() {
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="block rounded-xl px-2.5 py-2.5 text-sm text-[var(--fg-muted)] transition-colors hover:bg-[var(--bg-elev)] hover:text-[var(--fg)]"
+                className="block rounded-xl px-2.5 py-2.5 text-sm uppercase tracking-wide text-[var(--fg-muted)] transition-colors hover:bg-[var(--bg-elev)] hover:text-[var(--fg)]"
               >
                 {l.label}
               </Link>
@@ -95,7 +95,7 @@ function HeaderLink({
   return (
     <Link
       href={href}
-      className="rounded-md px-2.5 py-1.5 text-[var(--fg-muted)] transition-colors hover:bg-[var(--bg-elev)] hover:text-[var(--fg)]"
+      className="rounded-md px-2.5 py-1.5 uppercase tracking-wide text-[var(--fg-muted)] transition-colors hover:bg-[var(--bg-elev)] hover:text-[var(--fg)]"
     >
       {children}
     </Link>
