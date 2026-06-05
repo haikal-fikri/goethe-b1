@@ -116,6 +116,7 @@ export function ClozeExercise({
               Ergänze die Lücken
             </span>
             <LevelBadge level={item.level} />
+            <span className="text-xs text-[var(--fg-dim)]">· {item.function.nameDe}</span>
           </div>
           <p className="text-base italic text-[var(--fg-muted)]">
             {item.translation}

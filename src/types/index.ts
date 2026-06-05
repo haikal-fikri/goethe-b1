@@ -13,6 +13,11 @@ export interface FunctionRef {
   nameEn: string;
 }
 
+export interface Example {
+  de: string; // Beispielsatz, der die Wendung im Kontext realisiert
+  en?: string; // natürliche englische Übersetzung
+}
+
 export interface RedemittelItem {
   id: string;
   phrase: string; // voller deutscher Satz (== tokens.join(" "))
@@ -29,6 +34,7 @@ export interface RedemittelItem {
   notes: string | null;
   tags: string[];
   difficulty: number; // 1..5
+  examples: Example[]; // 1–2 kontextualisierte Beispielsätze (kann leer sein)
 }
 
 export const LEVELS: CEFRLevel[] = ["B1", "B2", "C1", "C2"];

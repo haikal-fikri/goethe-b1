@@ -119,6 +119,7 @@ export function WordBankExercise({
             Übersetze
           </span>
           <LevelBadge level={item.level} />
+          <span className="text-xs text-[var(--fg-dim)]">· {item.function.nameDe}</span>
         </div>
         <p className="text-xl font-medium leading-snug text-[var(--fg)]">
           {item.translation}

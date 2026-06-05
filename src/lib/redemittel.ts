@@ -16,5 +16,6 @@ export async function getAllItems(): Promise<RedemittelItem[]> {
   return rows.map((r) => ({
     ...r,
     difficulty: Number(r.difficulty),
+    examples: Array.isArray(r.examples) ? r.examples : [],
   }));
 }

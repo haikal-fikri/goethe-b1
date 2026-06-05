@@ -6,9 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "corpus": "node scripts/build-corpus.mjs",
-    "seed:sql": "node scripts/generate-seed-sql.mjs",
-    "seed:exam": "node scripts/generate-exam-seed.mjs"
+    "seed:export": "node scripts/export-seed.mjs"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.39",

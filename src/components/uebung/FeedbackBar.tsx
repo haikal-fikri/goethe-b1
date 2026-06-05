@@ -4,7 +4,9 @@ type Phase = "input" | "correct" | "wrong";
 
 /**
  * Gemeinsame Aktions-/Feedback-Leiste für die Übungen (Wortbank & Lücken).
- * input → „Prüfen“, danach Rückmeldung (richtig/falsch) + „Weiter“.
+ * input → „Prüfen“, danach Rückmeldung (richtig/falsch). Die Rückmeldung zeigt
+ * jetzt das Satzmuster (frame), die Funktion, Notizen und 1–2 Beispielsätze —
+ * der Moment nach dem Versuch ist didaktisch ideal zum „Bemerken“ der Struktur.
  */
 export function FeedbackBar({
   phase,
@@ -23,6 +25,8 @@ export function FeedbackBar({
 }) {
   const isCorrect = phase === "correct";
   const isWrong = phase === "wrong";
+  const reveal = isCorrect || isWrong;
+  const examples = (item.examples ?? []).slice(0, isCorrect ? 2 : 1);
 
   return (
     <div
@@ -42,20 +46,53 @@ export function FeedbackBar({
       role={phase === "input" ? undefined : "status"}
     >
       <div className="mx-auto flex max-w-2xl flex-col gap-3">
-        {isCorrect && (
-          <div className="text-sm">
-            <span className="font-semibold text-[var(--ok)]">Richtig!</span>{" "}
-            <span className="text-[var(--fg-muted)]">
-              {item.function.nameDe}
-              {item.notes ? ` · ${item.notes}` : ""}
-            </span>
-          </div>
-        )}
-        {isWrong && (
-          <div className="text-sm">
-            <span className="font-semibold text-[var(--bad)]">Nicht ganz.</span>{" "}
-            <span className="text-[var(--fg-muted)]">Lösung: </span>
-            <span className="font-medium text-[var(--fg)]">{item.phrase}</span>
+        {reveal && (
+          <div className="flex flex-col gap-2 text-sm">
+            {/* Kopfzeile: richtig/falsch + Lösung */}
+            <div>
+              {isCorrect ? (
+                <>
+                  <span className="font-semibold text-[var(--ok)]">Richtig!</span>{" "}
+                  <span className="text-[var(--fg-muted)]">{item.function.nameDe}</span>
+                </>
+              ) : (
+                <>
+                  <span className="font-semibold text-[var(--bad)]">Nicht ganz.</span>{" "}
+                  <span className="text-[var(--fg-muted)]">Lösung: </span>
+                  <span className="font-medium text-[var(--fg)]">{item.phrase}</span>
+                </>
+              )}
+            </div>
+
+            {/* Satzmuster */}
+            {item.frame && (
+              <div className="text-[var(--fg-muted)]">
+                <span className="text-[var(--fg-dim)]">Muster: </span>
+                <span className="font-medium italic text-[var(--fg)]">{item.frame}</span>
+              </div>
+            )}
+
+            {/* Notiz (Grammatik/Pragmatik) */}
+            {item.notes && (
+              <div className="text-[var(--fg-muted)]">{item.notes}</div>
+            )}
+
+            {/* Beispiele im Kontext */}
+            {examples.length > 0 && (
+              <div className="flex flex-col gap-1 border-l-2 pl-3" style={{ borderColor: accent }}>
+                <span className="text-xs font-medium uppercase tracking-wide text-[var(--fg-dim)]">
+                  {examples.length > 1 ? "Beispiele" : "Beispiel"}
+                </span>
+                {examples.map((ex, i) => (
+                  <div key={i} className="leading-snug">
+                    <span className="text-[var(--fg)]">{ex.de}</span>
+                    {ex.en && (
+                      <span className="text-[var(--fg-dim)]"> — {ex.en}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

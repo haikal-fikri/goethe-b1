@@ -284,6 +284,12 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
                                     {it.notes}
                                   </span>
                                 )}
+                                {(it.examples ?? []).slice(0, 2).map((ex, i) => (
+                                  <span key={i} className="text-xs text-[var(--fg-muted)]">
+                                    <span className="text-[var(--fg)]">{ex.de}</span>
+                                    {ex.en && <span className="text-[var(--fg-dim)]"> — {ex.en}</span>}
+                                  </span>
+                                ))}
                               </div>
                             ))}
                           </div>
