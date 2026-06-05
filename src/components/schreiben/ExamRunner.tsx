@@ -175,7 +175,7 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
   const tooShort = text.trim().length < 20;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-20 pt-6">
+    <div className="mx-auto max-w-5xl px-4 pb-20 pt-6">
       {/* Simulation (Dropdown) */}
       <div className="flex flex-col gap-1">
         <label

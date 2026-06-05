@@ -94,7 +94,7 @@ export function SimulationForm() {
     status !== "saving";
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-20 pt-5">
+    <div className="mx-auto max-w-5xl px-4 pb-20 pt-5">
       <label className="flex flex-col gap-1">
         <span className="text-xs font-medium text-[var(--fg-dim)]">
           Titel der Simulation

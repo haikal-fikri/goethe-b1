@@ -153,7 +153,7 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
   }, [items, activeSkill, minLevel, activeTask, query]);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-20 pt-6">
+    <div className="mx-auto max-w-5xl px-4 pb-20 pt-6">
       <div role="tablist" className="flex gap-2 overflow-x-auto pb-1">
         {skills.map((s) => {
           const isActive = s === activeSkill;
