@@ -12,11 +12,11 @@ export default function DankePage() {
       <main className="flex-1">
         <div className="mx-auto max-w-5xl px-4 pt-10">
           <h1 className="text-2xl font-semibold tracking-tight text-[var(--fg)]">
-            Vielen Dank für deine Unterstützung!
+            Vielen Dank für deinen Beitrag!
           </h1>
           <p className="mt-2 max-w-xl text-sm text-[var(--fg-muted)]">
-            Deine Spende hilft, B1+Trainer kostenlos und werbefrei zu halten.
-            Eine Bestätigung deiner Zahlung erhältst du per E-Mail von Stripe.
+            Dein Beitrag hilft, B1+Trainer frei nutzbar und werbefrei zu halten.
+            Eine Zahlungsbestätigung erhältst du per E-Mail von Stripe.
           </p>
           <Link
             href="/"

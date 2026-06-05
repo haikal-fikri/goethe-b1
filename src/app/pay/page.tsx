@@ -1,11 +1,11 @@
 import { AppHeader } from "@/components/AppHeader";
-import { SpendenForm } from "@/components/spenden/SpendenForm";
+import { PayForm } from "@/components/pay/PayForm";
 
 export const metadata = {
-  title: "Spenden · B1+Trainer",
+  title: "Pay what you want · B1+Trainer",
 };
 
-export default async function SpendenPage({
+export default async function PayPage({
   searchParams,
 }: {
   // In Next.js 16 sind searchParams asynchron.
@@ -19,25 +19,24 @@ export default async function SpendenPage({
       <main className="flex-1">
         <div className="mx-auto max-w-5xl px-4 pt-6">
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--fg-dim)]">
-            Unterstütze unsere Stiftung
+            Digi.S — Digital Sprache Stiftung
           </p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[var(--fg)]">
-            Digi.S — Digital Sprache Stiftung
+            Pay what you want
           </h1>
-          <p className="mt-2 max-w-xl text-sm text-[var(--fg-muted)]">
-            Die Digi.S – Digital Sprache Stiftung macht digitales
-            Sprachenlernen frei zugänglich. B1+Trainer ist eines ihrer
-            Projekte: kostenlos und werbefrei — und soll es bleiben. Der Betrieb
-            verursacht aber laufende Kosten, die mit der Zahl der Lernenden
-            mitwachsen: Hosting, Datenbank und vor allem die KI-gestützte
-            Prüfungsbewertung.
+          <p className="mt-2 text-sm text-[var(--fg-muted)]">
+            B1+Trainer ist frei nutzbar — ohne Werbung. Du zahlst, was es dir
+            wert ist. Dein Beitrag ist eine freiwillige Zahlung für die Nutzung
+            (keine Spende im steuerlichen Sinne) und deckt die laufenden Kosten,
+            die mit der Zahl der Lernenden mitwachsen: Hosting, Datenbank und vor
+            allem die KI-gestützte Prüfungsbewertung.
           </p>
 
           <div className="mt-6 grid gap-6 md:grid-cols-2 md:items-start">
             {/* Kostenaufstellung (grobe Schätzung bei wachsender Nutzung) */}
             <section>
               <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--fg)]">
-                Wohin deine Spende fließt
+                Wofür du zahlst
               </h2>
               <p className="mt-1 text-xs text-[var(--fg-dim)]">
                 Kosten pro Monat, mittlerer Tarif, mit Wachstum eingeplant:
@@ -78,7 +77,7 @@ export default async function SpendenPage({
               </p>
             </section>
 
-            <SpendenForm canceled={abgebrochen === "1"} />
+            <PayForm canceled={abgebrochen === "1"} />
           </div>
         </div>
       </main>

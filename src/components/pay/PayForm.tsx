@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { PRESET_AMOUNTS, MIN_USD, MAX_USD } from "@/lib/stripe";
 
-export function SpendenForm({ canceled }: { canceled?: boolean }) {
+export function PayForm({ canceled }: { canceled?: boolean }) {
   // Ausgewählter Preset-Betrag (Zahl) oder "custom" für die Freieingabe.
   const [selected, setSelected] = useState<number | "custom">(PRESET_AMOUNTS[1]);
   const [custom, setCustom] = useState("");
@@ -20,7 +20,7 @@ export function SpendenForm({ canceled }: { canceled?: boolean }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/spenden/checkout", {
+      const res = await fetch("/api/pay/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount }),
@@ -42,7 +42,7 @@ export function SpendenForm({ canceled }: { canceled?: boolean }) {
     <div className="rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-5">
       {canceled && (
         <p className="mb-4 rounded-xl border border-[var(--border-soft)] bg-[var(--bg-elev)] px-4 py-3 text-sm text-[var(--fg-muted)]">
-          Spende abgebrochen — kein Problem. Du kannst es jederzeit erneut
+          Zahlung abgebrochen — kein Problem. Du kannst es jederzeit erneut
           versuchen.
         </p>
       )}
@@ -112,12 +112,14 @@ export function SpendenForm({ canceled }: { canceled?: boolean }) {
         {loading
           ? "Weiterleitung …"
           : valid
-            ? `$${amount} spenden`
-            : "Betrag wählen"}
+            ? `Pay $${amount}`
+            : "Preis wählen"}
       </button>
 
       <p className="mt-3 text-xs text-[var(--fg-dim)]">
         Sichere Bezahlung über Stripe. Du wirst zur Bezahlseite weitergeleitet.
+        Freiwillige Zahlung für die Nutzung von B1+Trainer — keine Spende im
+        steuerlichen Sinne.
       </p>
     </div>
   );

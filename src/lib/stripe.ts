@@ -16,8 +16,8 @@ export function getStripe(): Stripe {
   return cached;
 }
 
-// Spenden-Konfiguration — von Seite und Route gemeinsam genutzt, damit
-// Validierung und UI synchron bleiben.
+// Pay-what-you-want-Konfiguration — von Seite und Route gemeinsam genutzt,
+// damit Validierung und UI synchron bleiben.
 export const CURRENCY = "usd";
 export const PRESET_AMOUNTS = [3, 5, 10, 20] as const; // in Dollar
 export const MIN_USD = 1;

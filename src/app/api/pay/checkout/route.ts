@@ -6,8 +6,9 @@ import {
   toCents,
 } from "@/lib/stripe";
 
-// Erstellt eine Stripe-Checkout-Session für eine einmalige Spende und gibt die
-// gehostete Bezahl-URL zurück. Kein Webhook nötig — es gibt nichts zu liefern.
+// Erstellt eine Stripe-Checkout-Session für eine Pay-what-you-want-Zahlung und
+// gibt die gehostete Bezahl-URL zurück. Kein Webhook nötig — es gibt nichts zu
+// liefern.
 export async function POST(request: Request) {
   if (!process.env.STRIPE_SECRET_KEY) {
     return Response.json(
@@ -39,19 +40,19 @@ export async function POST(request: Request) {
   try {
     const session = await getStripe().checkout.sessions.create({
       mode: "payment",
-      submit_type: "donate",
+      submit_type: "pay",
       line_items: [
         {
           quantity: 1,
           price_data: {
             currency: CURRENCY,
             unit_amount: toCents(amount),
-            product_data: { name: "Spende für B1+Trainer" },
+            product_data: { name: "B1+Trainer — Pay what you want" },
           },
         },
       ],
-      success_url: `${origin}/spenden/danke`,
-      cancel_url: `${origin}/spenden?abgebrochen=1`,
+      success_url: `${origin}/pay/danke`,
+      cancel_url: `${origin}/pay?abgebrochen=1`,
     });
 
     if (!session.url) {
