@@ -62,4 +62,6 @@ Admin auth ([src/lib/adminAuth.ts](src/lib/adminAuth.ts)) is a stateless HMAC-si
 
 ## Environment
 
-`.env` provides `DATABASE_URL` (Postgres), `GROQ_API_KEY` (exam grading), `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`. Confirm whether `DATABASE_URL` targets a dev or production DB before running migrations/UPDATEs against it.
+`.env` provides `DATABASE_URL` (Postgres), `GROQ_API_KEY` (exam grading), `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, `STRIPE_SECRET_KEY` (donation Checkout, `/spenden`). Confirm whether `DATABASE_URL` targets a dev or production DB before running migrations/UPDATEs against it.
+
+The donation page (`/spenden`) uses **Stripe Checkout** (hosted redirect, one-time USD donations) — config constants and the lazy client live in [src/lib/stripe.ts](src/lib/stripe.ts), the session is created in [src/app/api/spenden/checkout/route.ts](src/app/api/spenden/checkout/route.ts). No webhook (nothing to fulfill). Use a `sk_test_…` key + card `4242 4242 4242 4242` to test before going live.

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { SneakerMove } from "@phosphor-icons/react";
+import { SneakerMove, Heart } from "@phosphor-icons/react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 const LINKS = [
@@ -35,6 +35,17 @@ export function AppHeader() {
               </HeaderLink>
             ))}
           </nav>
+
+          {/* Spenden-Button (Call-to-Action) — vor dem Theme-Umschalter,
+              auf allen Breakpoints sichtbar (Label ab sm). */}
+          <Link
+            href="/spenden"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-1.5 rounded-md bg-[var(--fg)] px-2.5 py-1.5 text-[13px] uppercase tracking-wide text-[var(--bg)] opacity-90 transition-opacity hover:opacity-100 sm:ml-3"
+          >
+            <Heart size={16} weight="fill" aria-hidden />
+            <span className="hidden sm:inline">Spenden</span>
+          </Link>
 
           {/* Theme-Umschalter (Tafel ↔ Weiß) — immer sichtbar */}
           <ThemeToggle />
