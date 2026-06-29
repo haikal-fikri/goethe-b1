@@ -1,33 +1,20 @@
 {
-  "name": "deutsch",
+  "name": "goethe-b1-monorepo",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "npm@11.17.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "seed:export": "node scripts/export-seed.mjs"
-  },
-  "dependencies": {
-    "@ai-sdk/groq": "^3.0.39",
-    "@dnd-kit/core": "^6.3.1",
-    "@dnd-kit/sortable": "^10.0.0",
-    "@dnd-kit/utilities": "^3.2.2",
-    "@phosphor-icons/react": "^2.1.10",
-    "ai": "^6.0.196",
-    "next": "16.2.7",
-    "postgres": "^3.4.9",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "stripe": "^22.2.0",
-    "zod": "^4.4.3"
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "seed:export": "npm run seed:export --workspace web"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "turbo": "^2"
   }
 }

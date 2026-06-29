@@ -6,6 +6,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 > **Read `AGENTS.md` first.** This is Next.js 16 — APIs and conventions differ from older versions. Consult `node_modules/next/dist/docs/` before writing framework code.
 
+## Monorepo layout (Turborepo + npm workspaces)
+
+This repo is a **Turborepo monorepo**. The Next.js web app lives in [apps/web](apps/web) — **every web path referenced below (`src/…`, `supabase/…`, `scripts/…`) is now relative to `apps/web/`.** Layout:
+
+- [apps/web](apps/web) — the Next.js 16 web app (deployed on Vercel; its **Root Directory** in the Vercel project is set to `apps/web`).
+- [apps/mobile](apps/mobile) — Expo / React Native app (shares domain logic via the packages below).
+- [packages/types](packages/types) (`@repo/types`) — shared domain types; the canonical source for what was `src/types`. `apps/web/src/types/index.ts` is a thin re-export shim so `@/types` still works.
+- [packages/core](packages/core) (`@repo/core`) — shared pure-TS logic (exercise, cloze, exam scoring/prompt/schema, content). Web imports these as `@repo/core` (was `@/lib/<name>`). Web-only libs (`db`, `redemittel`, `exam`, `adminAuth`, `stripe`, `site`, `ui`) stay in `apps/web/src/lib`.
+
+Run scripts from the repo root (`npm run dev`/`build` fan out via `turbo`), or scope to one app with `--workspace web` / `--filter=web`. Shared packages ship **raw TS** (no build step) — Next transpiles them via `transpilePackages`, Metro via `apps/mobile/metro.config.js`.
+
 ## What this is
 
 A Goethe-B1 **Redemittel** (functional-phrase) trainer for German writing & speaking. Core mechanic: given an English translation, the learner reconstructs the correct German sentence from a word bank or fills cloze blanks. UI is in German, mobile-first. Content spans B1–C2.
