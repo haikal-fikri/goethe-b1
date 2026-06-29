@@ -63,7 +63,7 @@ Routes ([src/app](src/app)):
 - `/lernen` — searchable reference of all phrases
 - `/pruefen` — Goethe-B1 writing exam simulator with AI grading
 - `/admin` + `/admin/login` — password-gated panel to create exam simulations (writes exam content **directly to the DB**, bypassing the JSON pipeline — a second writer to be aware of)
-- `/api/exam/grade` — Groq-backed grading; `/api/admin/simulations` — exam creation
+- `/api/exam/grade` — Groq-backed grading; `/api/admin/simulations` — exam creation; `/api/exam/email` — Resend-backed sending of a graded result to the learner + teacher
 
 Exam grading ([src/lib](src/lib)) evaluates writing against the four official Goethe criteria (Erfüllung, Kohärenz, Wortschatz, Strukturen) with A–E bands and a 60% pass threshold; the LLM prompt and scoring scale live in `examPrompt.ts` / `examScoring.ts`.
 
@@ -73,6 +73,8 @@ Admin auth ([src/lib/adminAuth.ts](src/lib/adminAuth.ts)) is a stateless HMAC-si
 
 ## Environment
 
-`.env` provides `DATABASE_URL` (Postgres), `GROQ_API_KEY` (exam grading), `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, `STRIPE_SECRET_KEY` (pay-what-you-want Checkout, `/pay`). Confirm whether `DATABASE_URL` targets a dev or production DB before running migrations/UPDATEs against it.
+`.env` provides `DATABASE_URL` (Postgres), `GROQ_API_KEY` (exam grading), `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, `STRIPE_SECRET_KEY` (pay-what-you-want Checkout, `/pay`), `RESEND_API_KEY` (emailing graded results, `/pruefen` → `/api/exam/email`). Confirm whether `DATABASE_URL` targets a dev or production DB before running migrations/UPDATEs against it.
+
+Emailing a graded result (`/pruefen`) uses **Resend** — the lazy client + sender config live in [src/lib/resend.ts](src/lib/resend.ts), the HTML template + zod payload schema in [src/lib/email/examResultEmail.ts](src/lib/email/examResultEmail.ts), and the send route in [src/app/api/exam/email/route.ts](src/app/api/exam/email/route.ts). The grade data is **sent from the browser** (no persistence). `RESEND_FROM_EMAIL` (default `onboarding@resend.dev`) and `RESEND_FROM_NAME` (default `B1+Trainer`) are optional; the default sandbox sender **only delivers to the Resend account owner's address** — verify a domain in Resend and set `RESEND_FROM_EMAIL` for real delivery to a teacher.
 
 The pay-what-you-want page (`/pay`) uses **Stripe Checkout** (hosted redirect, one-time USD payments — framed as a voluntary payment for using B1+Trainer, **not** a charitable donation) — config constants and the lazy client live in [src/lib/stripe.ts](src/lib/stripe.ts), the session is created in [src/app/api/pay/checkout/route.ts](src/app/api/pay/checkout/route.ts). No webhook (nothing to fulfill). Use a `sk_test_…` key + card `4242 4242 4242 4242` to test before going live.

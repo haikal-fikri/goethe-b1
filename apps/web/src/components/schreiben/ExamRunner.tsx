@@ -273,7 +273,7 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              disabled={status === "loading"}
+              disabled={status === "loading" || status === "done"}
               placeholder="Schreibe hier deine Antwort …"
               spellCheck={false}
               className="min-h-[260px] w-full resize-y rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] p-4 font-mono text-[15px] leading-relaxed text-[var(--fg)] outline-none focus:border-[var(--border)] disabled:opacity-60 lg:min-h-[60vh]"
@@ -350,12 +350,14 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
       )}
 
       {/* Ergebnis */}
-      {status === "done" && grade && (
+      {status === "done" && grade && task && (
         <div ref={resultRef}>
           <GradeResult
             grade={grade}
             examiners={examiners}
             thirdUsed={thirdUsed}
+            task={task}
+            essay={text}
             onReset={resetAnswer}
           />
         </div>
@@ -383,11 +385,15 @@ function GradeResult({
   grade,
   examiners,
   thirdUsed,
+  task,
+  essay,
   onReset,
 }: {
   grade: ExamGrade;
   examiners: ExaminerResult[];
   thirdUsed: boolean;
+  task: ExamTask;
+  essay: string;
   onReset: () => void;
 }) {
   const bandOf = (label: string, key: string): CriterionBand | undefined =>
@@ -557,6 +563,15 @@ function GradeResult({
         )}
       </div>
 
+      {/* Ergebnis per E-Mail teilen */}
+      <SendResultByEmail
+        task={task}
+        essay={essay}
+        grade={grade}
+        examiners={examiners}
+        thirdUsed={thirdUsed}
+      />
+
       <button
         onClick={onReset}
         className="mt-4 rounded-full border px-4 py-2 text-sm transition-colors"
@@ -564,6 +579,219 @@ function GradeResult({
       >
         Neue Antwort schreiben
       </button>
+    </div>
+  );
+}
+
+const emailInputCls =
+  "rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] px-3 py-2 text-sm text-[var(--fg)] outline-none focus:border-[var(--border)]";
+
+function isEmail(v: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
+}
+
+/**
+ * Sendet Aufgabe + Aufsatz + Bewertung per E-Mail an Lernende:n und Lehrkraft.
+ * Die Bewertungsdaten liegen bereits im Client (MVP, siehe Plan).
+ */
+function SendResultByEmail({
+  task,
+  essay,
+  grade,
+  examiners,
+  thirdUsed,
+}: {
+  task: ExamTask;
+  essay: string;
+  grade: ExamGrade;
+  examiners: ExaminerResult[];
+  thirdUsed: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [studentEmail, setStudentEmail] = useState("");
+  const [teacherEmail, setTeacherEmail] = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [teacherName, setTeacherName] = useState("");
+  const [status, setStatus] = useState<Status>("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const canSend =
+    isEmail(studentEmail) && isEmail(teacherEmail) && status !== "loading";
+
+  async function send() {
+    if (!isEmail(studentEmail) || !isEmail(teacherEmail)) {
+      setStatus("error");
+      setErrorMsg("Bitte gib zwei gültige E-Mail-Adressen ein.");
+      return;
+    }
+    setStatus("loading");
+    setErrorMsg("");
+
+    const payload = {
+      recipients: {
+        studentEmail: studentEmail.trim(),
+        teacherEmail: teacherEmail.trim(),
+        ...(studentName.trim() ? { studentName: studentName.trim() } : {}),
+        ...(teacherName.trim() ? { teacherName: teacherName.trim() } : {}),
+      },
+      task: {
+        titleDe: task.titleDe,
+        taskType: task.taskType,
+        aufgabe: task.aufgabe,
+        promptDe: task.promptDe,
+        ...(task.bulletPointsDe ? { bulletPointsDe: task.bulletPointsDe } : {}),
+        minWords: task.minWords,
+      },
+      essay,
+      grade,
+      examiners,
+      thirdUsed,
+    };
+
+    try {
+      const res = await fetch("/api/exam/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        let msg = "Die E-Mail konnte nicht versendet werden.";
+        try {
+          const d = await res.json();
+          msg = d?.error ?? msg;
+        } catch {
+          /* leer */
+        }
+        setStatus("error");
+        setErrorMsg(msg);
+        return;
+      }
+      setStatus("done");
+    } catch {
+      setStatus("error");
+      setErrorMsg("Verbindung fehlgeschlagen. Bitte versuche es erneut.");
+    }
+  }
+
+  if (status === "done") {
+    const sameRecipient =
+      studentEmail.trim().toLowerCase() === teacherEmail.trim().toLowerCase();
+    return (
+      <div
+        className="mt-4 animate-fade-in rounded-[var(--radius)] border p-4 text-sm"
+        style={{
+          borderColor: "color-mix(in srgb, var(--ok) 45%, transparent)",
+          backgroundColor: "color-mix(in srgb, var(--ok) 12%, transparent)",
+          color: "var(--fg)",
+        }}
+      >
+        <span style={{ color: "var(--ok)", fontWeight: 600 }}>
+          Ergebnis versendet.
+        </span>{" "}
+        An {teacherEmail.trim()}
+        {sameRecipient ? "" : ` (Kopie an ${studentEmail.trim()})`}.
+        <button
+          onClick={() => setStatus("idle")}
+          className="ml-2 underline underline-offset-2"
+          style={{ color: "var(--fg-muted)" }}
+        >
+          An andere Adresse senden
+        </button>
+      </div>
+    );
+  }
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="mt-4 ml-0 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors sm:ml-3"
+        style={{ borderColor: ACCENT, color: ACCENT }}
+      >
+        Ergebnis per E-Mail senden
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-4 animate-fade-in rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4">
+      <h3 className="text-sm font-semibold text-[var(--fg)]">
+        Ergebnis per E-Mail senden
+      </h3>
+      <p className="mt-1 text-xs text-[var(--fg-dim)]">
+        Aufgabe, dein Text und die Bewertung gehen an dich und deine Lehrkraft.
+      </p>
+
+      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <label className="flex flex-col gap-1">
+          <span className="text-xs text-[var(--fg-dim)]">Deine E-Mail</span>
+          <input
+            type="email"
+            value={studentEmail}
+            onChange={(e) => setStudentEmail(e.target.value)}
+            placeholder="du@beispiel.de"
+            autoComplete="email"
+            className={emailInputCls}
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs text-[var(--fg-dim)]">
+            E-Mail der Lehrkraft
+          </span>
+          <input
+            type="email"
+            value={teacherEmail}
+            onChange={(e) => setTeacherEmail(e.target.value)}
+            placeholder="lehrkraft@schule.de"
+            className={emailInputCls}
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs text-[var(--fg-dim)]">Dein Name (optional)</span>
+          <input
+            value={studentName}
+            onChange={(e) => setStudentName(e.target.value)}
+            className={emailInputCls}
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs text-[var(--fg-dim)]">
+            Name der Lehrkraft (optional)
+          </span>
+          <input
+            value={teacherName}
+            onChange={(e) => setTeacherName(e.target.value)}
+            className={emailInputCls}
+          />
+        </label>
+      </div>
+
+      {status === "error" && (
+        <p className="mt-3 text-sm" style={{ color: "var(--bad)" }} role="alert">
+          {errorMsg}
+        </p>
+      )}
+
+      <div className="mt-4 flex items-center gap-3">
+        <button
+          onClick={send}
+          disabled={!canSend}
+          className="rounded-full px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+          style={{ color: "var(--bg)", backgroundColor: ACCENT }}
+        >
+          {status === "loading" ? "Wird gesendet …" : "Senden"}
+        </button>
+        <button
+          onClick={() => {
+            setOpen(false);
+            setStatus("idle");
+            setErrorMsg("");
+          }}
+          className="text-sm text-[var(--fg-muted)] underline-offset-2 hover:underline"
+        >
+          Abbrechen
+        </button>
+      </div>
     </div>
   );
 }
