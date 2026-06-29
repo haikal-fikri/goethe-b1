@@ -20,7 +20,13 @@ export function getStripe(): Stripe {
 // damit Validierung und UI synchron bleiben.
 export const CURRENCY = "usd";
 export const PRESET_AMOUNTS = [3, 5, 10, 20] as const; // in Dollar
-export const MIN_USD = 1;
+
+// Der Betreiber trägt die Stripe-Gebühr selbst (kein Aufschlag auf den Betrag
+// des Zahlenden). Stripe nimmt ~2,9 % + 0,30 $ bei US-Karten und mehr bei
+// europäischen/internationalen Karten. MIN_USD ist der kleinste Betrag, bei dem
+// dem Betreiber nach Gebühren noch >= 1 $ bleibt — bei jeder Kartenart
+// (1,50 $ ergibt ~1,12–1,16 $ netto; die US-Break-even-Grenze liegt bei 1,34 $).
+export const MIN_USD = 1.5;
 export const MAX_USD = 1000;
 
 // USD ist zweistellig (Cent). Bei Wechsel auf eine nullstellige Währung (z.B.

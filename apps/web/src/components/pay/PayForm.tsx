@@ -84,7 +84,7 @@ export function PayForm({ canceled }: { canceled?: boolean }) {
             inputMode="decimal"
             min={MIN_USD}
             max={MAX_USD}
-            step="1"
+            step="0.01"
             placeholder="0"
             value={custom}
             onFocus={() => setSelected("custom")}
@@ -95,6 +95,9 @@ export function PayForm({ canceled }: { canceled?: boolean }) {
             className="w-full bg-transparent text-[var(--fg)] outline-none placeholder:text-[var(--fg-dim)]"
           />
         </div>
+        <span className="mt-1 block text-xs text-[var(--fg-dim)]">
+          Mindestbetrag ${MIN_USD.toFixed(2)}
+        </span>
       </label>
 
       {error && (
@@ -112,7 +115,7 @@ export function PayForm({ canceled }: { canceled?: boolean }) {
         {loading
           ? "Weiterleitung …"
           : valid
-            ? `Pay $${amount}`
+            ? `Pay $${amount.toFixed(2)}`
             : "Preis wählen"}
       </button>
 

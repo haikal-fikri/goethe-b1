@@ -41,6 +41,10 @@ export async function POST(request: Request) {
     const session = await getStripe().checkout.sessions.create({
       mode: "payment",
       submit_type: "pay",
+      // Karten explizit setzen, statt auf "automatic payment methods" zu setzen
+      // (die je Währung im Dashboard aktiviert sein müssen — sonst "No valid
+      // payment method types"). Apple Pay / Google Pay laufen über "card" mit.
+      payment_method_types: ["card"],
       line_items: [
         {
           quantity: 1,
@@ -63,7 +67,10 @@ export async function POST(request: Request) {
     }
 
     return Response.json({ url: session.url });
-  } catch {
+  } catch (err) {
+    // Generische Meldung an den Client, aber den echten Stripe-Fehler serverseitig
+    // loggen (z.B. fehlende Berechtigung bei restricted keys, ungültiger Key).
+    console.error("Stripe-Checkout fehlgeschlagen:", err);
     return Response.json(
       { error: "Zahlung konnte nicht gestartet werden." },
       { status: 502 }
