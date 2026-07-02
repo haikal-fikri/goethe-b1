@@ -128,3 +128,6 @@ export interface ExamResult {
   examiners: ExaminerResult[]; // [mild, streng] (+ konsens bei Drittbewertung)
   thirdUsed: boolean;
 }
+
+// --- Persistenz (additive Tabellen 0005–0009) ---
+export * from "./persistence";
