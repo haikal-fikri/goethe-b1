@@ -4,8 +4,9 @@ import * as AppleAuthentication from "expo-apple-authentication";
 import { useTheme } from "../../theme/ThemeProvider";
 import { AppText, Eyebrow, Screen, PrimaryButton, SecondaryButton } from "../../components/ui";
 import { sendEmailOtp, verifyEmailOtp, signInWithGoogle, signInWithApple, AuthError } from "../../lib/auth";
-import { googleConfigured } from "../../lib/env";
+import { googleConfigured, turnstileConfigured } from "../../lib/env";
 import { useSession } from "../../lib/session";
+import { TurnstileModal } from "../../components/TurnstileModal";
 
 // 01 · Anmelden. Primär: Google/Apple + Magic-Link; Fallback: 8-stellige OTP.
 // v1: der „Mit Klassencode beitreten"-Link ist ausgeblendet (class_enabled aus).
@@ -16,22 +17,30 @@ export function LoginScreen() {
   const [step, setStep] = useState<"email" | "code">("email");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showTurnstile, setShowTurnstile] = useState(false);
 
   const notConfigured = () =>
     Alert.alert("Noch nicht eingerichtet", "Die Anmeldung ist verfügbar, sobald Supabase Auth konfiguriert ist.");
 
-  const send = async () => {
-    if (!configured) return notConfigured();
-    if (!/^\S+@\S+\.\S+$/.test(email)) return Alert.alert("E-Mail", "Bitte gib eine gültige E-Mail-Adresse ein.");
+  // Sendet die OTP; wenn Turnstile konfiguriert ist, wird zuerst ein Token per
+  // WebView-Widget geholt (der Server verlangt es).
+  const doSend = async (turnstileToken?: string) => {
     setBusy(true);
     try {
-      await sendEmailOtp(email.trim());
+      await sendEmailOtp(email.trim(), turnstileToken);
       setStep("code");
     } catch (e) {
       Alert.alert("Fehler", e instanceof AuthError ? e.message : "Bitte erneut versuchen.");
     } finally {
       setBusy(false);
     }
+  };
+
+  const send = async () => {
+    if (!configured) return notConfigured();
+    if (!/^\S+@\S+\.\S+$/.test(email)) return Alert.alert("E-Mail", "Bitte gib eine gültige E-Mail-Adresse ein.");
+    if (turnstileConfigured()) setShowTurnstile(true);
+    else doSend();
   };
 
   const verify = async () => {
@@ -113,6 +122,12 @@ export function LoginScreen() {
           </>
         )}
       </KeyboardAvoidingView>
+
+      <TurnstileModal
+        visible={showTurnstile}
+        onToken={(t) => { setShowTurnstile(false); doSend(t); }}
+        onCancel={() => setShowTurnstile(false)}
+      />
     </Screen>
   );
 }
