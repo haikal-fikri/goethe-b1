@@ -1,7 +1,6 @@
 import * as AppleAuthentication from "expo-apple-authentication";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { getSupabase } from "./supabase";
-import { env, apiConfigured, googleConfigured } from "./env";
+import { env, apiConfigured } from "./env";
 
 // Auth-Methoden. Primär: Magic-Link + Google/Apple idToken (nonce-gebunden).
 // Fallback: 8-stellige E-Mail-OTP über den /api/auth/otp-Proxy (per-E-Mail/IP +
@@ -31,28 +30,12 @@ export async function verifyEmailOtp(email: string, token: string): Promise<void
   if (error) throw new AuthError(error.message);
 }
 
-let googleReady = false;
-function ensureGoogle() {
-  if (googleReady) return;
-  GoogleSignin.configure({
-    webClientId: env.googleWebClientId || undefined,
-    iosClientId: env.googleIosClientId || undefined,
-  });
-  googleReady = true;
-}
-
+// Google-Anmeldung ist in v1 nicht verdrahtet (kein OAuth-Client konfiguriert →
+// Button ist ausgeblendet, siehe googleConfigured()). Das native Modul
+// (@react-native-google-signin) wird erst wieder eingebunden, wenn ein Google-
+// OAuth-Client eingerichtet ist (es zieht sonst AppCheckCore/GoogleUtilities-Pods).
 export async function signInWithGoogle(): Promise<void> {
-  const supabase = getSupabase();
-  if (!supabase) throw new AuthError("Supabase nicht konfiguriert.");
-  if (!googleConfigured()) throw new AuthError("Google-Anmeldung ist noch nicht eingerichtet.");
-  ensureGoogle();
-  await GoogleSignin.hasPlayServices();
-  const result = await GoogleSignin.signIn();
-  const idToken = (result as { data?: { idToken?: string }; idToken?: string }).data?.idToken
-    ?? (result as { idToken?: string }).idToken;
-  if (!idToken) throw new AuthError("Kein Google-Token erhalten.");
-  const { error } = await supabase.auth.signInWithIdToken({ provider: "google", token: idToken });
-  if (error) throw new AuthError(error.message);
+  throw new AuthError("Google-Anmeldung ist derzeit nicht verfügbar.");
 }
 
 export async function signInWithApple(): Promise<void> {
