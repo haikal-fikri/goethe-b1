@@ -1,15 +1,22 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "B1+Trainer",
+    "slug": "b1trainer",
+    "scheme": "b1trainer",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "de.b1trainer.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
+      "package": "de.b1trainer.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -20,6 +27,18 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-font",
+      "expo-secure-store",
+      "expo-web-browser",
+      "expo-apple-authentication",
+      ["expo-audio", { "microphonePermission": "B1+Trainer nutzt das Mikrofon für Sprechübungen." }],
+      ["expo-image-picker", { "photosPermission": "B1+Trainer braucht Zugriff auf deine Fotos, um ein Profilbild zu wählen." }],
+      ["expo-speech-recognition", {
+        "microphonePermission": "B1+Trainer nutzt das Mikrofon für die Ausspracheübung (auf dem Gerät, nichts wird gespeichert).",
+        "speechRecognitionPermission": "B1+Trainer erkennt deine Aussprache auf dem Gerät, um Feedback zu geben."
+      }]
+    ]
   }
 }
