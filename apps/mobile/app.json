@@ -12,7 +12,9 @@
       "supportsTablet": false,
       "bundleIdentifier": "de.b1trainer.app",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSSpeechRecognitionUsageDescription": "B1+Trainer erkennt deine Aussprache auf dem Gerät, um Feedback zu geben.",
+        "NSMicrophoneUsageDescription": "B1+Trainer nutzt das Mikrofon für die Ausspracheübung (auf dem Gerät, nichts wird gespeichert)."
       }
     },
     "android": {
@@ -23,7 +25,13 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,12 +41,31 @@
       "expo-secure-store",
       "expo-web-browser",
       "expo-apple-authentication",
-      ["expo-audio", { "microphonePermission": "B1+Trainer nutzt das Mikrofon für Sprechübungen." }],
-      ["expo-image-picker", { "photosPermission": "B1+Trainer braucht Zugriff auf deine Fotos, um ein Profilbild zu wählen." }],
-      ["expo-speech-recognition", {
-        "microphonePermission": "B1+Trainer nutzt das Mikrofon für die Ausspracheübung (auf dem Gerät, nichts wird gespeichert).",
-        "speechRecognitionPermission": "B1+Trainer erkennt deine Aussprache auf dem Gerät, um Feedback zu geben."
-      }]
-    ]
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "B1+Trainer nutzt das Mikrofon für Sprechübungen."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "B1+Trainer braucht Zugriff auf deine Fotos, um ein Profilbild zu wählen."
+        }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "B1+Trainer nutzt das Mikrofon für die Ausspracheübung (auf dem Gerät, nichts wird gespeichert).",
+          "speechRecognitionPermission": "B1+Trainer erkennt deine Aussprache auf dem Gerät, um Feedback zu geben."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "9f4c5aab-bc06-4127-9ba4-fa890ef1db32"
+      }
+    },
+    "owner": "haikal-fikris-team"
   }
 }
