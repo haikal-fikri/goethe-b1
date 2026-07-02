@@ -8,6 +8,11 @@ import type {
   ExamSimulation,
   ExamTask,
 } from "@/types";
+import {
+  TurnstileGate,
+  turnstileEnabledClient,
+  type TurnstileGateHandle,
+} from "./TurnstileGate";
 
 const ACCENT = "var(--accent-write)";
 
@@ -54,6 +59,9 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
   const [doneExaminers, setDoneExaminers] = useState<string[]>([]);
   const [thirdActive, setThirdActive] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
+  // Turnstile-Token (Bot-Prüfung) — nur relevant, wenn der Site-Key gesetzt ist.
+  const [token, setToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileGateHandle>(null);
 
   // Nach der Bewertung sanft zum Ergebnis scrollen.
   useEffect(() => {
@@ -96,7 +104,11 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
       const res = await fetch("/api/exam/grade", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ taskId: task.id, answer: text }),
+        body: JSON.stringify({
+          taskId: task.id,
+          answer: text,
+          turnstileToken: token ?? undefined,
+        }),
       });
 
       // Vorab-Fehler (kein Stream) kommen als JSON mit non-200.
@@ -167,6 +179,9 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
     } catch {
       setStatus("error");
       setErrorMsg("Verbindung fehlgeschlagen. Bitte versuche es erneut.");
+    } finally {
+      // Turnstile-Tokens sind Einweg — nach jedem Versuch ein frisches holen.
+      turnstileRef.current?.reset();
     }
   }
 
@@ -278,6 +293,7 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
               spellCheck={false}
               className="min-h-[260px] w-full resize-y rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] p-4 font-mono text-[15px] leading-relaxed text-[var(--fg)] outline-none focus:border-[var(--border)] disabled:opacity-60 lg:min-h-[60vh]"
             />
+            <TurnstileGate ref={turnstileRef} onToken={setToken} />
             <div className="mt-2 flex items-center justify-between text-xs">
               <span
                 style={{ color: underTarget ? "var(--bad)" : "var(--fg-dim)" }}
@@ -287,11 +303,19 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
               </span>
               <button
                 onClick={submit}
-                disabled={status === "loading" || tooShort}
+                disabled={
+                  status === "loading" ||
+                  tooShort ||
+                  (turnstileEnabledClient && !token)
+                }
                 className="rounded-full px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                 style={{ color: "var(--bg)", backgroundColor: ACCENT }}
               >
-                {status === "loading" ? "Wird bewertet …" : "Bewerten lassen"}
+                {status === "loading"
+                  ? "Wird bewertet …"
+                  : !tooShort && turnstileEnabledClient && !token
+                    ? "Sicherheitsprüfung …"
+                    : "Bewerten lassen"}
               </button>
             </div>
           </div>
