@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+
+jobs:
+  # ── Build + Typecheck (Web + Mobile + shared packages) ──────────────
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - name: Web build (TypeScript-Gate)
+        working-directory: apps/web
+        env:
+          # Dummy — lib/db.ts konstruiert den Client lazy, führt aber keine
+          # Query beim Build aus. Kein echtes Secret nötig/erwünscht.
+          DATABASE_URL: postgres://build:build@localhost:5432/build
+        run: npm run build
+      - name: Mobile typecheck
+        working-directory: apps/mobile
+        run: npm run typecheck
+
+  # ── DB-Sicherheit: RLS-Matrix (RLS-1..24) + RLS-Lint auf Shadow-DB ──
+  db-security:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: shadow
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 5s --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install psql client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Apply shim + migrations, then RLS-lint + RLS-matrix
+        env:
+          PGHOST: localhost
+          PGPORT: "5432"
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGDATABASE: shadow
+        run: |
+          set -euo pipefail
+          MIG=apps/web/supabase/migrations
+          T=apps/web/supabase/tests
+          psql -v ON_ERROR_STOP=1 -q -f "$T/00_bootstrap_shim.sql"
+          for f in 0001_content_schema 0002_exam_schema 0003_exam_sample_answer \
+                   0004_corrections_and_examples 0005_identity_profiles \
+                   0006_progress_exams 0007_rate_limiting \
+                   0008_classes_entitlements 0009_speaking; do
+            echo "── $f"; psql -v ON_ERROR_STOP=1 -q -f "$MIG/$f.sql"
+          done
+          echo "── RLS-lint";   psql -v ON_ERROR_STOP=1 -f "$T/rls_lint.sql"
+          echo "── RLS-matrix"; psql -v ON_ERROR_STOP=1 -f "$T/rls_matrix.sql"
+
+  # ── Mobile-Bundle-Audit: kein Secret im Bundle; nur EXPO_PUBLIC_* ──
+  mobile-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - name: Client env-ref check (nur EXPO_PUBLIC_/NEXT_PUBLIC_)
+        run: |
+          set -euo pipefail
+          if grep -REn 'process\.env\.[A-Z]' apps/mobile/src apps/mobile/App.tsx \
+             | grep -vE 'EXPO_PUBLIC_|NEXT_PUBLIC_'; then
+            echo "::error::client referenziert nicht-öffentliche Env-Var"; exit 1
+          fi
+          echo "env-ref OK"
+      - name: Export bundle
+        working-directory: apps/mobile
+        run: npx expo export --platform all --output-dir /tmp/bundle
+      - name: Secret-audit (Text + Hermes-Bytecode-String-Tables)
+        run: |
+          set -euo pipefail
+          FORBIDDEN='SERVICE_ROLE|service_role|GROQ_API_KEY|UPSTASH_|R2_SECRET|SPEECHACE|POLAR_ACCESS|POLAR_WEBHOOK|DATABASE_URL|ADMIN_PASSWORD|ADMIN_SESSION_SECRET|sk_live|sk_test'
+          hit=0
+          if grep -REoa "$FORBIDDEN" /tmp/bundle 2>/dev/null | grep -q .; then hit=1; fi
+          while IFS= read -r f; do
+            if strings "$f" | grep -Eq "$FORBIDDEN"; then hit=1; echo "in $f"; fi
+          done < <(find /tmp/bundle -name '*.hbc')
+          if [ "$hit" = 1 ]; then echo "::error::Secret im Mobile-Bundle"; exit 1; fi
+          echo "bundle-audit OK — kein Secret im Bundle"
+
+  # ── Supply-Chain: signierte Pakete ─────────────────────────────────
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npm audit signatures
