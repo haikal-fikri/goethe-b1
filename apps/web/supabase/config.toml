@@ -1,0 +1,50 @@
+# Supabase-Auth-Konfiguration für B1+Trainer (Student v1).
+# Diese Datei ist die Referenz für die Auth-Einstellungen. Da Migrationen hier
+# per psql (nicht der Supabase-CLI) eingespielt werden, spiegle diese Werte im
+# Dashboard: Authentication → Providers / Rate Limits / Attack Protection.
+# Härtung gem. backend/11 §10.2 + backend/12 (8-stellige OTP, ≤120 s, Turnstile).
+
+project_id = "b1trainer"
+
+[auth]
+enable_signup = true
+# Passwortlos primär (Magic-Link + Google/Apple idToken); OTP = Fallback.
+site_url = "b1trainer://auth-callback"
+additional_redirect_urls = ["b1trainer://auth-callback"]
+jwt_expiry = 3600                     # Access-Token-TTL 1 h (backend/12 §4)
+enable_refresh_token_rotation = true  # Rotation + Reuse-Detection
+refresh_token_reuse_interval = 10
+
+[auth.email]
+enable_confirmations = true           # Bestätigungs-Mail an
+secure_email_change_enabled = true
+otp_length = 8                        # 8-stellige OTP (10^8 Raum)
+otp_expiry = 120                      # ≤ 120 s Gültigkeit
+max_frequency = "60s"                 # 60-s-Cooldown pro E-Mail
+
+# Realistisches SMTP-Ceiling (eigenes Resend-SMTP) — gepaart mit dem
+# /api/auth/otp-Proxy (per-E-Mail 3/10 min + per-IP 15/10 min, fail-closed).
+[auth.rate_limit]
+email_sent          = 60     # /Stunde
+sign_in_sign_ups    = 30     # /5 min / IP
+token_verifications = 30     # /5 min / IP  (per-Code-Lockout ist die eigentliche Kontrolle)
+token_refresh       = 150    # /5 min / IP
+anonymous_users     = 0      # anonyme Anmeldung AUS
+
+# Turnstile-CAPTCHA auf ALLEN Auth-Formularen (inkl. verify).
+[auth.captcha]
+enabled = true
+provider = "turnstile"
+secret = "env(TURNSTILE_SECRET_KEY)"
+
+# Native Provider — Client-IDs/Secrets im Dashboard/Env setzen.
+[auth.external.google]
+enabled = true
+client_id = "env(GOOGLE_WEB_CLIENT_ID)"
+secret = "env(GOOGLE_CLIENT_SECRET)"
+skip_nonce_check = false               # Nonce-Bindung erzwingen (Replay-Schutz)
+
+[auth.external.apple]
+enabled = true
+client_id = "env(APPLE_CLIENT_ID)"
+secret = "env(APPLE_SECRET)"
