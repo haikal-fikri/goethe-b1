@@ -56,7 +56,9 @@ export interface ExerciseProgress {
   attempts: number;
   correctCount: number;
   lastCorrect: boolean;
+  firstTryCorrect: boolean | null; // 0010: gesetzt beim allerersten Versuch (Readiness-Basis)
   masteredAt: string | null;
+  lastCorrectAt: string | null; // 0010: letzte richtige Antwort (Readiness-Decay-Reset)
   lastSeenAt: string;
 }
 
@@ -211,4 +213,91 @@ export interface SpeakingGrade {
   releasedAt: string | null; // GATE: null = für Lernende nicht sichtbar
   gradedAt: string;
   createdAt: string;
+}
+
+// --- 0010 · Gamification (LIVE) ---
+
+/** Fortschritts-/Gamification-Modul; Content-Skill `shared` → Modul `konnektoren`. */
+export type Module = "schreiben" | "sprechen" | "konnektoren";
+
+export interface PracticeSession {
+  id: string;
+  userId: string;
+  lessonId: string; // makeLessonId(...) | 'review'
+  module: Module;
+  itemIds: string[];
+  heartsStart: number;
+  heartsLeft: number;
+  firstTryOk: number;
+  attemptedIds: string[];
+  masteredIds: string[];
+  pointsAwarded: number | null;
+  flawless: boolean | null;
+  startedAt: string;
+  completedAt: string | null;
+  lastActivity: string;
+}
+
+export type PointsKind =
+  | "set_complete"
+  | "first_try_bonus"
+  | "flawless_bonus"
+  | "exam"
+  | "sprechen"
+  | "daily_goal"
+  | "streak_milestone";
+
+export interface PointsEvent {
+  id: string;
+  userId: string;
+  kind: PointsKind;
+  points: number;
+  refId: string | null;
+  weekKey: string; // ISO-Woche, z.B. '2026-W27'
+  createdAt: string;
+}
+
+export interface ReadinessSnapshot {
+  userId: string;
+  capturedOn: string; // ISO-Datum (UTC-Tag)
+  overall: number; // 0..100
+  schreiben: number;
+  sprechen: number;
+  konnektoren: number;
+}
+
+export interface SpeechPractice {
+  userId: string;
+  itemId: string;
+  practicedAt: string;
+  count: number;
+}
+
+/** Eine Zeile aus `v_readiness` (pro Modul, 0..100) für den aufrufenden Nutzer. */
+export interface ReadinessModule {
+  module: Module;
+  score: number;
+}
+
+/** `v_daily_status` — Tagesziel + Serie für den aufrufenden Nutzer. */
+export interface DailyStatus {
+  goalMetToday: boolean;
+  streak: number;
+}
+
+/** Rückgabe von `start_set()` (client-gemappt aus dem jsonb). */
+export interface StartSetResult {
+  sessionId: string;
+  hearts: number;
+  module: Module;
+  items: { id: string; kind: "wordbank" | "cloze" }[];
+}
+
+/** `complete_set()`-Nutzlast (verschachtelt in AttemptResult.result). */
+export interface SetCompletion {
+  completed: boolean;
+  points: number;
+  flawless: boolean;
+  firstTryOk?: number;
+  heartsLeft?: number;
 }

@@ -8,7 +8,12 @@ import type {
   DailyActivity,
   StoredExamResult,
   ExamDraft,
+  ReadinessModule,
+  DailyStatus,
+  StartSetResult,
+  Module,
 } from "@repo/types";
+import type { LevelScope } from "@repo/core";
 import { getSupabase } from "./supabase";
 
 // Client-direkte, RLS-gescopte Reads/Writes (Tier 1). High-trust-Writes
@@ -32,7 +37,9 @@ const mapProfile = (r: Row): Profile => ({
 });
 const mapProgress = (r: Row): ExerciseProgress => ({
   userId: r.user_id, itemId: r.item_id, lessonId: r.lesson_id, attempts: r.attempts,
-  correctCount: r.correct_count, lastCorrect: r.last_correct, masteredAt: r.mastered_at ?? null, lastSeenAt: r.last_seen_at,
+  correctCount: r.correct_count, lastCorrect: r.last_correct,
+  firstTryCorrect: r.first_try_correct ?? null, masteredAt: r.mastered_at ?? null,
+  lastCorrectAt: r.last_correct_at ?? null, lastSeenAt: r.last_seen_at,
 });
 const mapDaily = (r: Row): DailyActivity => ({
   userId: r.user_id, day: r.day, attempts: r.attempts, correctCount: r.correct_count,
@@ -118,11 +125,21 @@ export async function upsertProfile(uid: string, patch: Partial<Profile>): Promi
 }
 
 // ── Fortschritt ─────────────────────────────────────────────────────
-export interface AttemptResult { ok?: boolean; correct?: boolean; error?: string; retryAfter?: number }
+// Session-bewusste RPC-Antwort (record_attempt). `result` = complete_set-Nutzlast, falls das Set fertig ist.
+export interface AttemptResult {
+  ok?: boolean;
+  correct?: boolean;
+  heartsLeft?: number | null;
+  remaining?: number | null;
+  completed?: boolean;
+  result?: { completed: boolean; points: number; flawless: boolean; firstTryOk?: number; heartsLeft?: number } | null;
+  error?: string;
+  retryAfter?: number;
+}
 
 export async function recordAttempt(args: {
   itemId: string; lessonId: string; kind: "wordbank" | "cloze";
-  submittedTokens: string[]; durationMs?: number;
+  submittedTokens: string[]; durationMs?: number; sessionId?: string;
 }): Promise<AttemptResult> {
   const { data, error } = await sb().rpc("record_attempt", {
     p_item_id: args.itemId,
@@ -130,9 +147,42 @@ export async function recordAttempt(args: {
     p_kind: args.kind,
     p_submitted_tokens: args.submittedTokens,
     p_duration_ms: args.durationMs ?? null,
+    p_session_id: args.sessionId ?? null,
   });
   if (error) return { error: error.message };
-  return (data as AttemptResult) ?? {};
+  const d = (data as Row) ?? {};
+  return {
+    ok: d.ok, correct: d.correct, heartsLeft: d.hearts_left ?? null, remaining: d.remaining ?? null,
+    completed: d.completed ?? false,
+    result: d.result ? { completed: d.result.completed, points: d.result.points, flawless: d.result.flawless,
+      firstTryOk: d.result.first_try_ok, heartsLeft: d.result.hearts_left } : null,
+    error: d.error, retryAfter: d.retryAfter,
+  };
+}
+
+// ── Gamification-RPCs (0010) ────────────────────────────────────────
+/** start_set: Server fixiert Item-Liste + Kinds (id-Hash) + Hearts. levelScope = Niveau-Filter (R2-3). */
+export async function startSet(
+  lessonId: string, mode: "category" | "review" = "category", levelScope: LevelScope = "exam",
+): Promise<StartSetResult | { error: string; retryAfter?: number }> {
+  const { data, error } = await sb().rpc("start_set", { p_lesson_id: lessonId, p_mode: mode, p_level_scope: levelScope });
+  if (error) return { error: error.message };
+  const d = (data as Row) ?? {};
+  if (d.error) return { error: d.error, retryAfter: d.retryAfter };
+  return {
+    sessionId: d.session_id, hearts: d.hearts, module: d.module as Module,
+    items: (d.items ?? []) as { id: string; kind: "wordbank" | "cloze" }[],
+  };
+}
+/** On-Device-Sprechen 20/22: Selbstauskunft (Coverage + Streak), speichert kein Audio. */
+export async function recordSpeechPractice(itemId: string): Promise<{ ok?: boolean; error?: string }> {
+  const { data, error } = await sb().rpc("record_speech_practice", { p_item_id: itemId });
+  if (error) return { error: error.message };
+  return (data as { ok?: boolean; error?: string }) ?? {};
+}
+/** Vordergrund-Sitzungszeit → daily_activity.active_seconds (BUG-4 "Woche"). */
+export async function bumpActiveSeconds(seconds: number): Promise<void> {
+  await sb().rpc("bump_active_seconds", { p_seconds: Math.max(0, Math.round(seconds)) });
 }
 
 export async function getMyProgress(uid: string): Promise<ExerciseProgress[]> {
@@ -146,6 +196,17 @@ export async function getMyDaily(uid: string): Promise<DailyActivity[]> {
 export async function getMyExamResults(uid: string): Promise<StoredExamResult[]> {
   const { data } = await sb().from("exam_results").select("*").eq("user_id", uid).order("created_at", { ascending: false });
   return (data ?? []).map(mapExamResult);
+}
+
+// ── Readiness / Tagesstatus (0010 Views; security_invoker → eigene Zeilen) ──
+export async function getMyReadiness(): Promise<ReadinessModule[]> {
+  const { data } = await sb().from("v_readiness").select("*");
+  return (data ?? []).map((r: Row) => ({ module: r.module as Module, score: Number(r.score) }));
+}
+export async function getMyDailyStatus(): Promise<DailyStatus> {
+  const { data } = await sb().from("v_daily_status").select("*").maybeSingle();
+  const r = (data as Row) ?? {};
+  return { goalMetToday: Boolean(r.goal_met_today), streak: Number(r.streak ?? 0) };
 }
 
 // ── Entwürfe (client-direkt, RLS own) ───────────────────────────────

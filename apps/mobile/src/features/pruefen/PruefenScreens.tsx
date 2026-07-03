@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { View, TextInput, Pressable, ScrollView, Alert } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ScreenCapture from "expo-screen-capture";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeProvider";
@@ -19,6 +20,7 @@ export function PruefenLandingScreen() {
   const { data: sims, isLoading } = useSimulations();
   const [sim, setSim] = useState(1);
   const [auf, setAuf] = useState<AufgabeNr>(1);
+  const [expanded, setExpanded] = useState(false); // BUG-9: „Ganze Aufgabe & Beispielaufsatz"
 
   if (isLoading) return <Loading />;
   const simulation = sims?.find((s) => s.id === sim) ?? sims?.[0];
@@ -54,7 +56,33 @@ export function PruefenLandingScreen() {
             <AppText size={12.5} color={c.textMuted}>ca. {task.minWords} Wörter · {task.recommendedMinutes ?? 20} Min</AppText>
           </View>
           <AppText role="serif" size={19} color={c.textHi} lh={26} style={{ marginTop: 10 }}>{task.titleDe}</AppText>
-          <AppText size={14} color={c.textMuted} lh={20} style={{ marginTop: 6 }} numberOfLines={3}>{task.promptDe}</AppText>
+          {/* BUG-9: kein numberOfLines-Clip mehr → vollständige Aufgabe lesbar */}
+          <AppText size={14} color={c.textMuted} lh={20} style={{ marginTop: 6 }}>{task.promptDe}</AppText>
+
+          {/* Leitpunkte IMMER direkt zeigen (nicht im Aufklapper versteckt) */}
+          {task.bulletPointsDe?.length ? (
+            <View style={{ marginTop: 10, gap: 5 }}>
+              <Eyebrow>Das sollst du behandeln</Eyebrow>
+              {task.bulletPointsDe.map((b, i) => (
+                <AppText key={i} size={13.5} color={c.textBody} lh={19}>•  {b}</AppText>
+              ))}
+            </View>
+          ) : null}
+          {/* BUG-9 / R2-5: nur der Beispielaufsatz ist aufklappbar — und nur, wenn vorhanden. */}
+          {task.sampleAnswerDe ? (
+            <>
+              <Pressable onPress={() => setExpanded((e) => !e)} style={{ marginTop: 12, flexDirection: "row", alignItems: "center", gap: 6 }}>
+                <AppText size={13} color={accent.lila}>Beispielaufsatz {expanded ? "ausblenden" : "anzeigen"}</AppText>
+                <AppText size={12} color={accent.lila}>{expanded ? "▲" : "▼"}</AppText>
+              </Pressable>
+              {expanded && (
+                <View style={{ marginTop: 10, backgroundColor: accent.gruenTintLight, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: accent.gruen + "33" }}>
+                  <Eyebrow color={accent.gruenDarkText}>Beispielaufsatz</Eyebrow>
+                  <AppText size={13.5} color={c.textBody} lh={20} style={{ marginTop: 6 }}>{task.sampleAnswerDe}</AppText>
+                </View>
+              )}
+            </>
+          ) : null}
           <AccentButton label="Aufgabe schreiben" onPress={() => nav.navigate("Exam", { taskId: task.id })} style={{ marginTop: 16 }} />
         </Card>
       )}
@@ -65,6 +93,7 @@ export function PruefenLandingScreen() {
 // 24 · Aufgabe (schreiben, Timer, Entwurf-Autosave, Bildschirm-Schutz).
 export function ExamScreen() {
   const { c, accent, fonts, radius } = useTheme();
+  const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
   const route = useRoute<any>();
   const taskId: string = route.params?.taskId;
@@ -145,6 +174,14 @@ export function ExamScreen() {
         <Card>
           <AppText role="serif" size={17} color={c.textHi}>{task.titleDe}</AppText>
           <AppText size={13.5} color={c.textMuted} lh={19} style={{ marginTop: 6 }}>{task.promptDe}</AppText>
+          {/* Leitpunkte während des Schreibens sichtbar halten */}
+          {task.bulletPointsDe?.length ? (
+            <View style={{ marginTop: 8, gap: 4 }}>
+              {task.bulletPointsDe.map((b, i) => (
+                <AppText key={i} size={13} color={c.textBody} lh={18}>•  {b}</AppText>
+              ))}
+            </View>
+          ) : null}
         </Card>
         <TextInput
           value={text} onChangeText={onChange} multiline placeholder="Schreibe hier deinen Text…" placeholderTextColor={c.textFaint}
@@ -152,7 +189,8 @@ export function ExamScreen() {
         />
       </ScrollView>
 
-      <View style={{ paddingVertical: 12, gap: 10 }}>
+      {/* R2-6: Safe-Area-Abstand unten, damit „Bewerten lassen" nicht am Rand / unter dem Home-Indicator klebt */}
+      <View style={{ paddingTop: 12, paddingBottom: Math.max(insets.bottom, 16) + 8, gap: 10 }}>
         <AppText size={12.5} color={words > wordLimit ? accent.rotText : c.textMuted}>{words} / {wordLimit} Wörter</AppText>
         <AccentButton label="Bewerten lassen" color={accent.lila} onPress={submit} disabled={words < 20 || words > wordLimit} />
       </View>

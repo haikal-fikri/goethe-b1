@@ -1,4 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect } from "react";
+import { AppState } from "react-native";
 import { useSession } from "./session";
 import * as db from "./db";
 
@@ -37,6 +39,65 @@ export function useMyExamResults() {
   const { session } = useSession();
   const uid = session?.user.id;
   return useQuery({ queryKey: ["examResults", uid], enabled: !!uid, queryFn: () => db.getMyExamResults(uid!) });
+}
+
+// ── Gamification-Reads (0010) ───────────────────────────────────────
+export function useMyReadiness() {
+  const { session } = useSession();
+  const uid = session?.user.id;
+  return useQuery({ queryKey: ["readiness", uid], enabled: !!uid, queryFn: () => db.getMyReadiness() });
+}
+
+export function useMyDailyStatus() {
+  const { session } = useSession();
+  const uid = session?.user.id;
+  return useQuery({ queryKey: ["dailyStatus", uid], enabled: !!uid, queryFn: () => db.getMyDailyStatus() });
+}
+
+/**
+ * BUG-1 / Gamification: nach jedem Schreibpfad (record_attempt, complete_set, Grade)
+ * die betroffenen „my“-Caches invalidieren, damit Readiness/Gelernt/Serie sofort
+ * nachladen (statt bis zu 60 s stale zu bleiben). Ohne Session ein No-op.
+ */
+export function useInvalidateProgress() {
+  const qc = useQueryClient();
+  const { session } = useSession();
+  const uid = session?.user.id;
+  return useCallback(async () => {
+    if (!uid) return;
+    await Promise.all(
+      (["progress", "daily", "examResults", "readiness", "dailyStatus"] as const).map((k) =>
+        qc.invalidateQueries({ queryKey: [k, uid] })
+      )
+    );
+  }, [qc, uid]);
+}
+
+/**
+ * BUG-4 „Woche": Vordergrund-Sitzungszeit erfassen und periodisch (alle 30 s + beim
+ * Hintergrund) über bump_active_seconds nach daily_activity.active_seconds flushen.
+ * Einmal im Root montieren. Braucht 0010 (schlägt sonst still fehl).
+ */
+export function useActiveTimeTracker() {
+  const { session } = useSession();
+  const uid = session?.user.id;
+  useEffect(() => {
+    if (!uid) return;
+    let active = AppState.currentState === "active";
+    let start = Date.now();
+    const flush = () => {
+      if (!active) return;
+      const secs = Math.round((Date.now() - start) / 1000);
+      start = Date.now();
+      if (secs > 0) db.bumpActiveSeconds(secs).catch(() => {});
+    };
+    const interval = setInterval(flush, 30_000);
+    const sub = AppState.addEventListener("change", (s) => {
+      if (s === "active") { active = true; start = Date.now(); }
+      else { flush(); active = false; }
+    });
+    return () => { clearInterval(interval); sub.remove(); flush(); };
+  }, [uid]);
 }
 
 /** Streak in Tagen aus daily_activity (aufeinanderfolgende aktive UTC-Tage). */

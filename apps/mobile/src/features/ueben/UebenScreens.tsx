@@ -1,10 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { View } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeProvider";
-import { AppText, Eyebrow, Card, ProgressBar, LevelBadge, ListRow, Loading } from "../../components/ui";
-import { useRedemittel, useMyProgress } from "../../lib/hooks";
-import { getSkillGroups, makeLessonId } from "@repo/core";
+import { AppText, Eyebrow, Card, ProgressBar, LevelBadge, ListRow, Loading, NiveauChips } from "../../components/ui";
+import { useRedemittel, useMyProgress, useProfile } from "../../lib/hooks";
+import { getSkillGroups, inLevelScope, type LevelScope } from "@repo/core";
 import { SKILL_LABEL } from "@repo/types";
 
 const SKILL_COL: Record<string, string> = { schreiben: "#1C8A5B", sprechen: "#2B7FD4", shared: "#7A52D9" };
@@ -46,40 +46,53 @@ export function UebenBereicheScreen() {
   );
 }
 
-// 15 · Bereich-Detail — Kategorien (lessons) je Aufgabe.
+// 15 · Bereich-Detail — Kategorien (lessons) je Aufgabe. R2-3: Niveau-Filter (opt-in).
 export function UebenAreaScreen() {
   const { c } = useTheme();
   const nav = useNavigation<any>();
   const route = useRoute<any>();
   const skill: string = route.params?.skill;
   const { data: items, isLoading } = useRedemittel();
+  const profile = useProfile();
+  const examLevel = profile.data?.level ?? "B1";
+  const [scope, setScope] = useState<LevelScope>("exam");
   const groups = useMemo(() => getSkillGroups(items ?? []), [items]);
   const group = groups.find((g) => g.skill === skill);
+
+  // Anzahl der Wendungen einer Funktion IM gewählten Niveau-Filter.
+  const scopedCount = (f: { levels: string[]; countByLevel: Record<string, number> }) =>
+    f.levels.reduce((n, lvl) => n + (inLevelScope(lvl as "B1", scope, examLevel) ? (f.countByLevel[lvl] ?? 0) : 0), 0);
 
   if (isLoading) return <Loading />;
   if (!group) return null;
   return (
     <>
-      <AppText role="serif" size={24} color={c.textHi} style={{ marginTop: 8 }}>{SKILL_LABEL[skill as "schreiben"]}</AppText>
+      <AppText role="serif" size={24} color={c.textHi} style={{ marginTop: 8, marginBottom: 12 }}>{SKILL_LABEL[skill as "schreiben"]}</AppText>
+      <NiveauChips value={scope} onChange={setScope} examLevel={examLevel} />
       <View style={{ gap: 18, marginTop: 16 }}>
-        {group.tasks.map((t) => (
-          <View key={t.taskCode}>
-            <Eyebrow>{t.taskLabel}</Eyebrow>
-            <Card style={{ marginTop: 8, paddingVertical: 4 }}>
-              {t.functions.map((f, i) => (
-                <View key={f.functionCode}>
-                  {i > 0 && <View style={{ height: 1, backgroundColor: c.border }} />}
-                  <ListRow
-                    title={f.functionName}
-                    subtitle={`${f.count} Wendungen`}
-                    right={<LevelBadge level={f.levels[0] ?? "B1"} />}
-                    onPress={() => nav.navigate("Exercise", { lessonId: f.lessonId })}
-                  />
-                </View>
-              ))}
-            </Card>
-          </View>
-        ))}
+        {group.tasks.map((t) => {
+          const fns = t.functions.filter((f) => scopedCount(f) > 0);
+          if (fns.length === 0) return null;
+          return (
+            <View key={t.taskCode}>
+              <Eyebrow>{t.taskLabel}</Eyebrow>
+              <Card style={{ marginTop: 8, paddingVertical: 4 }}>
+                {fns.map((f, i) => (
+                  <View key={f.functionCode}>
+                    {i > 0 && <View style={{ height: 1, backgroundColor: c.border }} />}
+                    <ListRow
+                      title={f.functionName}
+                      subtitle={`${scopedCount(f)} Wendungen`}
+                      right={<LevelBadge level={f.levels[0] ?? "B1"} />}
+                      // BUG-7: Sprechen → Sprechen-Player; sonst Wortbank/Cloze. Niveau-Scope mitgeben.
+                      onPress={() => nav.navigate(skill === "sprechen" ? "Speaking" : "Exercise", { lessonId: f.lessonId, levelScope: scope })}
+                    />
+                  </View>
+                ))}
+              </Card>
+            </View>
+          );
+        })}
       </View>
     </>
   );

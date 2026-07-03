@@ -6,6 +6,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../theme/ThemeProvider";
 import { cefr as CEFR } from "../theme/tokens";
+import type { LevelScope } from "@repo/core";
 
 // Reusable-Primitives-Schicht (README "Reusable components"). Nie Hex/px direkt
 // in Screens — hier zentralisiert und aus dem Theme gelesen.
@@ -160,6 +161,26 @@ export function Chip({ label, active, color, onPress }: { label: string; active?
     >
       <Text style={{ color: active ? "#fff" : c.textMuted, fontFamily: fonts.uiMed, fontSize: 13 }}>{label}</Text>
     </Pressable>
+  );
+}
+
+// R2-3 · Niveau-Filter (opt-in „push yourself"). Default = Prüfungsniveau; chips widen upward.
+export function NiveauChips({ value, onChange, examLevel }: {
+  value: LevelScope; onChange: (v: LevelScope) => void; examLevel: string;
+}) {
+  const { accent } = useTheme();
+  const opts: { label: string; value: LevelScope }[] = [
+    { label: `Mein Niveau · ${examLevel}`, value: "exam" },
+    { label: "ab B2", value: "b2plus" },
+    { label: "ab C1", value: "c1plus" },
+    { label: "Alle", value: "all" },
+  ];
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
+      {opts.map((o) => (
+        <Chip key={o.value} label={o.label} active={value === o.value} color={accent.gold} onPress={() => onChange(o.value)} />
+      ))}
+    </ScrollView>
   );
 }
 

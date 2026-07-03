@@ -6,7 +6,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useTheme } from "../theme/ThemeProvider";
 import { useSession } from "../lib/session";
 import { useFeatureFlags } from "../lib/featureFlags";
-import { useProfile } from "../lib/hooks";
+import { useProfile, useActiveTimeTracker } from "../lib/hooks";
 import { Screen, Loading } from "../components/ui";
 import { BackIcon } from "../components/icons";
 import { IslandTabBar } from "./IslandTabBar";
@@ -19,6 +19,7 @@ import { LernenScreen, LernenAreaScreen, LernenCategoryScreen } from "../feature
 import { UebenBereicheScreen, UebenAreaScreen } from "../features/ueben/UebenScreens";
 import { ExercisePlayer } from "../features/ueben/ExercisePlayer";
 import { SpeakingScreen } from "../features/ueben/SpeakingScreen";
+import { UebungAbgeschlossenScreen } from "../features/ueben/UebungAbgeschlossen";
 import { PruefenLandingScreen, ExamScreen, ExamResultScreen } from "../features/pruefen/PruefenScreens";
 import { FortschrittScreen, ProbeScreen } from "../features/fortschritt/FortschrittScreens";
 import { KlasseScreen, KlasseJoinScreen, SprechenTaskScreen, SprechenRecordScreen, SprechenReviewScreen } from "../features/klasse/KlasseScreens";
@@ -57,21 +58,20 @@ function HeuteStack() {
   );
 }
 function UebenStack() {
+  // BUG-8: Exercise/Speaking leben NICHT mehr hier, sondern auf dem Root-Stack
+  // ÜBER den Tabs → Island wird während der Übung ausgeblendet (Fixed-Layout).
   return (
     <S.Navigator screenOptions={stackOpts}>
       <S.Screen name="UebenBereiche" component={wrap(UebenBereicheScreen)} />
       <S.Screen name="UebenArea" component={wrap(UebenAreaScreen, { back: true })} />
-      <S.Screen name="Exercise" component={ExercisePlayer} />
-      <S.Screen name="Speaking" component={SpeakingScreen} />
     </S.Navigator>
   );
 }
 function PruefenStack() {
+  // BUG-8: Exam/ExamResult sind auf den Root-Stack verschoben (kein Island).
   return (
     <S.Navigator screenOptions={stackOpts}>
       <S.Screen name="PruefenLanding" component={wrap(PruefenLandingScreen)} />
-      <S.Screen name="Exam" component={ExamScreen} />
-      <S.Screen name="ExamResult" component={ExamResultScreen} />
     </S.Navigator>
   );
 }
@@ -80,7 +80,6 @@ function FortschrittStack() {
     <S.Navigator screenOptions={stackOpts}>
       <S.Screen name="FortschrittHome" component={wrap(FortschrittScreen)} />
       <S.Screen name="Probe" component={wrap(ProbeScreen, { back: true })} />
-      <S.Screen name="ExamResult" component={ExamResultScreen} />
       <S.Screen name="Settings" component={wrap(SettingsScreen, { back: true })} />
     </S.Navigator>
   );
@@ -111,6 +110,24 @@ function Tabs() {
   );
 }
 
+// BUG-8: Root-Stack ÜBER den Tabs. Vollbild-Flows (Übung 16/18, Sprechen 20–22,
+// Exam 24, Bewertung 25, Übung-abgeschlossen) sind Geschwister von <Tabs/> → sie
+// pushen über die Tab-Leiste, sodass das Island NICHT gezeichnet wird. navigate()
+// aus einem Tab-Screen findet diese Namen durch Hochlaufen im Navigator-Baum.
+const Root = createNativeStackNavigator();
+function AppNavigator() {
+  return (
+    <Root.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "transparent" } }}>
+      <Root.Screen name="Tabs" component={Tabs} />
+      <Root.Screen name="Exercise" component={ExercisePlayer} />
+      <Root.Screen name="Speaking" component={SpeakingScreen} />
+      <Root.Screen name="Exam" component={ExamScreen} />
+      <Root.Screen name="ExamResult" component={ExamResultScreen} />
+      <Root.Screen name="UebungAbgeschlossen" component={UebungAbgeschlossenScreen} />
+    </Root.Navigator>
+  );
+}
+
 const AuthStack = createNativeStackNavigator();
 function AuthNavigator() {
   return (
@@ -125,6 +142,7 @@ export function RootNavigator() {
   const { scheme, c } = useTheme();
   const { session, loading } = useSession();
   const profile = useProfile();
+  useActiveTimeTracker(); // BUG-4: Vordergrundzeit → active_seconds (Woche-Statistik)
 
   const navTheme = scheme === "dark"
     ? { ...DarkTheme, colors: { ...DarkTheme.colors, background: c.bg } }
@@ -135,7 +153,7 @@ export function RootNavigator() {
   else if (!session) content = <AuthNavigator />;
   else if (profile.isLoading) content = <Loading />;
   else if (!profile.data?.onboardedAt) content = <OnboardingScreen />;
-  else content = <Tabs />;
+  else content = <AppNavigator />;
 
   return (
     <NavigationContainer theme={navTheme}>

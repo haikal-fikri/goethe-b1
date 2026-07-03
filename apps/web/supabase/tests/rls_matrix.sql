@@ -1,9 +1,9 @@
 -- ============================================================
---  RLS-Testmatrix (RLS-1 … RLS-24) — Sicherheits-Gate (CI)
+--  RLS-Testmatrix (RLS-1 … RLS-35) — Sicherheits-Gate (CI)
 --  Plain-SQL-Assertions gegen die TATSÄCHLICH ausgelieferten Policy-Namen
 --  (die Kernlektion des Red-Teams). Läuft unter reinem psql:
 --    psql "$SHADOW_URL" -f apps/web/supabase/tests/rls_matrix.sql
---  Voraussetzung: 0001–0009 sind auf der (Wegwerf-)Shadow-DB angewandt
+--  Voraussetzung: 0001–0010 sind auf der (Wegwerf-)Shadow-DB angewandt
 --  + der Supabase-auth/storage-Shim. Läuft in einer Transaktion und rollt
 --  zurück → nicht-destruktiv, wiederholbar.
 --  NIEMALS gegen die Live-DB (legt Fixtures in auth.users an).
@@ -180,6 +180,46 @@ select set_config('role','anon', true);
 select pg_temp.assert('RLS-24a anon → 0 profiles',            (select count(*) = 0 from profiles));
 select pg_temp.assert('RLS-24b anon liest Content (redemittel)', (select count(*) >= 1 from redemittel));
 
+-- ═══ RLS-25…35 — 0010 Gamification: scored tables (no client write, select-own) ═══
+-- practice_sessions / points_events / readiness_snapshots / speech_practice sind
+-- server-berechnet → wie exam_results/exercise_*: kein Client-insert/update/delete
+-- (delete-own nur wo Reset erlaubt), select-own, geschrieben nur via SECURITY DEFINER RPC.
+reset role; select set_config('request.jwt.claims','',true);
+select pg_temp.tests_as(:'stuA');
+-- Kein direkter Client-INSERT (revoke → 42501)
+select pg_temp.assert_denied('RLS-25 stuA insert practice_sessions direct',
+  format('insert into practice_sessions (user_id,lesson_id,module,item_ids) values (%L,''les'',''schreiben'',array[''itemX'']::text[])', :'stuA'));
+select pg_temp.assert_denied('RLS-26 stuA insert points_events direct (ledger forge)',
+  format('insert into points_events (user_id,kind,points,week_key) values (%L,''set_complete'',999,''2026-W01'')', :'stuA'));
+select pg_temp.assert_denied('RLS-27 stuA insert readiness_snapshots direct',
+  format('insert into readiness_snapshots (user_id,captured_on,overall,schreiben,sprechen,konnektoren) values (%L,current_date,99,99,99,99)', :'stuA'));
+select pg_temp.assert_denied('RLS-28 stuA insert speech_practice direct',
+  format('insert into speech_practice (user_id,item_id) values (%L,''itemX'')', :'stuA'));
+-- Kein direkter Client-UPDATE (revoke → 42501)
+select pg_temp.assert_denied('RLS-29 stuA update points_events (points forge)',
+  'update points_events set points=999 where true');
+select pg_temp.assert_denied('RLS-30 stuA update practice_sessions (hearts/points forge)',
+  'update practice_sessions set points_awarded=999, hearts_left=99 where true');
+-- Kein Client-DELETE auf Ledger/Snapshots (append-only)
+select pg_temp.assert_denied('RLS-31a stuA delete points_events (ledger)', 'delete from points_events where true');
+select pg_temp.assert_denied('RLS-31b stuA delete readiness_snapshots',    'delete from readiness_snapshots where true');
+-- RPC-Schreibpfad funktioniert + select-own: start_set/record_speech_practice legen EIGENE Zeilen an
+select start_set('schreiben__t1__f1');
+select pg_temp.assert('RLS-32 stuA sieht eigene practice_session (RPC-geschrieben)',
+  (select count(*) >= 1 from practice_sessions where user_id = :'stuA'));
+select record_speech_practice('itemX');
+select pg_temp.assert('RLS-32b stuA sieht eigene speech_practice (RPC-geschrieben)',
+  (select count(*) = 1 from speech_practice where user_id = :'stuA' and item_id='itemX'));
+-- Cross-Tenant: stuB liest stuA-Gamification-Zeilen nicht
+select pg_temp.tests_as(:'stuB');
+select pg_temp.assert('RLS-33 stuB !read stuA practice_sessions', (select count(*) = 0 from practice_sessions where user_id = :'stuA'));
+select pg_temp.assert('RLS-34 stuB !read stuA points_events',     (select count(*) = 0 from points_events where user_id = :'stuA'));
+-- anon default-deny
+reset role; select set_config('request.jwt.claims','',true);
+select set_config('role','anon', true);
+select pg_temp.assert('RLS-35a anon → 0 practice_sessions', (select count(*) = 0 from practice_sessions));
+select pg_temp.assert('RLS-35b anon → 0 points_events',     (select count(*) = 0 from points_events));
+
 reset role;
-select 'RLS MATRIX: ALL 24 ASSERTIONS PASSED' as result;
+select 'RLS MATRIX: ALL 35 ASSERTIONS PASSED' as result;
 rollback;

@@ -168,6 +168,41 @@ export function getLessonItems(
   );
 }
 
+/**
+ * R2-1 · Prüfungs-Level-bezogene Kennzahlen. „Gelernt X/Y" + Readiness messen das
+ * PRÜFUNGSNIVEAU der/des Lernenden (`profile.level`), nicht das ganze Korpus. Da
+ * `exercise_progress` jede geübte Wendung ALLER Niveaus speichert, „reflektiert" bereits
+ * gemeisterter B2/C1/C2-Stoff automatisch, sobald die/der Lernende dieses Niveau wählt —
+ * kein Backfill. Aus dem bereits geladenen Katalog abgeleitet (kein count(*)-Roundtrip).
+ */
+export function levelCount(items: RedemittelItem[], level: CEFRLevel): number {
+  let n = 0;
+  for (const it of items) if (it.level === level) n++;
+  return n;
+}
+
+/** Menge der Item-IDs eines Niveaus — für „gemeistert ≤ Gesamt" (Zähler aufs Prüfungsniveau einschränken). */
+export function levelIdSet(items: RedemittelItem[], level: CEFRLevel): Set<string> {
+  const s = new Set<string>();
+  for (const it of items) if (it.level === level) s.add(it.id);
+  return s;
+}
+
+/**
+ * R2-3 · Niveau-Filter für die Übungs-/Lern-Auswahl (opt-in „push yourself").
+ * `exam` = nur das Prüfungsniveau (Default); `b2plus`/`c1plus` = ab B2/C1 aufwärts; `all` = alles.
+ */
+export type LevelScope = "exam" | "b2plus" | "c1plus" | "all";
+
+export function inLevelScope(itemLevel: CEFRLevel, scope: LevelScope, examLevel: CEFRLevel): boolean {
+  switch (scope) {
+    case "exam": return itemLevel === examLevel;
+    case "b2plus": return LEVEL_RANK[itemLevel] >= LEVEL_RANK.B2;
+    case "c1plus": return LEVEL_RANK[itemLevel] >= LEVEL_RANK.C1;
+    case "all": return true;
+  }
+}
+
 export function getLessonMeta(items: RedemittelItem[], lessonId: string) {
   const parsed = parseLessonId(lessonId);
   if (!parsed) return null;

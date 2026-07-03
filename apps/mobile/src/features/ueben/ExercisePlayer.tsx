@@ -1,72 +1,176 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { View, Pressable } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeProvider";
-import { AppText, Eyebrow, Card, AccentButton, PrimaryButton, LevelBadge, Loading, Center } from "../../components/ui";
-import { CloseIcon, BulbIcon, SpeakerIcon } from "../../components/icons";
-import { useRedemittel } from "../../lib/hooks";
+import { AppText, Eyebrow, Card, AccentButton, LevelBadge, Loading, Center } from "../../components/ui";
+import { CloseIcon, SpeakerIcon, HeartIcon } from "../../components/icons";
+import { useRedemittel, useProfile } from "../../lib/hooks";
+import { useInvalidateProgress } from "../../lib/hooks";
 import { useSession } from "../../lib/session";
-import { recordAttempt } from "../../lib/db";
+import { recordAttempt, startSet, type AttemptResult } from "../../lib/db";
 import {
-  buildTiles, arraysEqual, buildClozePills, clozeBlanks, parseCloze, makeLessonId, type Tile,
+  buildTiles, arraysEqual, buildClozePills, clozeBlanks, parseCloze, makeLessonId, pickExerciseKind,
+  inLevelScope, type LevelScope, type Tile,
 } from "@repo/core";
 import type { RedemittelItem } from "@repo/types";
 import * as Speech from "expo-speech";
 
-// 16–19 · Übung (Wortbank / Lückentext). Jede Einreichung ruft record_attempt
-// (Server berechnet correct neu). „Prüfen" → Lösung → „Weiter" (nächstes Item).
+type Kind = "wordbank" | "cloze";
+
+// 16–19 · Übung (Loop-to-Mastery + Herzen). start_set fixiert Items/Kinds/Herzen;
+// jede Einreichung → session-aware record_attempt (Server berechnet correct neu,
+// zählt Erstversuch, zieht Herzen bei erstem Fehlversuch, requeued falsche Items
+// ans Ende). Set fertig → „Übung abgeschlossen". Fällt ohne 0010 auf den linearen
+// Client-Ablauf zurück (kein Herzen/Punkte), damit die Übung immer funktioniert.
 export function ExercisePlayer() {
-  const { c, accent, radius } = useTheme();
   const nav = useNavigation<any>();
   const route = useRoute<any>();
   const lessonId: string = route.params?.lessonId;
+  const mode: "category" | "review" = route.params?.mode ?? "category";
+  const levelScope: LevelScope = route.params?.levelScope ?? "exam"; // R2-3
   const { session } = useSession();
+  const uid = session?.user.id;
+  const profile = useProfile();
+  const examLevel = profile.data?.level ?? "B1";
+  const invalidate = useInvalidateProgress();
   const { data: all, isLoading } = useRedemittel();
 
-  const items = useMemo(
-    () => (all ?? []).filter((it) => makeLessonId(it.skill, it.task.code, it.function.code) === lessonId && it.level === "B1"),
-    [all, lessonId]
+  const byId = useMemo(() => new Map((all ?? []).map((it) => [it.id, it])), [all]);
+  const fallbackIds = useMemo(
+    () => (all ?? []).filter((it) =>
+      makeLessonId(it.skill, it.task.code, it.function.code) === lessonId && inLevelScope(it.level, levelScope, examLevel)
+    ).map((it) => it.id),
+    [all, lessonId, levelScope, examLevel]
   );
-  const [idx, setIdx] = useState(0);
-  const item = items[idx];
 
-  if (isLoading) return <Loading label="Übung wird geladen…" />;
-  if (!item) return <Center><AppText color={c.textMuted}>Keine Übungen in dieser Kategorie.</AppText></Center>;
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [heartsStart, setHeartsStart] = useState(0);
+  const [heartsLeft, setHeartsLeft] = useState(0);
+  const [kinds, setKinds] = useState<Map<string, Kind>>(new Map());
+  const [queue, setQueue] = useState<string[]>([]);
+  const [total, setTotal] = useState(0);
+  const [mastered, setMastered] = useState(0);
+  const [ready, setReady] = useState(false);
+  const [present, setPresent] = useState(0); // erhöht sich bei jedem Wechsel → ExerciseItem-Reset
+  const startedRef = useRef(false);
 
-  const isCloze = Boolean(item.clozeTemplate);
+  // Serverseitiges Set starten (einmal), sonst Fallback auf lokale Lektion.
+  useEffect(() => {
+    if (startedRef.current || !all) return;
+    startedRef.current = true;
+    const useFallback = () => {
+      const ids = fallbackIds.slice(0, 12);
+      setSessionId(null); setHeartsStart(0); setHeartsLeft(0);
+      setKinds(new Map(ids.map((id) => [id, pickExerciseKind(id)])));
+      setQueue(ids); setTotal(ids.length); setReady(true);
+    };
+    if (!uid) { useFallback(); return; }
+    startSet(lessonId, mode, levelScope)
+      .then((r) => {
+        if ("error" in r || !r.items?.length) return useFallback();
+        setSessionId(r.sessionId); setHeartsStart(r.hearts); setHeartsLeft(r.hearts);
+        setKinds(new Map(r.items.map((it) => [it.id, it.kind])));
+        setQueue(r.items.map((it) => it.id)); setTotal(r.items.length); setReady(true);
+      })
+      .catch(useFallback);
+  }, [all, uid, lessonId, mode, fallbackIds]);
+
+  const finish = (comp?: AttemptResult["result"]) => {
+    invalidate();
+    if (sessionId && comp) {
+      nav.replace("UebungAbgeschlossen", {
+        firstTryOk: comp.firstTryOk ?? 0, total, heartsLeft: comp.heartsLeft ?? heartsLeft,
+        heartsStart, points: comp.points ?? 0, flawless: comp.flawless ?? false,
+      });
+    } else {
+      nav.goBack();
+    }
+  };
+
+  // Nach Prüfen: Server-Antwort verarbeiten (oder lokal im Fallback).
+  const submit = async (itemId: string, kind: Kind, tokens: string[]): Promise<AttemptResult> => {
+    if (!uid) return { correct: arraysEqualLocal(byId.get(itemId), kind, tokens) };
+    const res = await recordAttempt({ itemId, lessonId, kind, submittedTokens: tokens, sessionId: sessionId ?? undefined });
+    if (res.error) return { correct: arraysEqualLocal(byId.get(itemId), kind, tokens), error: res.error };
+    if (typeof res.heartsLeft === "number") setHeartsLeft(res.heartsLeft);
+    return res;
+  };
+
+  // Nach „Weiter": Queue fortschreiben (korrekt → raus, falsch → ans Ende) + evtl. Abschluss.
+  const advance = (correct: boolean, comp?: AttemptResult["result"]) => {
+    setQueue((q) => {
+      const [head, ...rest] = q;
+      const next = correct ? rest : [...rest, head];
+      if (correct) setMastered((m) => m + 1);
+      if (next.length === 0 || comp?.completed) { finish(comp); return next; }
+      setPresent((p) => p + 1);
+      return next;
+    });
+  };
+
+  if (isLoading || !ready) return <Loading label="Übung wird geladen…" />;
+  const currentId = queue[0];
+  const item = currentId ? byId.get(currentId) : undefined;
+  if (!item) return <Center><AppText color={undefined}>Keine Übungen in dieser Kategorie.</AppText></Center>;
+  const kind: Kind = kinds.get(item.id) ?? pickExerciseKind(item.id);
+
   return (
     <ExerciseItem
-      key={item.id}
+      key={`${item.id}:${present}`}
       item={item}
-      isCloze={isCloze}
-      lessonId={lessonId}
-      index={idx}
-      total={items.length}
-      uid={session?.user.id}
+      kind={kind}
+      mastered={mastered}
+      total={total}
+      hearts={sessionId ? { start: heartsStart, left: heartsLeft } : null}
       onClose={() => nav.goBack()}
-      onNext={() => (idx + 1 < items.length ? setIdx(idx + 1) : nav.goBack())}
+      submit={(tokens) => submit(item.id, kind, tokens)}
+      onNext={advance}
     />
   );
 }
 
-function ExerciseItem({ item, isCloze, lessonId, index, total, uid, onClose, onNext }: {
-  item: RedemittelItem; isCloze: boolean; lessonId: string; index: number; total: number;
-  uid?: string; onClose: () => void; onNext: () => void;
+function arraysEqualLocal(item: RedemittelItem | undefined, kind: Kind, tokens: string[]): boolean {
+  if (!item) return false;
+  const sol = kind === "cloze" ? clozeBlanks(item.clozeTemplate ?? "") : item.tokens;
+  return arraysEqual(tokens, sol);
+}
+
+function Hearts({ start, left }: { start: number; left: number }) {
+  const { accent, c } = useTheme();
+  return (
+    <View style={{ flexDirection: "row", gap: 5 }}>
+      {Array.from({ length: start }).map((_, i) => (
+        <HeartIcon key={i} size={18} strokeWidth={1.9} color={i < left ? accent.gruen : c.textFaint} />
+      ))}
+    </View>
+  );
+}
+
+function ExerciseItem({ item, kind, mastered, total, hearts, onClose, submit, onNext }: {
+  item: RedemittelItem; kind: Kind; mastered: number; total: number;
+  hearts: { start: number; left: number } | null;
+  onClose: () => void; submit: (tokens: string[]) => Promise<AttemptResult>; onNext: (correct: boolean, comp?: AttemptResult["result"]) => void;
 }) {
   const { c, accent, radius, fonts } = useTheme();
+  const insets = useSafeAreaInsets();
+  const isCloze = kind === "cloze";
   const solution = useMemo(() => (isCloze ? clozeBlanks(item.clozeTemplate ?? "") : item.tokens), [item, isCloze]);
   const pool = useMemo<Tile[]>(() => (isCloze ? buildClozePills(item) : buildTiles(item)), [item, isCloze]);
   const [placed, setPlaced] = useState<Tile[]>([]);
   const [result, setResult] = useState<null | boolean>(null);
+  const [comp, setComp] = useState<AttemptResult["result"]>(null);
+  const [busy, setBusy] = useState(false);
   const usedIds = new Set(placed.map((t) => t.id));
 
   const check = async () => {
+    if (busy) return;
+    setBusy(true);
     const submitted = placed.map((t) => t.label);
-    const localCorrect = arraysEqual(submitted, solution);
-    setResult(localCorrect); // optimistisch; Server bestätigt
-    if (uid) {
-      await recordAttempt({ itemId: item.id, lessonId, kind: isCloze ? "cloze" : "wordbank", submittedTokens: submitted }).catch(() => {});
-    }
+    const res = await submit(submitted);
+    setResult(res.correct ?? arraysEqual(submitted, solution));
+    setComp(res.result ?? null);
+    setBusy(false);
   };
 
   const clozeParts = isCloze ? parseCloze(item.clozeTemplate ?? "") : [];
@@ -74,15 +178,15 @@ function ExerciseItem({ item, isCloze, lessonId, index, total, uid, onClose, onN
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg, paddingHorizontal: 18, paddingTop: 56 }}>
-      {/* Kopf */}
+      {/* Kopf: Schließen · segmentierter Fortschritt (gemeistert/total) · Herzen */}
       <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
         <Pressable onPress={onClose} hitSlop={10}><CloseIcon color={c.textMuted} /></Pressable>
         <View style={{ flex: 1, flexDirection: "row", gap: 4 }}>
           {Array.from({ length: total }).map((_, k) => (
-            <View key={k} style={{ flex: 1, height: 4, borderRadius: 2, backgroundColor: k <= index ? accent.gruen : c.track }} />
+            <View key={k} style={{ flex: 1, height: 4, borderRadius: 2, backgroundColor: k < mastered ? accent.gruen : c.track }} />
           ))}
         </View>
-        <AppText size={12.5} color={c.textMuted}>{index + 1}/{total}</AppText>
+        {hearts ? <Hearts start={hearts.start} left={hearts.left} /> : <AppText size={12.5} color={c.textMuted}>{mastered}/{total}</AppText>}
       </View>
 
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 16 }}>
@@ -97,8 +201,7 @@ function ExerciseItem({ item, isCloze, lessonId, index, total, uid, onClose, onN
             {clozeParts.map((p, k) => {
               if (p.kind === "text") return <AppText key={k} role="serif" size={19} color={c.textHi}>{p.value}</AppText>;
               blankN++;
-              const n = blankN;
-              const filled = placed[n];
+              const filled = placed[blankN];
               return (
                 <AppText key={k} role="serif" size={19} color={filled ? accent.blau : c.textFaint}>
                   {filled ? filled.label : "_____"}
@@ -119,12 +222,12 @@ function ExerciseItem({ item, isCloze, lessonId, index, total, uid, onClose, onN
         )}
       </Card>
 
-      {/* Antwort-Well */}
+      {/* Antwort-Well (Wortbank) */}
       {!isCloze && (
         <View style={{ minHeight: 60, marginTop: 12, borderWidth: 1.5, borderStyle: "dashed", borderColor: c.borderStrong, borderRadius: radius.tile, padding: 10, flexDirection: "row", flexWrap: "wrap", gap: 8, backgroundColor: c.surfaceSunken }}>
           {placed.map((t, k) => (
             <Pressable key={t.id} disabled={result !== null} onPress={() => setPlaced(placed.filter((_, i) => i !== k))}>
-              <View style={{ backgroundColor: result === false ? accent.rot : result === true ? accent.gruen : accent.gruen, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.tile }}>
+              <View style={{ backgroundColor: result === false ? accent.rot : accent.gruen, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.tile }}>
                 <AppText role="uiSemi" size={15} color="#fff">{t.label}</AppText>
               </View>
             </Pressable>
@@ -153,26 +256,21 @@ function ExerciseItem({ item, isCloze, lessonId, index, total, uid, onClose, onN
 
       {/* Lösung */}
       {result !== null && (
-        <Card style={{ marginTop: 16, borderColor: result ? accent.gruen : accent.rot, backgroundColor: result ? accent.gruenTintLight : accent.rotTintLight }}>
-          <AppText role="uiSemi" size={15} color={result ? accent.gruenDarkText : accent.rotText}>{result ? "Richtig!" : "Nicht ganz."}</AppText>
-          <AppText role="serif" size={18} color={c.textHi} lh={26} style={{ marginTop: 8 }}>{item.phrase}</AppText>
-          {item.examples?.[0] && (
-            <AppText size={13.5} color={c.textMuted} lh={19} style={{ marginTop: 8, fontStyle: "italic" }}>{item.examples[0].de}</AppText>
-          )}
+        <Card style={{ marginTop: 16, borderColor: result ? accent.gruen : accent.rot }}>
+          <AppText role="uiSemi" size={15} color={result ? accent.gruenDarkText : accent.rotText}>
+            {result ? "Richtig!" : "Nicht ganz — kommt später nochmal."}
+          </AppText>
+          <AppText role="serif" size={17} color={c.textHi} style={{ marginTop: 6 }}>{item.tokens.join(" ")}</AppText>
         </Card>
       )}
 
-      {/* Bottom */}
-      <View style={{ position: "absolute", left: 18, right: 18, bottom: 24, flexDirection: "row", gap: 10 }}>
+      {/* Aktion (R2-6: Safe-Area-Abstand unten) */}
+      <View style={{ position: "absolute", left: 18, right: 18, bottom: Math.max(insets.bottom, 16) + 8 }}>
         {result === null ? (
-          <>
-            <View style={{ width: 50, height: 52, borderRadius: radius.input, borderWidth: 1, borderColor: c.border, alignItems: "center", justifyContent: "center", backgroundColor: c.surface }}>
-              <BulbIcon />
-            </View>
-            <PrimaryButton label="Prüfen" onPress={check} disabled={placed.length === 0} style={{ flex: 1 }} />
-          </>
+          <AccentButton label="Prüfen" color={c.primaryBtnBg} loading={busy} disabled={placed.length === 0}
+            onPress={check} style={{ backgroundColor: c.primaryBtnBg }} />
         ) : (
-          <AccentButton label="Weiter" onPress={onNext} style={{ flex: 1 }} />
+          <AccentButton label="Weiter" onPress={() => onNext(result, comp)} />
         )}
       </View>
     </View>

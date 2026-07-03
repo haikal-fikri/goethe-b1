@@ -32,3 +32,15 @@ export function arraysEqual(a: string[], b: string[]): boolean {
   for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
   return true;
 }
+
+/**
+ * Stable, deterministic exercise kind for an item (BUG-6): every seed item has BOTH
+ * `tokens` and a `cloze_template`, so kind is a *presentation* choice, not a data property.
+ * Hash the last hex nibble of the (12-hex) id: even → word-bank, odd → cloze (~50/50, stable
+ * per item). Non-hex ids (test fixtures) → cloze (parseInt→NaN fallback). MUST stay byte-identical
+ * to the SQL mirror in `start_set()` (0010_gamification.sql) so a set's kinds match server-side.
+ */
+export function pickExerciseKind(id: string): "wordbank" | "cloze" {
+  const n = parseInt(id.slice(-1), 16);
+  return Number.isFinite(n) && n % 2 === 0 ? "wordbank" : "cloze";
+}

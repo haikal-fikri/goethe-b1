@@ -57,7 +57,7 @@ jobs:
           for f in 0001_content_schema 0002_exam_schema 0003_exam_sample_answer \
                    0004_corrections_and_examples 0005_identity_profiles \
                    0006_progress_exams 0007_rate_limiting \
-                   0008_classes_entitlements 0009_speaking; do
+                   0008_classes_entitlements 0009_speaking 0010_gamification; do
             echo "── $f"; psql -v ON_ERROR_STOP=1 -q -f "$MIG/$f.sql"
           done
           echo "── RLS-lint";   psql -v ON_ERROR_STOP=1 -f "$T/rls_lint.sql"

@@ -32,6 +32,10 @@ export const CloseIcon = ({ size, color, strokeWidth }: P) => (
 export const FlameIcon = ({ size, color = "#DD8A22", fill = "#DD8A22" }: P) => (
   <Svg width={size ?? 16} height={size ?? 16} viewBox="0 0 24 24" fill={fill} stroke={color}><Path d="M12 2c1 3-1 4-1 6a3 3 0 0 0 3 3c0-2 1-3 1-3 2 2 3 4 3 6a6 6 0 0 1-12 0c0-3 2-5 3-7 1 1 1 2 0 3 0 0 0-6 0-8Z" /></Svg>
 );
+// Outline-Herz (kein Fill) — Gamification-Hearts.
+export const HeartIcon = ({ size, color, strokeWidth }: P) => (
+  <Svg {...base(size, color, strokeWidth)}><Path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.49 4.04 3 5.5l7 7Z" /></Svg>
+);
 export const PlayIcon = ({ size, color = "#fff", fill = "#fff" }: P) => (
   <Svg width={size ?? 18} height={size ?? 18} viewBox="0 0 24 24" fill={fill}><Path d="M8 5v14l11-7z" /></Svg>
 );

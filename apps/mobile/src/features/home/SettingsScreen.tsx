@@ -8,6 +8,8 @@ import { useSession } from "../../lib/session";
 import { authedFetch } from "../../lib/api";
 import { upsertProfile } from "../../lib/db";
 import { useQueryClient } from "@tanstack/react-query";
+import { LEVELS } from "@repo/types";
+import type { CEFRLevel } from "@repo/types";
 
 const LANGS: { code: string; label: string }[] = [
   { code: "en", label: "🇬🇧 English" }, { code: "tr", label: "🇹🇷 Türkçe" },
@@ -31,6 +33,14 @@ export function SettingsScreen() {
     if (!uid) return;
     await upsertProfile(uid, { nativeLanguage: code });
     qc.invalidateQueries({ queryKey: ["profile"] });
+  };
+
+  // R2-2: Prüfungsniveau ändern → „Gelernt"/Readiness richten sich neu aus; bereits
+  // gemeisterte Items dieses Niveaus reflektieren sofort (kein Backfill).
+  const setLevel = async (level: CEFRLevel) => {
+    if (!uid) return;
+    await upsertProfile(uid, { level });
+    qc.invalidateQueries(); // Profil + Fortschritt + Readiness neu laden
   };
 
   const resetProgress = () =>
@@ -71,6 +81,15 @@ export function SettingsScreen() {
         <AppText size={13} color={c.textMuted} style={{ marginTop: 2 }}>{session?.user.email}</AppText>
       </Card>
 
+      <View style={{ height: 18 }} />
+      <Eyebrow>Prüfung</Eyebrow>
+      <AppText size={12.5} color={c.textMuted} style={{ marginTop: 4, marginBottom: 8 }}>Dein Zielniveau — bestimmt „Gelernt" und die Bereitschaft. Höhere Übungen bleiben verfügbar.</AppText>
+      <Segmented
+        options={LEVELS.map((l) => ({ label: l, value: l }))}
+        value={(p?.level ?? "B1") as CEFRLevel} onChange={setLevel}
+      />
+
+      <View style={{ height: 18 }} />
       <Eyebrow>Erscheinungsbild</Eyebrow>
       <View style={{ marginTop: 8, marginBottom: 18 }}>
         <Segmented
