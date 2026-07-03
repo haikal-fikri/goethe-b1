@@ -115,7 +115,7 @@ export function LoginScreen() {
               keyboardType="number-pad" maxLength={8} textAlign="center"
               style={{ height: 60, borderRadius: radius.input, borderWidth: 1.5, borderColor: accent.gruen, color: c.textHi, fontFamily: fonts.mono, fontSize: 26, letterSpacing: 6, backgroundColor: c.surface }}
             />
-            <PrimaryButton label="Anmelden" onPress={verify} loading={busy} disabled={code.length < 8} />
+            <PrimaryButton label="Anmelden" onPress={verify} loading={busy} disabled={code.length < 6} />
             <Pressable onPress={() => setStep("email")}>
               <AppText size={13} color={accent.gruen} align="center">Andere E-Mail verwenden</AppText>
             </Pressable>

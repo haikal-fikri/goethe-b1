@@ -26,23 +26,31 @@ export function OnboardingScreen() {
 
   const finish = async () => {
     setSaving(true);
+    const uid = session!.user.id;
+    const onboardedAt = new Date().toISOString();
+    // Benachrichtigungen NICHT blockierend anfordern (darf den Ablauf nie hängen lassen).
+    if (reminder) Notifications.requestPermissionsAsync().catch(() => {});
     try {
-      if (reminder) {
-        await Notifications.requestPermissionsAsync().catch(() => {});
-      }
-      await upsertProfile(session!.user.id, {
+      await upsertProfile(uid, {
         displayName: firstName.trim() || null,
         level,
         examDate,
         reminderOptIn: reminder,
         reminderTime: reminder ? "18:30" : null,
-        onboardedAt: new Date().toISOString(),
+        onboardedAt,
       });
-      await qc.invalidateQueries({ queryKey: ["profile"] });
-    } catch (e) {
-      Alert.alert("Fehler", "Profil konnte nicht gespeichert werden.");
-      setSaving(false);
+    } catch {
+      Alert.alert("Hinweis", "Profil-Speichern hatte ein Problem — du kannst es später in den Einstellungen anpassen.");
     }
+    // Cache DIREKT setzen → RootNavigator wechselt sofort zu den Tabs (kein Refetch nötig).
+    qc.setQueryData(["profile", uid], (old: Record<string, unknown> | undefined) => ({
+      ...(old ?? { id: uid }),
+      onboardedAt,
+      displayName: firstName.trim() || null,
+      level,
+    }));
+    qc.invalidateQueries({ queryKey: ["profile"] });
+    setSaving(false);
   };
 
   const Chrome = ({ children, cta, onCta, ctaAccent, ctaLoading }: {

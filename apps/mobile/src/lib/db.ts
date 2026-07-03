@@ -20,6 +20,35 @@ function sb() {
   return s;
 }
 
+// supabase-js gibt rohe snake_case-Spalten zurück (kein Auto-camelCase) → hier
+// auf die camelCase-Domain-Typen mappen. (redemittel_item + exam_tasks sind
+// bereits camelCase via View/toTask.)
+type Row = Record<string, any>;
+const mapProfile = (r: Row): Profile => ({
+  id: r.id, displayName: r.display_name ?? null, avatarUrl: r.avatar_url ?? null, level: r.level,
+  nativeLanguage: r.native_language ?? null, examDate: r.exam_date ?? null, reminderOptIn: r.reminder_opt_in,
+  reminderTime: r.reminder_time ?? null, theme: r.theme, onboardedAt: r.onboarded_at ?? null,
+  createdAt: r.created_at, updatedAt: r.updated_at,
+});
+const mapProgress = (r: Row): ExerciseProgress => ({
+  userId: r.user_id, itemId: r.item_id, lessonId: r.lesson_id, attempts: r.attempts,
+  correctCount: r.correct_count, lastCorrect: r.last_correct, masteredAt: r.mastered_at ?? null, lastSeenAt: r.last_seen_at,
+});
+const mapDaily = (r: Row): DailyActivity => ({
+  userId: r.user_id, day: r.day, attempts: r.attempts, correctCount: r.correct_count,
+  examsGraded: r.exams_graded, activeSeconds: r.active_seconds ?? null,
+});
+const mapExamResult = (r: Row): StoredExamResult => ({
+  id: r.id, userId: r.user_id, simulationId: r.simulation_id ?? null, taskId: r.task_id ?? null, aufgabe: r.aufgabe,
+  gesamtpunkte: Number(r.gesamtpunkte), maxPunkte: Number(r.max_punkte), bestanden: r.bestanden, thirdUsed: r.third_used,
+  result: r.result, answerText: r.answer_text ?? null, wordCount: r.word_count, model: r.model ?? null,
+  gradedAt: r.graded_at, createdAt: r.created_at,
+});
+const mapDraft = (r: Row): ExamDraft => ({
+  id: r.id, userId: r.user_id, taskId: r.task_id, text: r.text, wordCount: r.word_count,
+  updatedAt: r.updated_at, createdAt: r.created_at,
+});
+
 // ── Inhalt (public read) ────────────────────────────────────────────
 export async function getRedemittel(): Promise<RedemittelItem[]> {
   const { data, error } = await sb().from("redemittel_item").select("*");
@@ -71,7 +100,7 @@ export async function getSimulations(): Promise<ExamSimulation[]> {
 // ── Profil ──────────────────────────────────────────────────────────
 export async function getProfile(uid: string): Promise<Profile | null> {
   const { data } = await sb().from("profiles").select("*").eq("id", uid).maybeSingle();
-  return (data as Profile) ?? null;
+  return data ? mapProfile(data) : null;
 }
 export async function upsertProfile(uid: string, patch: Partial<Profile>): Promise<void> {
   // avatar_url ist serverseitig gesetzt → hier nie mitschicken.
@@ -108,21 +137,21 @@ export async function recordAttempt(args: {
 
 export async function getMyProgress(uid: string): Promise<ExerciseProgress[]> {
   const { data } = await sb().from("exercise_progress").select("*").eq("user_id", uid);
-  return (data as ExerciseProgress[]) ?? [];
+  return (data ?? []).map(mapProgress);
 }
 export async function getMyDaily(uid: string): Promise<DailyActivity[]> {
   const { data } = await sb().from("daily_activity").select("*").eq("user_id", uid).order("day", { ascending: false });
-  return (data as DailyActivity[]) ?? [];
+  return (data ?? []).map(mapDaily);
 }
 export async function getMyExamResults(uid: string): Promise<StoredExamResult[]> {
   const { data } = await sb().from("exam_results").select("*").eq("user_id", uid).order("created_at", { ascending: false });
-  return (data as StoredExamResult[]) ?? [];
+  return (data ?? []).map(mapExamResult);
 }
 
 // ── Entwürfe (client-direkt, RLS own) ───────────────────────────────
 export async function getDraft(uid: string, taskId: string): Promise<ExamDraft | null> {
   const { data } = await sb().from("exam_drafts").select("*").eq("user_id", uid).eq("task_id", taskId).maybeSingle();
-  return (data as ExamDraft) ?? null;
+  return data ? mapDraft(data) : null;
 }
 export async function upsertDraft(uid: string, taskId: string, text: string, wordCount: number): Promise<void> {
   await sb().from("exam_drafts").upsert(

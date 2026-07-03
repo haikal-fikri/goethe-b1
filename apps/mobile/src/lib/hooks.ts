@@ -40,8 +40,8 @@ export function useMyExamResults() {
 }
 
 /** Streak in Tagen aus daily_activity (aufeinanderfolgende aktive UTC-Tage). */
-export function computeStreak(days: { day: string; attempts: number; exams_graded?: number }[]): number {
-  const active = new Set(days.filter((d) => (d.attempts ?? 0) > 0 || (d.exams_graded ?? 0) > 0).map((d) => d.day));
+export function computeStreak(days: { day: string; attempts: number; examsGraded?: number }[]): number {
+  const active = new Set(days.filter((d) => (d.attempts ?? 0) > 0 || (d.examsGraded ?? 0) > 0).map((d) => d.day));
   let streak = 0;
   const d = new Date();
   for (;;) {

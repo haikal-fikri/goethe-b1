@@ -25,6 +25,13 @@ export function TurnstileModal({
             source={{ uri: `${env.apiBase}/turnstile` }}
             style={{ flex: 1, backgroundColor: "transparent" }}
             javaScriptEnabled
+            domStorageEnabled
+            // Turnstile rendert seine Challenge in about:srcdoc-iframes — die
+            // WebView muss ALLE Navigationen intern behandeln (sonst versucht RN
+            // Linking, about:srcdoc extern zu öffnen → Widget bleibt hängen).
+            originWhitelist={["*"]}
+            onShouldStartLoadWithRequest={() => true}
+            javaScriptCanOpenWindowsAutomatically
             onMessage={(e) => {
               try {
                 const msg = JSON.parse(e.nativeEvent.data) as { type: string; token?: string };

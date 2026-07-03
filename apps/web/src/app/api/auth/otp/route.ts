@@ -42,8 +42,13 @@ export async function POST(request: Request) {
     return apiError(429, "rate_limited", "Zu viele Codes an diese Adresse. Bitte später erneut.", { requestId, retryAfter: emailGate.retryAfterSec });
   }
 
-  if (!(await verifyTurnstile(turnstileToken, ip))) {
-    return apiError(403, "forbidden", "Bitte bestätige, dass du kein Roboter bist.", { requestId });
+  // Turnstile auf der OTP-Route separat abschaltbar (OTP_TURNSTILE_DISABLED=true),
+  // ohne die Web-/pruefen-Turnstile (Grade-Route) zu berühren. Für die Mobile-
+  // Erstinbetriebnahme, solange das WebView-Widget noch nicht verdrahtet ist.
+  if (process.env.OTP_TURNSTILE_DISABLED !== "true") {
+    if (!(await verifyTurnstile(turnstileToken, ip))) {
+      return apiError(403, "forbidden", "Bitte bestätige, dass du kein Roboter bist.", { requestId });
+    }
   }
 
   const { error } = await supabaseAnon().auth.signInWithOtp({
