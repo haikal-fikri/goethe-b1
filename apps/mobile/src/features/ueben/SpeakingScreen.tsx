@@ -10,6 +10,7 @@ import {
 import { useTheme } from "../../theme/ThemeProvider";
 import { AppText, Eyebrow, Card, AccentButton, SecondaryButton, LevelBadge, Loading, Center } from "../../components/ui";
 import { CloseIcon, MicIcon, PlayIcon } from "../../components/icons";
+import { WordArrange } from "../../components/WordArrange";
 import { useRedemittel, useProfile } from "../../lib/hooks";
 import { makeLessonId, buildTiles, arraysEqual, pickExerciseKind, inLevelScope, type LevelScope, type Tile } from "@repo/core";
 import { recordSpeechPractice } from "../../lib/db";
@@ -21,7 +22,7 @@ const norm = (s: string) => s.toLowerCase().replace(/[.,!?;:„"»«]/g, "").tri
 const SLOW = 0.6;
 
 export function SpeakingScreen() {
-  const { c, accent, radius } = useTheme();
+  const { c, accent } = useTheme();
   const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
   const route = useRoute<any>();
@@ -49,7 +50,6 @@ export function SpeakingScreen() {
 
   const arrange = item ? pickExerciseKind(item.id) === "wordbank" : false; // 21 vs 20/22
   const pool = useMemo<Tile[]>(() => (item && arrange ? buildTiles(item) : []), [item, arrange]);
-  const usedIds = new Set(placed.map((t) => t.id));
 
   const speak = (rate = 1) => item && Speech.speak(item.phrase, { language: "de-DE", rate });
   const start = async () => {
@@ -104,34 +104,10 @@ export function SpeakingScreen() {
             </View>
           </Card>
 
-          {/* Antwort-Well */}
-          <View style={{ minHeight: 60, marginTop: 12, borderWidth: 1.5, borderStyle: "dashed", borderColor: c.borderStrong, borderRadius: radius.tile, padding: 10, flexDirection: "row", flexWrap: "wrap", gap: 8, backgroundColor: c.surfaceSunken }}>
-            {placed.map((t, k) => (
-              <Pressable key={t.id} disabled={result !== null} onPress={() => setPlaced(placed.filter((_, i) => i !== k))}>
-                <View style={{ backgroundColor: result === false ? accent.rot : accent.blau, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.tile }}>
-                  <AppText role="uiSemi" size={15} color="#fff">{t.label}</AppText>
-                </View>
-              </Pressable>
-            ))}
-          </View>
+          {/* 21 · Wörter ordnen per Drag & Drop (Tipp-Fallback) */}
+          <WordArrange pool={pool} placed={placed} onChange={setPlaced} locked={result !== null} color={accent.blau} result={result} />
 
-          {result === null ? (
-            <>
-              <AppText size={12.5} color={c.textMuted} style={{ marginTop: 16, marginBottom: 8 }}>Wortbank · tippe zum Einsetzen</AppText>
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-                {pool.map((t) => {
-                  const used = usedIds.has(t.id);
-                  return (
-                    <Pressable key={t.id} disabled={used} onPress={() => setPlaced([...placed, t])}>
-                      <View style={{ paddingHorizontal: 12, paddingVertical: 9, borderRadius: radius.tile, borderWidth: 1, borderColor: c.border, backgroundColor: c.surface, opacity: used ? 0.4 : 1 }}>
-                        <AppText role="uiSemi" size={15} color={used ? c.textFaint : c.textHi} style={used ? { textDecorationLine: "line-through" } : undefined}>{t.label}</AppText>
-                      </View>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </>
-          ) : (
+          {result !== null && (
             <Card style={{ marginTop: 16, borderColor: result ? accent.gruen : accent.rot }}>
               <AppText role="uiSemi" size={15} color={result ? accent.gruenDarkText : accent.rotText}>{result ? "Richtig!" : "Nicht ganz."}</AppText>
               <AppText role="serif" size={17} color={c.textHi} style={{ marginTop: 6 }}>{item.phrase}</AppText>

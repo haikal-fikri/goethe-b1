@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler'; // muss als ERSTES importiert werden
 import { registerRootComponent } from 'expo';
 
 import App from './App';

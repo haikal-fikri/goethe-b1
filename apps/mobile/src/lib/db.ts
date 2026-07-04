@@ -9,8 +9,11 @@ import type {
   StoredExamResult,
   ExamDraft,
   ReadinessModule,
+  ReadinessSnapshot,
   DailyStatus,
   StartSetResult,
+  DailyMixRun,
+  Language,
   Module,
 } from "@repo/types";
 import type { LevelScope } from "@repo/core";
@@ -57,10 +60,39 @@ const mapDraft = (r: Row): ExamDraft => ({
 });
 
 // ── Inhalt (public read) ────────────────────────────────────────────
-export async function getRedemittel(): Promise<RedemittelItem[]> {
+// Sprach-bewusster Read (0011): über redemittel_item wird für die gewählte
+// Muttersprache ein Overlay aus redemittel_translation (status='reviewed') gelegt
+// — Phrase + Beispiele. Fallback ist inhärent Englisch (translation_en NOT NULL);
+// 'en'/leer → keine Overlay-Abfrage. Pro Sprache gecacht (queryKey enthält lang).
+export async function getRedemittel(nativeLanguage?: string | null): Promise<RedemittelItem[]> {
   const { data, error } = await sb().from("redemittel_item").select("*");
   if (error) throw error;
-  return (data ?? []).map((r) => ({ ...(r as RedemittelItem), examples: (r as RedemittelItem).examples ?? [] }));
+  const items = (data ?? []).map((r) => ({ ...(r as RedemittelItem), examples: (r as RedemittelItem).examples ?? [] }));
+
+  const lang = nativeLanguage ?? "en";
+  if (lang === "en") return items;
+
+  const { data: tr } = await sb()
+    .from("redemittel_translation")
+    .select("row_id, translation")
+    .eq("lang", lang)
+    .eq("status", "reviewed");
+  if (!tr?.length) return items;
+  const overlay = new Map<string, string>((tr as Row[]).map((t) => [t.row_id as string, t.translation as string]));
+
+  return items.map((it) => ({
+    ...it,
+    translation: overlay.get(it.id) ?? it.translation,
+    examples: (it.examples ?? []).map((e) => ({ ...e, en: (e.row_id ? overlay.get(e.row_id) : undefined) ?? e.en })),
+  }));
+}
+
+/** Sprachen für den Muttersprache-Picker (nur enabled=true; public read). */
+export async function getLanguages(): Promise<Language[]> {
+  const { data } = await sb().from("languages").select("*").eq("enabled", true).order("sort_order");
+  return (data ?? []).map((r: Row) => ({
+    code: r.code, nameNative: r.name_native, nameDe: r.name_de, rtl: r.rtl, enabled: r.enabled, sortOrder: r.sort_order,
+  }));
 }
 
 interface ExamTaskRow {
@@ -132,7 +164,7 @@ export interface AttemptResult {
   heartsLeft?: number | null;
   remaining?: number | null;
   completed?: boolean;
-  result?: { completed: boolean; points: number; flawless: boolean; firstTryOk?: number; heartsLeft?: number } | null;
+  result?: { completed: boolean; points: number; flawless: boolean; firstTryOk?: number; heartsLeft?: number; dailyMixBonus?: number } | null;
   error?: string;
   retryAfter?: number;
 }
@@ -155,15 +187,16 @@ export async function recordAttempt(args: {
     ok: d.ok, correct: d.correct, heartsLeft: d.hearts_left ?? null, remaining: d.remaining ?? null,
     completed: d.completed ?? false,
     result: d.result ? { completed: d.result.completed, points: d.result.points, flawless: d.result.flawless,
-      firstTryOk: d.result.first_try_ok, heartsLeft: d.result.hearts_left } : null,
+      firstTryOk: d.result.first_try_ok, heartsLeft: d.result.hearts_left, dailyMixBonus: d.result.daily_mix_bonus } : null,
     error: d.error, retryAfter: d.retryAfter,
   };
 }
 
 // ── Gamification-RPCs (0010) ────────────────────────────────────────
-/** start_set: Server fixiert Item-Liste + Kinds (id-Hash) + Hearts. levelScope = Niveau-Filter (R2-3). */
+/** start_set: Server fixiert Item-Liste + Kinds (id-Hash) + Hearts. levelScope = Niveau-Filter (R2-3).
+ *  mode='daily_mix' → tagesgeseedeter modulübergreifender Regain-Set (0012). */
 export async function startSet(
-  lessonId: string, mode: "category" | "review" = "category", levelScope: LevelScope = "exam",
+  lessonId: string, mode: "category" | "review" | "daily_mix" = "category", levelScope: LevelScope = "exam",
 ): Promise<StartSetResult | { error: string; retryAfter?: number }> {
   const { data, error } = await sb().rpc("start_set", { p_lesson_id: lessonId, p_mode: mode, p_level_scope: levelScope });
   if (error) return { error: error.message };
@@ -207,6 +240,23 @@ export async function getMyDailyStatus(): Promise<DailyStatus> {
   const { data } = await sb().from("v_daily_status").select("*").maybeSingle();
   const r = (data as Row) ?? {};
   return { goalMetToday: Boolean(r.goal_met_today), streak: Number(r.streak ?? 0) };
+}
+
+/** Heutiger Tagesmix-Status (0012): steuert „Los geht's" ↔ „Heute erledigt ✓". */
+export async function getDailyMixToday(): Promise<DailyMixRun | null> {
+  const today = new Date().toISOString().slice(0, 10); // UTC-Tag
+  const { data } = await sb().from("daily_mix_runs").select("*").eq("run_on", today).maybeSingle();
+  const r = data as Row | null;
+  return r ? { runOn: r.run_on, bonusAwarded: Boolean(r.bonus_awarded), completedAt: r.completed_at ?? null } : null;
+}
+
+/** readiness_snapshots (Cron-geschrieben) für „+Δ diese Woche". */
+export async function getReadinessSnapshots(): Promise<ReadinessSnapshot[]> {
+  const { data } = await sb().from("readiness_snapshots").select("*").order("captured_on", { ascending: false });
+  return (data ?? []).map((r: Row) => ({
+    userId: r.user_id, capturedOn: r.captured_on, overall: r.overall,
+    schreiben: r.schreiben, sprechen: r.sprechen, konnektoren: r.konnektoren,
+  }));
 }
 
 // ── Entwürfe (client-direkt, RLS own) ───────────────────────────────

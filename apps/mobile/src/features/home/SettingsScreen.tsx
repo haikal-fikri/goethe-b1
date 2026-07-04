@@ -3,7 +3,7 @@ import { View, Alert } from "react-native";
 import { useTheme, type ThemeMode } from "../../theme/ThemeProvider";
 import { AppText, Eyebrow, Card, ListRow, Loading } from "../../components/ui";
 import { Segmented } from "../../components/widgets";
-import { useProfile } from "../../lib/hooks";
+import { useProfile, useLanguages } from "../../lib/hooks";
 import { useSession } from "../../lib/session";
 import { authedFetch } from "../../lib/api";
 import { upsertProfile } from "../../lib/db";
@@ -11,17 +11,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { LEVELS } from "@repo/types";
 import type { CEFRLevel } from "@repo/types";
 
-const LANGS: { code: string; label: string }[] = [
-  { code: "en", label: "🇬🇧 English" }, { code: "tr", label: "🇹🇷 Türkçe" },
-  { code: "ar", label: "🇸🇦 العربية" }, { code: "uk", label: "🇺🇦 Українська" },
-  { code: "ru", label: "🇷🇺 Русский" }, { code: "es", label: "🇪🇸 Español" },
-];
+// Flaggen-Emoji je Sprachcode (Labels selbst kommen aus der languages-Tabelle).
+const FLAG: Record<string, string> = { en: "🇬🇧", id: "🇮🇩", tr: "🇹🇷", ar: "🇸🇦", uk: "🇺🇦", ru: "🇷🇺", es: "🇪🇸" };
 
 // 10 · Einstellungen — Profil, Prüfung, Anmeldung, Erscheinungsbild, Sprache, Daten.
 export function SettingsScreen() {
   const { c, mode, setMode, accent } = useTheme();
   const { session, signOut } = useSession();
   const profile = useProfile();
+  const languages = useLanguages();
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
   const uid = session?.user.id;
@@ -32,7 +30,9 @@ export function SettingsScreen() {
   const setLang = async (code: string) => {
     if (!uid) return;
     await upsertProfile(uid, { nativeLanguage: code });
+    // Profil + Redemittel neu laden → das Übersetzungs-Overlay greift sofort.
     qc.invalidateQueries({ queryKey: ["profile"] });
+    qc.invalidateQueries({ queryKey: ["redemittel"] });
   };
 
   // R2-2: Prüfungsniveau ändern → „Gelernt"/Readiness richten sich neu aus; bereits
@@ -101,10 +101,14 @@ export function SettingsScreen() {
       <Eyebrow>Muttersprache</Eyebrow>
       <AppText size={12.5} color={c.textMuted} style={{ marginTop: 4, marginBottom: 8 }}>Bestimmt die Übersetzung der Redemittel.</AppText>
       <Card style={{ paddingVertical: 4 }}>
-        {LANGS.map((l, i) => (
+        {(languages.data ?? []).map((l, i) => (
           <View key={l.code}>
             {i > 0 && <View style={{ height: 1, backgroundColor: c.border }} />}
-            <ListRow title={l.label} right={p?.nativeLanguage === l.code ? <AppText color={accent.gruen}>✓</AppText> : undefined} onPress={() => setLang(l.code)} />
+            <ListRow
+              title={`${FLAG[l.code] ?? "🌐"} ${l.nameNative}`}
+              right={p?.nativeLanguage === l.code ? <AppText color={accent.gruen}>✓</AppText> : undefined}
+              onPress={() => setLang(l.code)}
+            />
           </View>
         ))}
       </Card>

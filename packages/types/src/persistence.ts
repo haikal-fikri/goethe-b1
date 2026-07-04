@@ -242,6 +242,7 @@ export type PointsKind =
   | "set_complete"
   | "first_try_bonus"
   | "flawless_bonus"
+  | "daily_mix_bonus"
   | "exam"
   | "sprechen"
   | "daily_goal"
@@ -300,4 +301,22 @@ export interface SetCompletion {
   flawless: boolean;
   firstTryOk?: number;
   heartsLeft?: number;
+  dailyMixBonus?: number; // 40 beim ersten Tagesmix-Abschluss des UTC-Tags, sonst 0
+}
+
+/** Eine Zeile aus `daily_mix_runs` für den aufrufenden Nutzer (heutiger Tagesmix-Status). */
+export interface DailyMixRun {
+  runOn: string; // ISO-Datum (UTC-Tag)
+  bonusAwarded: boolean;
+  completedAt: string | null;
+}
+
+/** Eine Zeile aus `languages` (nur `enabled=true` erscheint in den Einstellungen). */
+export interface Language {
+  code: string; // ISO-639-1 / BCP-47
+  nameNative: string;
+  nameDe: string;
+  rtl: boolean;
+  enabled: boolean;
+  sortOrder: number;
 }

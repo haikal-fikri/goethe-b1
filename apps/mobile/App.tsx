@@ -7,6 +7,7 @@ import { Jost_400Regular, Jost_500Medium, Jost_600SemiBold, Jost_700Bold } from 
 import { SourceSerif4_400Regular, SourceSerif4_600SemiBold } from "@expo-google-fonts/source-serif-4";
 import { IBMPlexMono_400Regular, IBMPlexMono_500Medium } from "@expo-google-fonts/ibm-plex-mono";
 import { View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { ThemeProvider, useTheme } from "./src/theme/ThemeProvider";
 import { SessionProvider } from "./src/lib/session";
@@ -34,17 +35,19 @@ export default function App() {
   if (!fontsLoaded) return <View style={{ flex: 1, backgroundColor: "#FDFBF6" }} />;
 
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        <QueryClientProvider client={queryClient}>
-          <SessionProvider>
-            <FeatureFlagsProvider>
-              <StatusBarThemed />
-              <RootNavigator />
-            </FeatureFlagsProvider>
-          </SessionProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <QueryClientProvider client={queryClient}>
+            <SessionProvider>
+              <FeatureFlagsProvider>
+                <StatusBarThemed />
+                <RootNavigator />
+              </FeatureFlagsProvider>
+            </SessionProvider>
+          </QueryClientProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

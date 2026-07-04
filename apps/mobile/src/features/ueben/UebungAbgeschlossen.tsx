@@ -20,6 +20,7 @@ export function UebungAbgeschlossenScreen() {
   const points: number = p.points ?? 0;
   const flawless: boolean = p.flawless ?? false;
   const deltaReadiness: number | null = p.deltaReadiness ?? null;
+  const dailyMixBonus: number = p.dailyMixBonus ?? 0;
 
   const Stat = ({ value, label }: { value: string; label: string }) => (
     <View style={{ flex: 1, alignItems: "center", gap: 3 }}>
@@ -35,6 +36,9 @@ export function UebungAbgeschlossenScreen() {
       </View>
       <AppText role="serif" size={26} color={c.textHi} style={{ marginTop: 18 }}>Übung abgeschlossen!</AppText>
       <AppText size={14} color={c.textMuted} style={{ marginTop: 4 }}>+{points} Punkte</AppText>
+      {dailyMixBonus > 0 && (
+        <AppText role="uiSemi" size={13.5} color={accent.goldText} style={{ marginTop: 2 }}>+{dailyMixBonus} · Tagesmix</AppText>
+      )}
 
       {flawless && (
         <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 14, backgroundColor: accent.goldTintLight, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 }}>

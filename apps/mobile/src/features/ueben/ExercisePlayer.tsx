@@ -5,6 +5,7 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeProvider";
 import { AppText, Eyebrow, Card, AccentButton, LevelBadge, Loading, Center } from "../../components/ui";
 import { CloseIcon, SpeakerIcon, HeartIcon } from "../../components/icons";
+import { WordArrange } from "../../components/WordArrange";
 import { useRedemittel, useProfile } from "../../lib/hooks";
 import { useInvalidateProgress } from "../../lib/hooks";
 import { useSession } from "../../lib/session";
@@ -27,7 +28,7 @@ export function ExercisePlayer() {
   const nav = useNavigation<any>();
   const route = useRoute<any>();
   const lessonId: string = route.params?.lessonId;
-  const mode: "category" | "review" = route.params?.mode ?? "category";
+  const mode: "category" | "review" | "daily_mix" = route.params?.mode ?? "category";
   const levelScope: LevelScope = route.params?.levelScope ?? "exam"; // R2-3
   const { session } = useSession();
   const uid = session?.user.id;
@@ -82,6 +83,7 @@ export function ExercisePlayer() {
       nav.replace("UebungAbgeschlossen", {
         firstTryOk: comp.firstTryOk ?? 0, total, heartsLeft: comp.heartsLeft ?? heartsLeft,
         heartsStart, points: comp.points ?? 0, flawless: comp.flawless ?? false,
+        dailyMixBonus: comp.dailyMixBonus ?? 0,
       });
     } else {
       nav.goBack();
@@ -222,21 +224,13 @@ function ExerciseItem({ item, kind, mastered, total, hearts, onClose, submit, on
         )}
       </Card>
 
-      {/* Antwort-Well (Wortbank) */}
+      {/* Word-Bank: Drag&Drop-Arrange (Antwort-Well + Wortbank) mit Tipp-Fallback */}
       {!isCloze && (
-        <View style={{ minHeight: 60, marginTop: 12, borderWidth: 1.5, borderStyle: "dashed", borderColor: c.borderStrong, borderRadius: radius.tile, padding: 10, flexDirection: "row", flexWrap: "wrap", gap: 8, backgroundColor: c.surfaceSunken }}>
-          {placed.map((t, k) => (
-            <Pressable key={t.id} disabled={result !== null} onPress={() => setPlaced(placed.filter((_, i) => i !== k))}>
-              <View style={{ backgroundColor: result === false ? accent.rot : accent.gruen, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.tile }}>
-                <AppText role="uiSemi" size={15} color="#fff">{t.label}</AppText>
-              </View>
-            </Pressable>
-          ))}
-        </View>
+        <WordArrange pool={pool} placed={placed} onChange={setPlaced} locked={result !== null} color={accent.gruen} result={result} />
       )}
 
-      {/* Wortbank */}
-      {result === null && (
+      {/* Cloze: Pills antippen, um Lücken zu füllen */}
+      {isCloze && result === null && (
         <>
           <AppText size={12.5} color={c.textMuted} style={{ marginTop: 16, marginBottom: 8 }}>Wortbank · tippe zum Einsetzen</AppText>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>

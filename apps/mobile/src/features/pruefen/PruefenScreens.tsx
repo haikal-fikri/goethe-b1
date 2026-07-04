@@ -10,6 +10,7 @@ import { CloseIcon } from "../../components/icons";
 import { useSimulations } from "../../lib/hooks";
 import { useSession } from "../../lib/session";
 import { getDraft, upsertDraft, deleteDraft } from "../../lib/db";
+import { getDeadline, setDeadline as storeDeadline, clearDeadline, getActiveSim, setActiveSim, wipeSim } from "../../lib/examTimer";
 import { gradeStream, type GradeEvent } from "../../lib/api";
 import type { ExamGrade, ExamResult, ExamTask, AufgabeNr } from "@repo/types";
 
@@ -90,7 +91,11 @@ export function PruefenLandingScreen() {
   );
 }
 
-// 24 · Aufgabe (schreiben, Timer, Entwurf-Autosave, Bildschirm-Schutz).
+// 24 · Aufgabe (schreiben, wall-clock-Timer, Entwurf-Autosave, Bildschirm-Schutz).
+// BUG-11: Timer ist wall-clock-verankert (remaining = deadline − now, je taskId persistiert)
+// → Verlassen/Hintergrund/Wiedereintritt setzt NIE zurück. Eine aktive Simulation (≤3
+// gleichzeitige Aufgaben-Timer); Wechsel zu anderer Sim → Bestätigung → wipe+neu starten.
+// Bei 0:00 → Editor sperren + Auto-Submit (words<20 → sperren ohne Bewertung). Kein Kopieren/Einfügen.
 export function ExamScreen() {
   const { c, accent, fonts, radius } = useTheme();
   const insets = useSafeAreaInsets();
@@ -103,21 +108,59 @@ export function ExamScreen() {
   const task = useMemo<ExamTask | undefined>(() => sims?.flatMap((s) => s.tasks).find((t) => t.id === taskId), [sims, taskId]);
 
   const [text, setText] = useState("");
-  const [remaining, setRemaining] = useState((task?.recommendedMinutes ?? 20) * 60);
+  const [deadline, setDeadline] = useState<number | null>(null);
+  const [nowTick, setNowTick] = useState(Date.now());
+  const [ready, setReady] = useState(false);
+  const [locked, setLocked] = useState(false);        // Editor gesperrt (Zeit abgelaufen)
   const [phase, setPhase] = useState<"write" | "grading">("write");
   const [progress, setProgress] = useState<string[]>([]);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const expiredRef = useRef(false);
   const wordLimit = (task?.minWords ?? 80) > 60 ? 200 : 100;
   const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const durMs = (task?.recommendedMinutes ?? 20) * 60_000;
 
   useEffect(() => { ScreenCapture.preventScreenCaptureAsync(); return () => { ScreenCapture.allowScreenCaptureAsync(); }; }, []);
-  useEffect(() => { if (uid && task) getDraft(uid, task.id).then((d) => d && setText(d.text)); }, [uid, task?.id]);
+  // Sekundentakt nur für die Anzeige; Quelle der Wahrheit ist die persistierte Deadline.
+  useEffect(() => { const iv = setInterval(() => setNowTick(Date.now()), 1000); return () => clearInterval(iv); }, []);
+
+  // Einmalig: Single-Sim-Lock prüfen + persistierte Deadline laden/anlegen + Entwurf laden.
   useEffect(() => {
-    const iv = setInterval(() => setRemaining((r) => (r > 0 ? r - 1 : 0)), 1000);
-    return () => clearInterval(iv);
-  }, []);
+    if (!task || !sims) return;
+    let cancelled = false;
+    const initDeadline = async (reset: boolean) => {
+      let dl = reset ? null : await getDeadline(task.id);
+      if (dl == null) { dl = Date.now() + durMs; await storeDeadline(task.id, dl); }
+      if (cancelled) return;
+      setDeadline(dl);
+      const isExpired = dl - Date.now() <= 0;
+      expiredRef.current = isExpired; setLocked(isExpired); setReady(true);
+      if (uid) getDraft(uid, task.id).then((d) => { if (!cancelled && d) setText(d.text); });
+    };
+    (async () => {
+      const active = await getActiveSim();
+      if (active != null && active !== task.simulation) {
+        Alert.alert("Neue Simulation starten?", "Das löscht deinen aktuellen Fortschritt und startet den Timer neu.", [
+          { text: "Abbrechen", style: "cancel", onPress: () => nav.goBack() },
+          { text: "Neu starten", style: "destructive", onPress: async () => {
+              const oldSim = sims.find((s) => s.id === active);
+              await wipeSim(uid, oldSim?.tasks.map((t) => t.id) ?? []);
+              await setActiveSim(task.simulation);
+              await initDeadline(true);
+            } },
+        ]);
+        return;
+      }
+      if (active == null) await setActiveSim(task.simulation);
+      await initDeadline(false);
+    })();
+    return () => { cancelled = true; };
+  }, [task?.id, sims]);
+
+  const remaining = deadline != null ? Math.max(0, Math.round((deadline - nowTick) / 1000)) : Math.round(durMs / 1000);
 
   const onChange = (v: string) => {
+    if (locked) return;
     setText(v);
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
@@ -125,9 +168,9 @@ export function ExamScreen() {
     }, 800);
   };
 
-  const submit = async () => {
+  const submit = async (auto = false) => {
     if (!task) return;
-    if (words < 20) return Alert.alert("Zu kurz", "Schreibe mindestens ein paar Sätze.");
+    if (words < 20) { if (!auto) Alert.alert("Zu kurz", "Schreibe mindestens ein paar Sätze."); return; }
     setPhase("grading"); setProgress([]);
     try {
       await gradeStream(task.id, text.trim(), (e: GradeEvent) => {
@@ -137,6 +180,7 @@ export function ExamScreen() {
         else if (e.type === "error") { Alert.alert("Fehler", e.error); setPhase("write"); }
         else if (e.type === "done") {
           if (uid) deleteDraft(uid, task.id).catch(() => {});
+          clearDeadline(task.id).catch(() => {});
           nav.replace("ExamResult", { result: { reconciled: e.grade as ExamGrade, examiners: e.examiners, thirdUsed: e.thirdUsed } as ExamResult, task, persisted: e.persisted });
         }
       });
@@ -147,9 +191,32 @@ export function ExamScreen() {
     }
   };
 
-  if (!task) return <Loading />;
+  // Bei 0:00 → sperren + Auto-Submit (words<20 → gesperrt, „Zeit abgelaufen"-Banner, keine Bewertung).
+  useEffect(() => {
+    if (!ready || deadline == null || expiredRef.current) return;
+    if (remaining <= 0) {
+      expiredRef.current = true; setLocked(true);
+      if (words >= 20) submit(true);
+    }
+  }, [remaining, ready, deadline]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const discardRestart = () => {
+    if (!task) return;
+    Alert.alert("Verwerfen & neu starten?", "Dein Text wird gelöscht und der Timer neu gestartet.", [
+      { text: "Abbrechen", style: "cancel" },
+      { text: "Neu starten", style: "destructive", onPress: async () => {
+          if (uid) await deleteDraft(uid, task.id).catch(() => {});
+          const dl = Date.now() + durMs;
+          await storeDeadline(task.id, dl);
+          setText(""); setDeadline(dl); setLocked(false); expiredRef.current = false; setPhase("write");
+        } },
+    ]);
+  };
+
+  if (!task || !ready) return <Loading />;
   const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
   const ss = String(remaining % 60).padStart(2, "0");
+  const expired = remaining <= 0;
 
   if (phase === "grading")
     return (
@@ -165,10 +232,21 @@ export function ExamScreen() {
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
         <Pressable onPress={() => nav.goBack()} hitSlop={10}><CloseIcon color={c.textMuted} /></Pressable>
         <AppText size={13} color={c.textMuted}>Simulation {task.simulation} · Aufgabe {task.aufgabe}</AppText>
-        <View style={{ backgroundColor: accent.goldTintLight, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999 }}>
-          <AppText role="serifMed" size={14} color={accent.goldText}>{mm}:{ss}</AppText>
+        <View style={{ backgroundColor: expired ? accent.rotTintLight : accent.goldTintLight, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999 }}>
+          <AppText role="serifMed" size={14} color={expired ? accent.rotText : accent.goldText}>{mm}:{ss}</AppText>
         </View>
       </View>
+      <Pressable onPress={discardRestart} hitSlop={8} style={{ alignSelf: "flex-end", marginTop: 6 }}>
+        <AppText size={12} color={accent.rotText}>Verwerfen & neu starten</AppText>
+      </Pressable>
+
+      {expired && (
+        <View style={{ marginTop: 8, backgroundColor: accent.rotTintLight, borderRadius: 12, padding: 10 }}>
+          <AppText size={13} color={accent.rotText}>
+            Zeit abgelaufen{words < 20 ? " — zu kurz zum Bewerten." : " — reiche zum Bewerten ein."}
+          </AppText>
+        </View>
+      )}
 
       <ScrollView style={{ marginTop: 12 }} keyboardShouldPersistTaps="handled">
         <Card>
@@ -183,16 +261,19 @@ export function ExamScreen() {
             </View>
           ) : null}
         </Card>
+        {/* Kopieren/Einfügen deaktiviert (Prüfungsintegrität) — ergänzt den Screen-Capture-Block */}
         <TextInput
-          value={text} onChangeText={onChange} multiline placeholder="Schreibe hier deinen Text…" placeholderTextColor={c.textFaint}
-          style={{ marginTop: 12, minHeight: 220, borderRadius: radius.card, borderWidth: 1, borderColor: c.border, backgroundColor: c.surface, padding: 14, color: c.textHi, fontFamily: fonts.mono, fontSize: 14, lineHeight: 22, textAlignVertical: "top" }}
+          value={text} onChangeText={onChange} multiline editable={!locked}
+          contextMenuHidden selectTextOnFocus={false}
+          placeholder="Schreibe hier deinen Text…" placeholderTextColor={c.textFaint}
+          style={{ marginTop: 12, minHeight: 220, borderRadius: radius.card, borderWidth: 1, borderColor: c.border, backgroundColor: c.surface, padding: 14, color: c.textHi, fontFamily: fonts.mono, fontSize: 14, lineHeight: 22, textAlignVertical: "top", opacity: locked ? 0.6 : 1 }}
         />
       </ScrollView>
 
       {/* R2-6: Safe-Area-Abstand unten, damit „Bewerten lassen" nicht am Rand / unter dem Home-Indicator klebt */}
       <View style={{ paddingTop: 12, paddingBottom: Math.max(insets.bottom, 16) + 8, gap: 10 }}>
         <AppText size={12.5} color={words > wordLimit ? accent.rotText : c.textMuted}>{words} / {wordLimit} Wörter</AppText>
-        <AccentButton label="Bewerten lassen" color={accent.lila} onPress={submit} disabled={words < 20 || words > wordLimit} />
+        <AccentButton label="Bewerten lassen" color={accent.lila} onPress={() => submit(false)} disabled={words < 20 || words > wordLimit} />
       </View>
     </View>
   );

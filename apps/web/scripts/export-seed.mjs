@@ -46,7 +46,12 @@ async function main() {
   const skills = await sql`select code, name_de, sort_order from skills order by sort_order, code`;
   const tasks = await sql`select code, skill_code, label_de, label_en, sort_order from tasks order by sort_order, code`;
   const functions = await sql`select code, name_de, name_en from functions order by code`;
+  // parent rows must precede example children (self-FK) — id ordering keeps '<id>' before '<id>#exN'.
   const items = await sql`select * from redemittel order by skill_code, task_code, difficulty, id`;
+  // 0011 i18n (guarded so export still works against a pre-0011 DB).
+  const hasI18n = (await sql`select to_regclass('public.redemittel_translation') as t`)[0].t != null;
+  const languages = hasI18n ? await sql`select code, name_native, name_de, rtl, enabled, sort_order from languages order by sort_order, code` : [];
+  const translations = hasI18n ? await sql`select row_id, lang, translation, status, translator from redemittel_translation order by row_id, lang` : [];
 
   const out = [];
   out.push("-- AUTO-EXPORTED from the canonical DB by scripts/export-seed.mjs.");
@@ -61,6 +66,9 @@ async function main() {
   for (const f of functions)
     out.push(upsert("functions", [{ name: "code", sql: "code" }, { name: "name_de", sql: "name_de" }, { name: "name_en", sql: "name_en" }],
       { code: q(f.code), name_de: q(f.name_de), name_en: q(f.name_en) }, "code"));
+  // languages before redemittel_translation (FK); redemittel_translation emitted after redemittel rows.
+  for (const l of languages)
+    out.push(`insert into languages (code, name_native, name_de, rtl, enabled, sort_order) values (${q(l.code)}, ${q(l.name_native)}, ${q(l.name_de)}, ${l.rtl}, ${l.enabled}, ${l.sort_order}) on conflict (code) do update set name_native=excluded.name_native, name_de=excluded.name_de, rtl=excluded.rtl, enabled=excluded.enabled, sort_order=excluded.sort_order;`);
 
   const cols = [
     { name: "id", sql: "id" }, { name: "phrase_de", sql: "phrase_de" }, { name: "frame_de", sql: "frame_de" },
@@ -68,7 +76,7 @@ async function main() {
     { name: "task_code", sql: "task_code" }, { name: "function_code", sql: "function_code" }, { name: "register_group", sql: "register_group" },
     { name: "notes", sql: "notes" }, { name: "cloze_template", sql: "cloze_template" }, { name: "tokens", sql: "tokens" },
     { name: "distractors", sql: "distractors" }, { name: "tags", sql: "tags" }, { name: "difficulty", sql: "difficulty" },
-    { name: "examples", sql: "examples" },
+    { name: "examples", sql: "examples" }, { name: "parent_id", sql: "parent_id" },
   ];
   for (const it of items) {
     out.push(upsert("redemittel", cols, {
@@ -76,9 +84,12 @@ async function main() {
       level: q(it.level), skill_code: q(it.skill_code), task_code: q(it.task_code), function_code: q(it.function_code),
       register_group: q(it.register_group), notes: q(it.notes), cloze_template: q(it.cloze_template),
       tokens: arr(it.tokens), distractors: arr(it.distractors), tags: arr(it.tags), difficulty: it.difficulty,
-      examples: jsonb(it.examples),
+      examples: jsonb(it.examples), parent_id: q(it.parent_id),
     }, "id"));
   }
+  // redemittel_translation after all redemittel rows (FK row_id → redemittel.id).
+  for (const t of translations)
+    out.push(`insert into redemittel_translation (row_id, lang, translation, status, translator) values (${q(t.row_id)}, ${q(t.lang)}, ${q(t.translation)}, ${q(t.status)}, ${q(t.translator)}) on conflict (row_id, lang) do update set translation=excluded.translation, status=excluded.status, translator=excluded.translator, updated_at=now();`);
   writeFileSync(join(ROOT, "supabase", "seed.sql"), out.join("\n") + "\n", "utf8");
 
   // exam

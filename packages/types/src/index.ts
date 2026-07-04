@@ -15,7 +15,8 @@ export interface FunctionRef {
 
 export interface Example {
   de: string; // Beispielsatz, der die Wendung im Kontext realisiert
-  en?: string; // natürliche englische Übersetzung
+  en?: string; // Übersetzung (aus redemittel_translation überlagert; Fallback Englisch)
+  row_id?: string; // id der Beispiel-Kindzeile (redemittel_item aggregiert; für den Übersetzungs-Overlay)
 }
 
 export interface RedemittelItem {

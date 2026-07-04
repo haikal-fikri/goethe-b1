@@ -1,5 +1,6 @@
 import React from "react";
 import Svg, { Path, Circle, Line, Rect, Polyline } from "react-native-svg";
+import type { SkillCode } from "@repo/types";
 
 // Inline-SVG-Icons (24×24, stroke 1.8). Aus der Design-Referenz nachgezogen.
 type P = { size?: number; color?: string; fill?: string; strokeWidth?: number };
@@ -57,3 +58,15 @@ export const GearIcon = ({ size, color, strokeWidth }: P) => (
 export const LockIcon = ({ size = 13, color = "#75695C" }: P) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}><Rect x="5" y="11" width="14" height="9" rx="2" /><Path d="M8 11V8a4 4 0 0 1 8 0v3" /></Svg>
 );
+// Stift/Feder — Schreiben (BUG-10: eigenes Glyph, da icons.tsx keins hatte).
+export const PenIcon = ({ size, color, strokeWidth }: P) => (
+  <Svg {...base(size, color, strokeWidth)}><Path d="M4 20h4L18.5 9.5a2.12 2.12 0 0 0-3-3L5 17v3Z" /><Path d="m13.5 6.5 3 3" /></Svg>
+);
+
+// BUG-10: Skill → Icon-Map (analog IslandTabBar's ICONS). Schreiben=Stift,
+// Sprechen=Mikro, shared/Konnektoren=Glühbirne. Ersetzt die Platzhalter-Swatches.
+export const SKILL_ICON: Record<SkillCode, React.FC<P>> = {
+  schreiben: PenIcon,
+  sprechen: MicIcon,
+  shared: BulbIcon,
+};

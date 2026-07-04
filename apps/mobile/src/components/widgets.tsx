@@ -27,6 +27,34 @@ export function RingGauge({ value, size = 92, color, label }: { value: number; s
   );
 }
 
+// Drei konzentrische Readiness-Ringe (Apple-Stil), LEERE Mitte — je Modul ein Arc.
+// Reihenfolge außen→innen entspricht `values` (Schreiben grün · Sprechen blau · Konnektoren lila).
+export function ReadinessRings({ values, size = 96 }: { values: { color: string; value: number }[]; size?: number }) {
+  const { c } = useTheme();
+  const stroke = 8;
+  const gap = 3;
+  return (
+    <View style={{ width: size, height: size }}>
+      <Svg width={size} height={size} style={{ transform: [{ rotate: "-90deg" }] }}>
+        {values.map((v, i) => {
+          const r = (size - stroke) / 2 - i * (stroke + gap);
+          const circ = 2 * Math.PI * r;
+          const pct = Math.max(0, Math.min(1, v.value));
+          return (
+            <React.Fragment key={i}>
+              <Circle cx={size / 2} cy={size / 2} r={r} stroke={c.track} strokeWidth={stroke} fill="none" />
+              <Circle
+                cx={size / 2} cy={size / 2} r={r} stroke={v.color} strokeWidth={stroke} fill="none"
+                strokeDasharray={`${circ} ${circ}`} strokeDashoffset={circ * (1 - pct)} strokeLinecap="round"
+              />
+            </React.Fragment>
+          );
+        })}
+      </Svg>
+    </View>
+  );
+}
+
 export function Segmented<T extends string | number>({
   options, value, onChange,
 }: { options: { label: string; value: T }[]; value: T; onChange: (v: T) => void }) {

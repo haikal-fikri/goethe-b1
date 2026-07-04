@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeProvider";
 import { AppText, Eyebrow, Card, ProgressBar, LevelBadge, ListRow, Loading, NiveauChips } from "../../components/ui";
+import { SKILL_ICON } from "../../components/icons";
 import { useRedemittel, useMyProgress, useProfile } from "../../lib/hooks";
 import { getSkillGroups, inLevelScope, type LevelScope } from "@repo/core";
 import { SKILL_LABEL } from "@repo/types";
@@ -28,10 +29,11 @@ export function UebenBereicheScreen() {
           const count = g.tasks.reduce((n, t) => n + t.functions.reduce((m, f) => m + f.count, 0), 0);
           const mastered = (progress.data ?? []).filter((p) => p.lessonId.startsWith(g.skill) && p.masteredAt).length;
           const pct = count ? Math.min(1, mastered / count) : 0;
+          const Icon = SKILL_ICON[g.skill];
           return (
             <Card key={g.skill} onPress={() => nav.navigate("UebenArea", { skill: g.skill })} style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
               <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: col + "22", alignItems: "center", justifyContent: "center" }}>
-                <View style={{ width: 18, height: 18, borderRadius: 6, backgroundColor: col }} />
+                <Icon size={22} color={col} />
               </View>
               <View style={{ flex: 1 }}>
                 <AppText role="uiSemi" size={15.5} color={c.textHi}>{SKILL_LABEL[g.skill]}</AppText>

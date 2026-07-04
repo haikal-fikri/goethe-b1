@@ -75,6 +75,9 @@ insert into functions (code, name_de, name_en) values ('f1','F1','F1') on confli
 insert into redemittel (id, phrase_de, translation_en, level, skill_code, task_code, function_code, tokens, cloze_template)
   values ('itemX','Wie geht es dir?','How are you?','B1','schreiben','t1','f1',
           array['Wie','geht','es','dir?']::text[], '{{Wie}} geht es {{dir?}}');
+-- 0011 i18n: languages seeded by the migration; add a reviewed translation for itemX (RLS-37).
+insert into languages (code, name_native, name_de, enabled) values ('en','English','Englisch', true) on conflict do nothing;
+insert into redemittel_translation (row_id, lang, translation, status) values ('itemX','en','How are you?','reviewed') on conflict do nothing;
 
 insert into entitlements (user_id, status) values (:'teaX','active'), (:'teaZ','revoked');
 insert into classes (id, teacher_id, name) values
@@ -220,6 +223,32 @@ select set_config('role','anon', true);
 select pg_temp.assert('RLS-35a anon → 0 practice_sessions', (select count(*) = 0 from practice_sessions));
 select pg_temp.assert('RLS-35b anon → 0 points_events',     (select count(*) = 0 from points_events));
 
+-- ═══ RLS-36…37 — 0012 Daily Mix (daily_mix_runs) + 0011 translations ═══
+-- daily_mix_runs = server-computed (kein Client-write, select-own); redemittel_translation
+-- = public read, service-role-write only (wie jede Content-Tabelle).
+reset role; select set_config('request.jwt.claims','',true);
+select pg_temp.tests_as(:'stuA');
+select pg_temp.assert_denied('RLS-36a stuA insert daily_mix_runs direct',
+  format('insert into daily_mix_runs (user_id,run_on) values (%L,current_date)', :'stuA'));
+select pg_temp.assert_denied('RLS-36b stuA update daily_mix_runs (bonus forge)',
+  'update daily_mix_runs set bonus_awarded=true where true');
+-- RPC-Schreibpfad: start_set('daily_mix') legt EIGENE daily_mix_runs-Zeile an
+select start_set(null::text, 'daily_mix');
+select pg_temp.assert('RLS-36c stuA sieht eigenen daily_mix_run (RPC-geschrieben)',
+  (select count(*) >= 1 from daily_mix_runs where user_id = :'stuA' and run_on = (now() at time zone 'utc')::date));
+-- Cross-Tenant + public-read translations
+select pg_temp.tests_as(:'stuB');
+select pg_temp.assert('RLS-36d stuB !read stuA daily_mix_runs', (select count(*) = 0 from daily_mix_runs where user_id = :'stuA'));
+select pg_temp.assert('RLS-37a stuB liest Übersetzungen (public read)',
+  (select count(*) >= 1 from redemittel_translation where row_id='itemX' and lang='en'));
+select pg_temp.assert_denied('RLS-37b stuB insert redemittel_translation (service-role only)',
+  'insert into redemittel_translation (row_id,lang,translation) values (''itemX'',''id'',''forge'')');
+-- anon default-deny (daily_mix_runs) + public content read (translations)
+reset role; select set_config('request.jwt.claims','',true);
+select set_config('role','anon', true);
+select pg_temp.assert('RLS-37c anon → 0 daily_mix_runs', (select count(*) = 0 from daily_mix_runs));
+select pg_temp.assert('RLS-37d anon liest Übersetzungen (public)', (select count(*) >= 1 from redemittel_translation));
+
 reset role;
-select 'RLS MATRIX: ALL 35 ASSERTIONS PASSED' as result;
+select 'RLS MATRIX: ALL 37 ASSERTIONS PASSED' as result;
 rollback;

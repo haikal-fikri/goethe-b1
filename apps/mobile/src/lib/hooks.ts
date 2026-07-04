@@ -15,7 +15,20 @@ export function useProfile() {
 
 export function useRedemittel() {
   const { configured } = useSession();
-  return useQuery({ queryKey: ["redemittel"], enabled: configured, queryFn: db.getRedemittel, staleTime: 10 * 60_000 });
+  const profile = useProfile();
+  const lang = profile.data?.nativeLanguage ?? "en"; // 0011: Übersetzungs-Overlay je Muttersprache
+  return useQuery({
+    queryKey: ["redemittel", lang],
+    enabled: configured,
+    queryFn: () => db.getRedemittel(lang),
+    staleTime: 10 * 60_000,
+  });
+}
+
+/** Muttersprachen-Auswahl (nur enabled=true) für den Settings-Picker (0011). */
+export function useLanguages() {
+  const { configured } = useSession();
+  return useQuery({ queryKey: ["languages"], enabled: configured, queryFn: db.getLanguages, staleTime: 60 * 60_000 });
 }
 
 export function useSimulations() {
@@ -54,6 +67,26 @@ export function useMyDailyStatus() {
   return useQuery({ queryKey: ["dailyStatus", uid], enabled: !!uid, queryFn: () => db.getMyDailyStatus() });
 }
 
+// ── v2 Home (0012): Tagesmix-Status + wöchentliches Readiness-Δ ──────
+export function useDailyMixToday() {
+  const { session } = useSession();
+  const uid = session?.user.id;
+  return useQuery({ queryKey: ["dailyMix", uid], enabled: !!uid, queryFn: () => db.getDailyMixToday() });
+}
+
+/** „+Δ diese Woche": Overall-Readiness heute − Snapshot von vor ~7 Tagen. */
+export function useReadinessDelta() {
+  const { session } = useSession();
+  const uid = session?.user.id;
+  const q = useQuery({ queryKey: ["readinessSnapshots", uid], enabled: !!uid, queryFn: () => db.getReadinessSnapshots() });
+  const snaps = q.data ?? []; // captured_on desc
+  const cutoff = new Date();
+  cutoff.setUTCDate(cutoff.getUTCDate() - 7);
+  const cutoffKey = cutoff.toISOString().slice(0, 10);
+  const past = snaps.find((s) => s.capturedOn <= cutoffKey); // jüngster Snapshot ≥7 Tage alt
+  return { weekAgoOverall: past ? past.overall : null, isLoading: q.isLoading };
+}
+
 /**
  * BUG-1 / Gamification: nach jedem Schreibpfad (record_attempt, complete_set, Grade)
  * die betroffenen „my“-Caches invalidieren, damit Readiness/Gelernt/Serie sofort
@@ -66,7 +99,7 @@ export function useInvalidateProgress() {
   return useCallback(async () => {
     if (!uid) return;
     await Promise.all(
-      (["progress", "daily", "examResults", "readiness", "dailyStatus"] as const).map((k) =>
+      (["progress", "daily", "examResults", "readiness", "dailyStatus", "dailyMix", "readinessSnapshots"] as const).map((k) =>
         qc.invalidateQueries({ queryKey: [k, uid] })
       )
     );
