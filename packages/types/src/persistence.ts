@@ -284,6 +284,8 @@ export interface ReadinessModule {
 export interface DailyStatus {
   goalMetToday: boolean;
   streak: number;
+  /** Heutige Übungspunkte (set_complete+first_try_bonus+flawless_bonus) — für die Tagesziel-Fortschrittsanzeige (0014). */
+  practicePointsToday: number;
 }
 
 /** Rückgabe von `start_set()` (client-gemappt aus dem jsonb). */

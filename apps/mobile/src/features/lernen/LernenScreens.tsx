@@ -59,6 +59,9 @@ export function LernenAreaScreen() {
 
   const scopedCount = (f: { levels: string[]; countByLevel: Record<string, number> }) =>
     f.levels.reduce((n, lvl) => n + (inLevelScope(lvl as "B1", scope, examLevel) ? (f.countByLevel[lvl] ?? 0) : 0), 0);
+  // Niveaus einer Funktion im gewählten Filter → Badges folgen der Auswahl (exam=1, „Alle"=alle inline).
+  const scopedLevels = (f: { levels: string[] }) =>
+    f.levels.filter((lvl) => inLevelScope(lvl as "B1", scope, examLevel));
 
   if (isLoading) return <Loading />;
   if (!group) return null;
@@ -77,7 +80,12 @@ export function LernenAreaScreen() {
                 {fns.map((f, i) => (
                   <View key={f.functionCode}>
                     {i > 0 && <View style={{ height: 1, backgroundColor: c.border }} />}
-                    <ListRow title={f.functionName} subtitle={`${scopedCount(f)} Wendungen`} right={<LevelBadge level={f.levels[0] ?? "B1"} />}
+                    <ListRow title={f.functionName} subtitle={`${scopedCount(f)} Wendungen`}
+                      right={
+                        <View style={{ flexDirection: "row", gap: 4, flexWrap: "wrap", justifyContent: "flex-end", maxWidth: 120 }}>
+                          {scopedLevels(f).map((lvl) => <LevelBadge key={lvl} level={lvl} />)}
+                        </View>
+                      }
                       onPress={() => nav.navigate("LernenCategory", { lessonId: f.lessonId, title: f.functionName, levelScope: scope })} />
                   </View>
                 ))}

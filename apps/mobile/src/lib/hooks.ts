@@ -3,6 +3,7 @@ import { useCallback, useEffect } from "react";
 import { AppState } from "react-native";
 import { useSession } from "./session";
 import * as db from "./db";
+import * as api from "./api";
 
 // react-query-Hooks über die RLS-gescopten db-Helfer. Alle „my“-Reads hängen
 // an der user.id; ohne Session → disabled (leere Defaults).
@@ -11,6 +12,18 @@ export function useProfile() {
   const { session } = useSession();
   const uid = session?.user.id;
   return useQuery({ queryKey: ["profile", uid], enabled: !!uid, queryFn: () => db.getProfile(uid!) });
+}
+
+/** Signierte Profilbild-URL (geroutet, Supabase Storage). staleTime < 1 h URL-TTL → rechtzeitig neu signieren. */
+export function useAvatarUrl() {
+  const { session } = useSession();
+  const uid = session?.user.id;
+  return useQuery({
+    queryKey: ["avatarUrl", uid],
+    enabled: !!uid,
+    queryFn: () => api.getAvatarUrl(),
+    staleTime: 50 * 60_000,
+  });
 }
 
 export function useRedemittel() {

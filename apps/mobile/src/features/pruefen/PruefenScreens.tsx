@@ -4,9 +4,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ScreenCapture from "expo-screen-capture";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeProvider";
-import { AppText, Eyebrow, Card, AccentButton, LevelBadge, Loading, Center, Screen } from "../../components/ui";
+import { AppText, Eyebrow, Card, AccentButton, SecondaryButton, LevelBadge, Loading, Center, Screen } from "../../components/ui";
 import { RingGauge, Segmented } from "../../components/widgets";
-import { CloseIcon } from "../../components/icons";
+import { CloseIcon, BackIcon } from "../../components/icons";
 import { useSimulations } from "../../lib/hooks";
 import { useSession } from "../../lib/session";
 import { getDraft, upsertDraft, deleteDraft } from "../../lib/db";
@@ -16,7 +16,7 @@ import type { ExamGrade, ExamResult, ExamTask, AufgabeNr } from "@repo/types";
 
 // 23 · Prüfen (KI-Prüfer Landing) — Simulation 1–4 + Aufgabe 1/2/3.
 export function PruefenLandingScreen() {
-  const { c, accent } = useTheme();
+  const { c, accent, tint } = useTheme();
   const nav = useNavigation<any>();
   const { data: sims, isLoading } = useSimulations();
   const [sim, setSim] = useState(1);
@@ -31,7 +31,7 @@ export function PruefenLandingScreen() {
     <>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 8 }}>
         <AppText role="serif" size={26} color={c.textHi}>Prüfen</AppText>
-        <View style={{ backgroundColor: accent.lilaTintLight, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 }}>
+        <View style={{ backgroundColor: tint("lila"), paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 }}>
           <AppText size={12} color={accent.lila}>✦ KI-Prüfer</AppText>
         </View>
       </View>
@@ -51,7 +51,7 @@ export function PruefenLandingScreen() {
       {task && (
         <Card style={{ marginTop: 16 }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-            <View style={{ backgroundColor: accent.gruenTintLight, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 }}>
+            <View style={{ backgroundColor: tint("gruen"), paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 }}>
               <AppText size={12} color={accent.gruenDarkText}>{task.taskType}</AppText>
             </View>
             <AppText size={12.5} color={c.textMuted}>ca. {task.minWords} Wörter · {task.recommendedMinutes ?? 20} Min</AppText>
@@ -77,7 +77,7 @@ export function PruefenLandingScreen() {
                 <AppText size={12} color={accent.lila}>{expanded ? "▲" : "▼"}</AppText>
               </Pressable>
               {expanded && (
-                <View style={{ marginTop: 10, backgroundColor: accent.gruenTintLight, borderRadius: 12, padding: 12, borderWidth: 1, borderColor: accent.gruen + "33" }}>
+                <View style={{ marginTop: 10, backgroundColor: tint("gruen"), borderRadius: 12, padding: 12, borderWidth: 1, borderColor: accent.gruen + "33" }}>
                   <Eyebrow color={accent.gruenDarkText}>Beispielaufsatz</Eyebrow>
                   <AppText size={13.5} color={c.textBody} lh={20} style={{ marginTop: 6 }}>{task.sampleAnswerDe}</AppText>
                 </View>
@@ -96,8 +96,9 @@ export function PruefenLandingScreen() {
 // → Verlassen/Hintergrund/Wiedereintritt setzt NIE zurück. Eine aktive Simulation (≤3
 // gleichzeitige Aufgaben-Timer); Wechsel zu anderer Sim → Bestätigung → wipe+neu starten.
 // Bei 0:00 → Editor sperren + Auto-Submit (words<20 → sperren ohne Bewertung). Kein Kopieren/Einfügen.
+// R6: „Prüfung abbrechen" = Deadline+Entwurf weg → zurück; „Text löschen" = nur Text, Timer läuft.
 export function ExamScreen() {
-  const { c, accent, fonts, radius } = useTheme();
+  const { c, accent, fonts, radius, tint } = useTheme();
   const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
   const route = useRoute<any>();
@@ -200,15 +201,31 @@ export function ExamScreen() {
     }
   }, [remaining, ready, deadline]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const discardRestart = () => {
+  // R6: Prüfung abbrechen — Deadline weg (nächster Start = frischer Timer), Entwurf verwerfen,
+  // zurück zum aufrufenden Screen (Prüfen-Landing oder Fortschritt/Probe). ACTIVE_SIM bleibt
+  // gesetzt (andere Aufgaben der Sim können laufen; Sim-Wechsel-Flow unverändert).
+  const abortExam = () => {
     if (!task) return;
-    Alert.alert("Verwerfen & neu starten?", "Dein Text wird gelöscht und der Timer neu gestartet.", [
-      { text: "Abbrechen", style: "cancel" },
-      { text: "Neu starten", style: "destructive", onPress: async () => {
+    Alert.alert("Prüfung abbrechen?", "Dein Text wird verworfen und der Timer gestoppt. Beim nächsten Start beginnt die Aufgabe von vorn.", [
+      { text: "Weiter schreiben", style: "cancel" },
+      { text: "Prüfung abbrechen", style: "destructive", onPress: async () => {
+          if (saveTimer.current) clearTimeout(saveTimer.current); // Autosave nicht nachträglich feuern
+          await clearDeadline(task.id).catch(() => {});
           if (uid) await deleteDraft(uid, task.id).catch(() => {});
-          const dl = Date.now() + durMs;
-          await storeDeadline(task.id, dl);
-          setText(""); setDeadline(dl); setLocked(false); expiredRef.current = false; setPhase("write");
+          nav.goBack();
+        } },
+    ]);
+  };
+
+  // R6: ehem. „Verwerfen & neu starten" — jetzt nur Text + Entwurf löschen, Timer läuft weiter.
+  const clearText = () => {
+    if (!task) return;
+    Alert.alert("Text löschen?", "Dein Text und der gespeicherte Entwurf werden gelöscht. Der Timer läuft weiter.", [
+      { text: "Abbrechen", style: "cancel" },
+      { text: "Löschen", style: "destructive", onPress: async () => {
+          if (saveTimer.current) clearTimeout(saveTimer.current);
+          if (uid) await deleteDraft(uid, task.id).catch(() => {});
+          setText("");
         } },
     ]);
   };
@@ -232,16 +249,18 @@ export function ExamScreen() {
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
         <Pressable onPress={() => nav.goBack()} hitSlop={10}><CloseIcon color={c.textMuted} /></Pressable>
         <AppText size={13} color={c.textMuted}>Simulation {task.simulation} · Aufgabe {task.aufgabe}</AppText>
-        <View style={{ backgroundColor: expired ? accent.rotTintLight : accent.goldTintLight, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999 }}>
+        <View style={{ backgroundColor: expired ? tint("rot") : tint("gold"), paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999 }}>
           <AppText role="serifMed" size={14} color={expired ? accent.rotText : accent.goldText}>{mm}:{ss}</AppText>
         </View>
       </View>
-      <Pressable onPress={discardRestart} hitSlop={8} style={{ alignSelf: "flex-end", marginTop: 6 }}>
-        <AppText size={12} color={accent.rotText}>Verwerfen & neu starten</AppText>
-      </Pressable>
+      {!locked && (
+        <Pressable onPress={clearText} hitSlop={8} style={{ alignSelf: "flex-end", marginTop: 6 }}>
+          <AppText size={12} color={accent.rotText}>Text löschen</AppText>
+        </Pressable>
+      )}
 
       {expired && (
-        <View style={{ marginTop: 8, backgroundColor: accent.rotTintLight, borderRadius: 12, padding: 10 }}>
+        <View style={{ marginTop: 8, backgroundColor: tint("rot"), borderRadius: 12, padding: 10 }}>
           <AppText size={13} color={accent.rotText}>
             Zeit abgelaufen{words < 20 ? " — zu kurz zum Bewerten." : " — reiche zum Bewerten ein."}
           </AppText>
@@ -273,7 +292,11 @@ export function ExamScreen() {
       {/* R2-6: Safe-Area-Abstand unten, damit „Bewerten lassen" nicht am Rand / unter dem Home-Indicator klebt */}
       <View style={{ paddingTop: 12, paddingBottom: Math.max(insets.bottom, 16) + 8, gap: 10 }}>
         <AppText size={12.5} color={words > wordLimit ? accent.rotText : c.textMuted}>{words} / {wordLimit} Wörter</AppText>
-        <AccentButton label="Bewerten lassen" color={accent.lila} onPress={() => submit(false)} disabled={words < 20 || words > wordLimit} />
+        <View style={{ flexDirection: "row", gap: 10 }}>
+          <SecondaryButton label="Prüfung abbrechen" onPress={abortExam} style={{ flex: 1 }} />
+          <AccentButton label="Bewerten lassen" color={accent.lila} onPress={() => submit(false)}
+            disabled={words < 20 || words > wordLimit} style={{ flex: 1.2 }} />
+        </View>
       </View>
     </View>
   );
@@ -281,21 +304,30 @@ export function ExamScreen() {
 
 // 25 · Bewertung.
 export function ExamResultScreen() {
-  const { c, accent, fonts } = useTheme();
+  const { c, accent, fonts, tint } = useTheme();
+  const nav = useNavigation<any>();
   const route = useRoute<any>();
   const result: ExamResult = route.params?.result;
   const persisted: boolean = route.params?.persisted ?? false;
+  const fromProbe: boolean = route.params?.fromProbe ?? false; // nur beim Aufruf aus Fortschritt→Probe→Aufgabe
   const g = result.reconciled;
   const ratio = g.maxPunkte ? g.gesamtpunkte / g.maxPunkte : 0;
   const bandColor = (b: string) => (b === "A" || b === "B" ? accent.gruen : b === "C" ? accent.gold : accent.rot);
 
   return (
     <Screen>
+      {/* Zurück nur aus dem Fortschritt→Probe→Aufgabe-Pfad (nicht nach frischer Bewertung, die per replace kommt). */}
+      {fromProbe && nav.canGoBack() && (
+        <Pressable onPress={() => nav.goBack()} hitSlop={12} accessibilityRole="button" accessibilityLabel="Zurück"
+          style={{ alignSelf: "flex-start", paddingVertical: 4, marginBottom: 4 }}>
+          <BackIcon color={c.textMuted} />
+        </Pressable>
+      )}
       <Card style={{ borderRadius: 24, marginTop: 8, flexDirection: "row", alignItems: "center", gap: 16 }}>
         <View style={{ flex: 1 }}>
           <Eyebrow>Gesamtergebnis</Eyebrow>
           <AppText role="serif" size={30} color={c.textHi} style={{ marginTop: 2 }}>{fmt(g.gesamtpunkte)} / {fmt(g.maxPunkte)}</AppText>
-          <View style={{ alignSelf: "flex-start", marginTop: 8, backgroundColor: g.bestanden ? accent.gruenTintLight : accent.rotTintLight, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 }}>
+          <View style={{ alignSelf: "flex-start", marginTop: 8, backgroundColor: g.bestanden ? tint("gruen") : tint("rot"), paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999 }}>
             <AppText size={13} color={g.bestanden ? accent.gruenDarkText : accent.rotText}>{g.bestanden ? "bestanden" : "nicht bestanden"}</AppText>
           </View>
         </View>

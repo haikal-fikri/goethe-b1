@@ -207,9 +207,14 @@ export async function startSet(
     items: (d.items ?? []) as { id: string; kind: "wordbank" | "cloze" }[],
   };
 }
-/** On-Device-Sprechen 20/22: Selbstauskunft (Coverage + Streak), speichert kein Audio. */
-export async function recordSpeechPractice(itemId: string): Promise<{ ok?: boolean; error?: string }> {
-  const { data, error } = await sb().rpc("record_speech_practice", { p_item_id: itemId });
+/** On-Device-Sprechen 20/22: Selbstauskunft. `success` (Aussprache erkannt / Anordnen korrekt)
+ * schreibt Readiness (Ring + Bereitschaft) + XP; jeder Aufruf zählt als Aktivität (Serie). */
+export async function recordSpeechPractice(
+  itemId: string, success = false, firstTry = false,
+): Promise<{ ok?: boolean; error?: string }> {
+  const { data, error } = await sb().rpc("record_speech_practice", {
+    p_item_id: itemId, p_success: success, p_first_try: firstTry,
+  });
   if (error) return { error: error.message };
   return (data as { ok?: boolean; error?: string }) ?? {};
 }
@@ -239,7 +244,7 @@ export async function getMyReadiness(): Promise<ReadinessModule[]> {
 export async function getMyDailyStatus(): Promise<DailyStatus> {
   const { data } = await sb().from("v_daily_status").select("*").maybeSingle();
   const r = (data as Row) ?? {};
-  return { goalMetToday: Boolean(r.goal_met_today), streak: Number(r.streak ?? 0) };
+  return { goalMetToday: Boolean(r.goal_met_today), streak: Number(r.streak ?? 0), practicePointsToday: Number(r.practice_points_today ?? 0) };
 }
 
 /** Heutiger Tagesmix-Status (0012): steuert „Los geht's" ↔ „Heute erledigt ✓". */

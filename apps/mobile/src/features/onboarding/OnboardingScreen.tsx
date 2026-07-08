@@ -14,7 +14,7 @@ import { upsertProfile } from "../../lib/db";
 // Schreibt profiles (client-direkt) und setzt onboarded_at am Ende → RootNavigator
 // wechselt zu den Tabs. Klasse-bezogene Elemente sind in v1 ausgeblendet.
 export function OnboardingScreen() {
-  const { c, accent, fonts, radius } = useTheme();
+  const { c, accent, fonts, radius, tint } = useTheme();
   const { session } = useSession();
   const qc = useQueryClient();
   const [i, setI] = useState(0); // 0=intro,1..4 steps,5=done
@@ -115,7 +115,7 @@ export function OnboardingScreen() {
       <Chrome cta="Weiter" onCta={() => setI(3)}>
         <AppText role="serif" size={25} color={c.textHi} lh={30} style={{ marginTop: 20 }}>Welches Niveau möchtest du üben?</AppText>
         <View style={{ marginTop: 20, gap: 12 }}>
-          <Card style={{ borderColor: accent.gruen, borderWidth: 2, flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: accent.gruenTintLight }}>
+          <Card style={{ borderColor: accent.gruen, borderWidth: 2, flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: tint("gruen") }}>
             <LevelBadge level="B1" />
             <View style={{ flex: 1 }}>
               <AppText role="uiSemi" size={15} color={c.textHi}>Goethe-Zertifikat B1</AppText>

@@ -5,6 +5,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../theme/ThemeProvider";
+import { HeartIcon } from "./icons";
 import { cefr as CEFR } from "../theme/tokens";
 import type { LevelScope } from "@repo/core";
 
@@ -14,15 +15,17 @@ import type { LevelScope } from "@repo/core";
 type FontRole = "serif" | "serifMed" | "ui" | "uiMed" | "uiSemi" | "uiBold" | "mono";
 
 export function AppText({
-  children, role = "ui", size = 15, color, lh, style, numberOfLines, align,
+  children, role = "ui", size = 15, color, lh, style, numberOfLines, align, onPress,
 }: {
   children: React.ReactNode; role?: FontRole; size?: number; color?: string;
   lh?: number; style?: StyleProp<TextStyle>; numberOfLines?: number; align?: TextStyle["textAlign"];
+  onPress?: () => void; // R5: inline-tappbare Textteile (verschachtelter Text — Pressable geht dort nicht)
 }) {
   const { c, fonts } = useTheme();
   return (
     <Text
       numberOfLines={numberOfLines}
+      onPress={onPress}
       style={[
         { fontFamily: fonts[role], fontSize: size, color: color ?? c.textBody, ...(lh ? { lineHeight: lh } : {}), ...(align ? { textAlign: align } : {}) },
         style,
@@ -134,6 +137,18 @@ export function LevelBadge({ level, style }: { level: keyof typeof CEFR | string
   return (
     <View style={[{ backgroundColor: bg, borderRadius: radius.badge, paddingHorizontal: 6, paddingVertical: 2 }, style]}>
       <Text style={{ color: "#fff", fontFamily: fonts.uiBold, fontSize: 11 }}>{level}</Text>
+    </View>
+  );
+}
+
+/** Herzen-Reihe (Übung + Sprechen): verbleibende grün, verlorene ausgegraut. */
+export function Hearts({ start, left }: { start: number; left: number }) {
+  const { accent, c } = useTheme();
+  return (
+    <View style={{ flexDirection: "row", gap: 5 }}>
+      {Array.from({ length: start }).map((_, i) => (
+        <HeartIcon key={i} size={18} strokeWidth={1.9} color={i < left ? accent.gruen : c.textFaint} />
+      ))}
     </View>
   );
 }

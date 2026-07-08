@@ -9,7 +9,7 @@ import {
   useProfile, useMyDaily, useMyProgress, useMyExamResults, useSimulations, useMyReadiness, computeStreak,
 } from "../../lib/hooks";
 import { useRedemittel } from "../../lib/hooks";
-import { levelCount, levelIdSet } from "@repo/core";
+import { levelCountUpTo, levelIdSetUpTo } from "@repo/core";
 import type { StoredExamResult, ExamSimulation, Module } from "@repo/types";
 
 // ── ENH-1: Probeprüfung-Zustandsmaschine (client-seitig; kein neuer Hook/SQL) ──
@@ -71,9 +71,11 @@ export function FortschrittScreen() {
   const streak = computeStreak(daily.data ?? []);
   const examLevel = profile.data?.level ?? "B1";
 
-  // BUG-5 + R2-1: Nenner = Katalog des PRÜFUNGSNIVEAUS (dynamisch), Zähler = dort gemeisterte Items.
-  const total = levelCount(catalog.data ?? [], examLevel);
-  const levelIds = useMemo(() => levelIdSet(catalog.data ?? [], examLevel), [catalog.data, examLevel]);
+  // BUG-5 + R2-1: Nenner = Katalog KUMULATIV bis zum Prüfungsniveau (≤ examLevel), Zähler = dort
+  // gemeisterte Items. Höherstufen fügt die extra Wendungen hinzu und behält bereits Gelerntes.
+  // Spiegelt den kumulativen v_readiness-Filter (migration 0013).
+  const total = levelCountUpTo(catalog.data ?? [], examLevel);
+  const levelIds = useMemo(() => levelIdSetUpTo(catalog.data ?? [], examLevel), [catalog.data, examLevel]);
   const mastered = (progress.data ?? []).filter((p) => p.masteredAt && levelIds.has(p.itemId)).length;
 
   // BUG-4: „Woche" = Σ active_seconds der letzten 7 UTC-Tage ÷3600 (eine Dezimale, de-DE).
@@ -254,7 +256,7 @@ export function ProbeScreen() {
                   title={`Aufgabe ${task.aufgabe}`}
                   subtitle={r.bestanden ? "Bestanden" : "Nicht bestanden"}
                   right={<AppText role="serifMed" size={14} color={c.textHi}>{Math.round((Number(r.gesamtpunkte) / Number(r.maxPunkte)) * 100)}%</AppText>}
-                  onPress={() => nav.navigate("ExamResult", { result: r.result, task, persisted: true })}
+                  onPress={() => nav.navigate("ExamResult", { result: r.result, task, persisted: true, fromProbe: true })}
                 />
               ) : (
                 <ListRow

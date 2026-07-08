@@ -11,13 +11,13 @@ import * as WebBrowser from "expo-web-browser";
 // (die Runtime kommt in der Lehrkraft-Phase). RLS/RPCs existieren bereits.
 
 export function KlasseScreen() {
-  const { c, accent } = useTheme();
+  const { c, accent, tint } = useTheme();
   const nav = useNavigation<any>();
   const [enrolled] = useState(false); // v1: nie erreichbar (Flag aus)
   if (enrolled) return <KlasseJoinedScreen />;
   return (
     <Center>
-      <View style={{ width: 72, height: 72, borderRadius: 999, backgroundColor: accent.lilaTintLight, alignItems: "center", justifyContent: "center" }}>
+      <View style={{ width: 72, height: 72, borderRadius: 999, backgroundColor: tint("lila"), alignItems: "center", justifyContent: "center" }}>
         <PeopleIcon size={34} color={accent.lila} />
       </View>
       <AppText role="serif" size={22} color={c.textHi} style={{ marginTop: 16 }}>Noch keine Klasse</AppText>
@@ -109,7 +109,7 @@ export function SprechenTaskScreen() {
 }
 
 export function SprechenRecordScreen() {
-  const { c, accent } = useTheme();
+  const { c, accent, tint } = useTheme();
   const nav = useNavigation<any>();
   const [seconds, setSeconds] = useState(300);
   React.useEffect(() => {
@@ -119,7 +119,7 @@ export function SprechenRecordScreen() {
   const mm = Math.floor(seconds / 60), ss = String(seconds % 60).padStart(2, "0");
   return (
     <Center>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: accent.rotTintLight, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: tint("rot"), paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 }}>
         <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: accent.rot }} />
         <AppText size={12} color={accent.rotText}>AUFNAHME LÄUFT</AppText>
       </View>

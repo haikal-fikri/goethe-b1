@@ -1,11 +1,11 @@
 import React from "react";
-import { View, Pressable } from "react-native";
+import { View, Pressable, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeProvider";
 import { AppText, Eyebrow, Card, LevelBadge } from "../../components/ui";
 import { ReadinessRings } from "../../components/widgets";
 import { FlameIcon, SKILL_ICON } from "../../components/icons";
-import { useProfile, useMyDaily, useMyReadiness, useMyDailyStatus, useDailyMixToday, useReadinessDelta, computeStreak } from "../../lib/hooks";
+import { useProfile, useMyDaily, useMyReadiness, useMyDailyStatus, useDailyMixToday, useReadinessDelta, useAvatarUrl, computeStreak } from "../../lib/hooks";
 import { SKILL_LABEL } from "@repo/types";
 import type { Module } from "@repo/types";
 
@@ -14,13 +14,14 @@ const MODULE_LABEL: Record<Module, string> = { schreiben: "Schreiben", sprechen:
 // 09 · Heute. Readiness-Ring (v_readiness), Serie + Avatar, Tagesziel,
 // „Lernen"-Karten (→ Lernbereich 12/15). Klassenkarte in v1 ausgeblendet.
 export function HomeScreen() {
-  const { c, accent } = useTheme();
+  const { c, accent, tint } = useTheme();
   const nav = useNavigation<any>();
   const profile = useProfile();
   const daily = useMyDaily();
   const readiness = useMyReadiness();
   const dailyStatus = useMyDailyStatus();
   const dailyMix = useDailyMixToday();
+  const avatar = useAvatarUrl();
   const { weekAgoOverall } = useReadinessDelta();
 
   const streak = computeStreak(daily.data ?? []);
@@ -55,6 +56,8 @@ export function HomeScreen() {
   }
 
   const goalMet = dailyStatus.data?.goalMetToday ?? false;
+  const goalPts = 30; // DAILY_GOAL_POINTS (v_daily_status)
+  const ptsToday = Math.min(dailyStatus.data?.practicePointsToday ?? 0, goalPts); // heutiger Fortschritt zum Tagesziel
   const dailyMixDone = Boolean(dailyMix.data?.completedAt); // Tagesmix heute abgeschlossen?
 
   const skills: { key: "schreiben" | "sprechen" | "shared"; col: string }[] = [
@@ -72,16 +75,18 @@ export function HomeScreen() {
           <AppText role="serif" size={26} color={c.textHi} style={{ marginTop: 2 }}>Guten Tag{name ? `, ${name}` : ""}</AppText>
         </View>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: accent.goldTintLight, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: tint("gold"), paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999 }}>
             <FlameIcon size={15} />
             <AppText role="serifMed" size={15} color={accent.goldText}>{streak}</AppText>
           </View>
           <Pressable
             onPress={() => nav.navigate("Settings")}
             accessibilityRole="button" accessibilityLabel="Einstellungen"
-            style={{ width: 38, height: 38, borderRadius: 999, backgroundColor: accent.lila + "26", alignItems: "center", justifyContent: "center" }}
+            style={{ width: 38, height: 38, borderRadius: 999, overflow: "hidden", backgroundColor: accent.lila + "26", alignItems: "center", justifyContent: "center" }}
           >
-            <AppText role="uiSemi" size={14} color={accent.lila}>{initials}</AppText>
+            {avatar.data
+              ? <Image source={{ uri: avatar.data }} style={{ width: 38, height: 38 }} />
+              : <AppText role="uiSemi" size={14} color={accent.lila}>{initials}</AppText>}
           </Pressable>
         </View>
       </View>
@@ -132,10 +137,10 @@ export function HomeScreen() {
       <Card style={{ marginTop: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 12 }}>
         <View>
           <AppText role="uiSemi" size={14} color={c.textHi}>Tagesziel</AppText>
-          <AppText size={12} color={c.textMuted} style={{ marginTop: 2 }}>{goalMet ? "Heute erreicht — weiter so!" : "Übe eine Runde, um es zu erreichen"}</AppText>
+          <AppText size={12} color={c.textMuted} style={{ marginTop: 2 }}>{goalMet ? "Heute erreicht — weiter so!" : `Noch ${goalPts - ptsToday} Punkte bis zum Ziel`}</AppText>
         </View>
         <View style={{ paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999, backgroundColor: (goalMet ? accent.gruen : c.track) + (goalMet ? "22" : "") }}>
-          <AppText size={13} color={goalMet ? accent.gruenDarkText : c.textMuted}>{goalMet ? "✓ erreicht" : "offen"}</AppText>
+          <AppText size={13} color={goalMet ? accent.gruenDarkText : c.textMuted}>{goalMet ? "✓ erreicht" : `${ptsToday} / ${goalPts}`}</AppText>
         </View>
       </Card>
 
@@ -160,7 +165,7 @@ export function HomeScreen() {
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 22, marginBottom: 9 }}>
         <Eyebrow>Lernen</Eyebrow>
         <Pressable onPress={() => nav.navigate("Lernen")}>
-          <AppText size={13} color={accent.gruen}>Nachschlagen ›</AppText>
+          <AppText size={13} color={accent.gruen}>Alles ›</AppText>
         </Pressable>
       </View>
       <View style={{ flexDirection: "row", gap: 10 }}>

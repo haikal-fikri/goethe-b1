@@ -3,8 +3,8 @@ import { View, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeProvider";
-import { AppText, Eyebrow, Card, AccentButton, LevelBadge, Loading, Center } from "../../components/ui";
-import { CloseIcon, SpeakerIcon, HeartIcon } from "../../components/icons";
+import { AppText, Eyebrow, Card, AccentButton, PrimaryButton, LevelBadge, Loading, Center, Hearts } from "../../components/ui";
+import { CloseIcon, SpeakerIcon } from "../../components/icons";
 import { WordArrange } from "../../components/WordArrange";
 import { useRedemittel, useProfile } from "../../lib/hooks";
 import { useInvalidateProgress } from "../../lib/hooks";
@@ -15,7 +15,7 @@ import {
   inLevelScope, type LevelScope, type Tile,
 } from "@repo/core";
 import type { RedemittelItem } from "@repo/types";
-import * as Speech from "expo-speech";
+import { speakDe } from "../../lib/tts";
 
 type Kind = "wordbank" | "cloze";
 
@@ -138,17 +138,6 @@ function arraysEqualLocal(item: RedemittelItem | undefined, kind: Kind, tokens: 
   return arraysEqual(tokens, sol);
 }
 
-function Hearts({ start, left }: { start: number; left: number }) {
-  const { accent, c } = useTheme();
-  return (
-    <View style={{ flexDirection: "row", gap: 5 }}>
-      {Array.from({ length: start }).map((_, i) => (
-        <HeartIcon key={i} size={18} strokeWidth={1.9} color={i < left ? accent.gruen : c.textFaint} />
-      ))}
-    </View>
-  );
-}
-
 function ExerciseItem({ item, kind, mastered, total, hearts, onClose, submit, onNext }: {
   item: RedemittelItem; kind: Kind; mastered: number; total: number;
   hearts: { start: number; left: number } | null;
@@ -160,23 +149,31 @@ function ExerciseItem({ item, kind, mastered, total, hearts, onClose, submit, on
   const solution = useMemo(() => (isCloze ? clozeBlanks(item.clozeTemplate ?? "") : item.tokens), [item, isCloze]);
   const pool = useMemo<Tile[]>(() => (isCloze ? buildClozePills(item) : buildTiles(item)), [item, isCloze]);
   const [placed, setPlaced] = useState<Tile[]>([]);
+  // R5: eine Zelle je Lücke statt Append-Array — gefüllte Lücke antippen leert genau sie.
+  const [slots, setSlots] = useState<(Tile | null)[]>(() => (isCloze ? Array(solution.length).fill(null) : []));
   const [result, setResult] = useState<null | boolean>(null);
   const [comp, setComp] = useState<AttemptResult["result"]>(null);
   const [busy, setBusy] = useState(false);
-  const usedIds = new Set(placed.map((t) => t.id));
+  const usedIds = new Set((isCloze ? slots.filter((t): t is Tile => t != null) : placed).map((t) => t.id));
+
+  const fillFirstEmpty = (t: Tile) => setSlots((s) => {
+    const i = s.findIndex((x) => x == null);
+    if (i < 0) return s; // alles voll → no-op
+    const n = [...s]; n[i] = t; return n;
+  });
+  const clearSlot = (i: number) => setSlots((s) => (s[i] ? s.map((x, k) => (k === i ? null : x)) : s));
 
   const check = async () => {
     if (busy) return;
     setBusy(true);
-    const submitted = placed.map((t) => t.label);
+    const submitted = isCloze ? slots.map((t) => t!.label) : placed.map((t) => t.label); // non-null: Prüfen-Gate
     const res = await submit(submitted);
     setResult(res.correct ?? arraysEqual(submitted, solution));
     setComp(res.result ?? null);
     setBusy(false);
   };
 
-  const clozeParts = isCloze ? parseCloze(item.clozeTemplate ?? "") : [];
-  let blankN = -1;
+  const clozeParts = useMemo(() => (isCloze ? parseCloze(item.clozeTemplate ?? "") : []), [item, isCloze]);
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg, paddingHorizontal: 18, paddingTop: 56 }}>
@@ -202,10 +199,11 @@ function ExerciseItem({ item, kind, mastered, total, hearts, onClose, submit, on
           <AppText role="serif" size={19} color={c.textHi} lh={28}>
             {clozeParts.map((p, k) => {
               if (p.kind === "text") return <AppText key={k} role="serif" size={19} color={c.textHi}>{p.value}</AppText>;
-              blankN++;
-              const filled = placed[blankN];
+              const filled = slots[p.index];
               return (
-                <AppText key={k} role="serif" size={19} color={filled ? accent.blau : c.textFaint}>
+                <AppText key={k} role="serif" size={19} color={filled ? accent.blau : c.textFaint}
+                  onPress={result === null && filled ? () => clearSlot(p.index) : undefined}
+                  style={filled && result === null ? { textDecorationLine: "underline" } : undefined}>
                   {filled ? filled.label : "_____"}
                 </AppText>
               );
@@ -215,9 +213,13 @@ function ExerciseItem({ item, kind, mastered, total, hearts, onClose, submit, on
           <>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
               <Eyebrow>Englisch</Eyebrow>
-              <Pressable onPress={() => Speech.speak(item.phrase, { language: "de-DE" })} hitSlop={8}>
-                <SpeakerIcon size={18} color={c.textMuted} />
-              </Pressable>
+              {/* Vorlesen liest den deutschen Zielsatz — bei Wortbank ist das die Lösung.
+                  Erst nach dem Prüfen freigeben (die Lösungskarte zeigt den Satz dann ohnehin). */}
+              {result !== null && (
+                <Pressable onPress={() => speakDe(item.phrase).catch(() => {})} hitSlop={8} accessibilityRole="button" accessibilityLabel="Vorlesen">
+                  <SpeakerIcon size={18} color={c.textMuted} />
+                </Pressable>
+              )}
             </View>
             <AppText role="serif" size={20} color={c.textHi} lh={28} style={{ marginTop: 8 }}>{item.translation}</AppText>
           </>
@@ -232,12 +234,12 @@ function ExerciseItem({ item, kind, mastered, total, hearts, onClose, submit, on
       {/* Cloze: Pills antippen, um Lücken zu füllen */}
       {isCloze && result === null && (
         <>
-          <AppText size={12.5} color={c.textMuted} style={{ marginTop: 16, marginBottom: 8 }}>Wortbank · tippe zum Einsetzen</AppText>
+          <AppText size={12.5} color={c.textMuted} style={{ marginTop: 16, marginBottom: 8 }}>Wortbank · tippe zum Einsetzen · Lücke tippen zum Ändern</AppText>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
             {pool.map((t) => {
               const used = usedIds.has(t.id);
               return (
-                <Pressable key={t.id} disabled={used} onPress={() => setPlaced([...placed, t])}>
+                <Pressable key={t.id} disabled={used} onPress={() => fillFirstEmpty(t)}>
                   <View style={{ paddingHorizontal: 12, paddingVertical: 9, borderRadius: radius.tile, borderWidth: 1, borderColor: c.border, backgroundColor: c.surface, opacity: used ? 0.4 : 1 }}>
                     <AppText role="uiSemi" size={15} color={used ? c.textFaint : c.textHi} style={used ? { textDecorationLine: "line-through" } : undefined}>{t.label}</AppText>
                   </View>
@@ -261,8 +263,8 @@ function ExerciseItem({ item, kind, mastered, total, hearts, onClose, submit, on
       {/* Aktion (R2-6: Safe-Area-Abstand unten) */}
       <View style={{ position: "absolute", left: 18, right: 18, bottom: Math.max(insets.bottom, 16) + 8 }}>
         {result === null ? (
-          <AccentButton label="Prüfen" color={c.primaryBtnBg} loading={busy} disabled={placed.length === 0}
-            onPress={check} style={{ backgroundColor: c.primaryBtnBg }} />
+          <PrimaryButton label="Prüfen" loading={busy} disabled={isCloze ? (slots.length === 0 || slots.some((s) => s == null)) : placed.length === 0}
+            onPress={check} />
         ) : (
           <AccentButton label="Weiter" onPress={() => onNext(result, comp)} />
         )}

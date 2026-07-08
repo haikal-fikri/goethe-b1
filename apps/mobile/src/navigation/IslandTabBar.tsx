@@ -13,12 +13,15 @@ const LABELS: Record<string, string> = { Heute: "Heute", Ueben: "Üben", Pruefen
 
 // Custom "island" — schwebende Pille mit Blur; aktiver Tab = grünes Quadrat +
 // weißes Glyph. v1: 4 Items (Klasse-Tab per class_enabled ausgeblendet).
+// R4: iOS clippt Layer-Schatten bei overflow:hidden auf demselben View → Schatten
+// auf einen Wrapper (eigener BG = Schattenpfad + Android-Elevation), Blur bleibt geclippt.
 export function IslandTabBar({ state, navigation }: BottomTabBarProps) {
-  const { scheme, c, accent } = useTheme();
+  const { scheme, c, accent, shadow } = useTheme();
   const insets = useSafeAreaInsets();
   return (
     <View pointerEvents="box-none" style={[styles.wrap, { bottom: Math.max(insets.bottom, 12) + 8 }]}>
-      <BlurView intensity={28} tint={scheme === "dark" ? "dark" : "light"} style={[styles.bar, { backgroundColor: c.islandBg, borderColor: c.islandBorder }]}>
+      <View style={[styles.shadow, shadow.island, { backgroundColor: c.islandBg }]}>
+      <BlurView intensity={28} tint={scheme === "dark" ? "dark" : "light"} style={[styles.bar, { borderColor: c.islandBorder }]}>
         {state.routes.map((route, i) => {
           const focused = state.index === i;
           const Icon = ICONS[route.name] ?? HomeIcon;
@@ -37,16 +40,17 @@ export function IslandTabBar({ state, navigation }: BottomTabBarProps) {
           );
         })}
       </BlurView>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: { position: "absolute", left: 0, right: 0, alignItems: "center" },
+  shadow: { borderRadius: 999 }, // Pillenform = Schattenpfad (Schatten-Props aus shadow.island)
   bar: {
     flexDirection: "row", gap: 5, paddingHorizontal: 11, paddingVertical: 7, borderRadius: 999,
     borderWidth: StyleSheet.hairlineWidth, overflow: "hidden",
-    shadowColor: "#1C1814", shadowOpacity: 0.14, shadowRadius: 22, shadowOffset: { width: 0, height: 8 }, elevation: 10,
   },
   item: { width: 52, height: 42, borderRadius: 14, alignItems: "center", justifyContent: "center" },
 });

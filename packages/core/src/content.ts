@@ -189,6 +189,27 @@ export function levelIdSet(items: RedemittelItem[], level: CEFRLevel): Set<strin
 }
 
 /**
+ * Kumulativ: alle Items mit LEVEL_RANK[level] <= LEVEL_RANK[target]. Ein höheres Prüfungsniveau
+ * schließt die niedrigeren ein (B2-Prüfung setzt B1-Wortschatz voraus), sodass beim Höherstufen
+ * die extra Wendungen zum Nenner dazukommen und bereits Gelerntes im Zähler bleibt. Spiegelt den
+ * kumulativen `v_readiness`-Filter (`r.level <= profile.level`) in migration 0013.
+ */
+export function levelCountUpTo(items: RedemittelItem[], level: CEFRLevel): number {
+  const max = LEVEL_RANK[level];
+  let n = 0;
+  for (const it of items) if (LEVEL_RANK[it.level] <= max) n++;
+  return n;
+}
+
+/** Menge der Item-IDs bis einschließlich `level` (kumulativ) — Gegenstück zu {@link levelCountUpTo}. */
+export function levelIdSetUpTo(items: RedemittelItem[], level: CEFRLevel): Set<string> {
+  const max = LEVEL_RANK[level];
+  const s = new Set<string>();
+  for (const it of items) if (LEVEL_RANK[it.level] <= max) s.add(it.id);
+  return s;
+}
+
+/**
  * R2-3 · Niveau-Filter für die Übungs-/Lern-Auswahl (opt-in „push yourself").
  * `exam` = nur das Prüfungsniveau (Default); `b2plus`/`c1plus` = ab B2/C1 aufwärts; `all` = alles.
  */

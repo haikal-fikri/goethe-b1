@@ -9,7 +9,7 @@ import { CheckCircle, FlameIcon } from "../../components/icons";
 // Erstversuch X/Y, Herzen übrig, Punkte, „Makellos"-Badge, Readiness-Δ.
 // Läuft auf dem Root-Stack ÜBER den Tabs (kein Island) — Fixed-Layout.
 export function UebungAbgeschlossenScreen() {
-  const { c, accent, radius } = useTheme();
+  const { c, accent, radius, tint } = useTheme();
   const nav = useNavigation<any>();
   const route = useRoute<any>();
   const p = route.params ?? {};
@@ -41,7 +41,7 @@ export function UebungAbgeschlossenScreen() {
       )}
 
       {flawless && (
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 14, backgroundColor: accent.goldTintLight, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 14, backgroundColor: tint("gold"), paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 }}>
           <FlameIcon size={15} />
           <AppText role="uiSemi" size={13} color={accent.goldText}>Makellos — keine Herzen verloren</AppText>
         </View>

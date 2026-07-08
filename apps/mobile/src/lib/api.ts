@@ -31,6 +31,28 @@ export async function authedFetch(path: string, init: RequestInit = {}): Promise
   return res;
 }
 
+/** Profilbild: aktuelle signierte URL holen (GET, re-signiert serverseitig). Null wenn keins/Fehler. */
+export async function getAvatarUrl(): Promise<string | null> {
+  if (!apiConfigured()) return null;
+  const res = await authedFetch("/api/profile/avatar", { method: "GET" });
+  if (!res.ok) return null;
+  const body = await res.json().catch(() => null);
+  return (body?.signedUrl as string | undefined) ?? null;
+}
+
+/** Profilbild hochladen (Base64 → geroutet: resize 512² webp, EXIF-strip). Gibt die neue signierte URL zurück. */
+export async function uploadAvatar(imageBase64: string): Promise<string | null> {
+  const res = await authedFetch("/api/profile/avatar", { method: "POST", body: JSON.stringify({ imageBase64 }) });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    const err = new Error(typeof body?.error === "string" ? body.error : `HTTP ${res.status}`) as Error & { status?: number };
+    err.status = res.status;
+    throw err;
+  }
+  const body = await res.json().catch(() => null);
+  return (body?.signedUrl as string | undefined) ?? null;
+}
+
 export type GradeEvent =
   | { type: "start" }
   | { type: "examiner"; label: "mild" | "streng" }

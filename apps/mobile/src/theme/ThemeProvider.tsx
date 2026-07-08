@@ -6,6 +6,9 @@ import { palettes, accent, cefr, radius, fonts, shadow, space, type ThemeColors 
 // Folgt dem OS (useColorScheme) mit manueller Überschreibung (System/Hell/Dunkel).
 export type ThemeMode = "system" | "light" | "dark";
 
+/** Akzent-Tint-Namen für die scheme-abhängige tint()-Auflösung. */
+export type TintName = "gruen" | "blau" | "lila" | "gold" | "rot";
+
 interface ThemeCtx {
   scheme: "light" | "dark";
   mode: ThemeMode;
@@ -17,6 +20,8 @@ interface ThemeCtx {
   fonts: typeof fonts;
   shadow: typeof shadow;
   space: typeof space;
+  /** Scheme-abhängiger Akzent-Tint: hell → `*TintLight`, dunkel → `*TintDark`. */
+  tint: (name: TintName) => string;
 }
 
 const Ctx = createContext<ThemeCtx | null>(null);
@@ -51,6 +56,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       fonts,
       shadow,
       space,
+      tint: (name: TintName) =>
+        (accent as Record<string, string>)[`${name}Tint${scheme === "dark" ? "Dark" : "Light"}`],
     }),
     [scheme, mode, setMode]
   );

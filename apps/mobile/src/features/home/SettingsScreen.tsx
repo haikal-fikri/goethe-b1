@@ -1,11 +1,12 @@
-import React, { useState } from "react";
-import { View, Alert } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Alert, Image, TextInput, Pressable } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { useTheme, type ThemeMode } from "../../theme/ThemeProvider";
 import { AppText, Eyebrow, Card, ListRow, Loading } from "../../components/ui";
 import { Segmented } from "../../components/widgets";
-import { useProfile, useLanguages } from "../../lib/hooks";
+import { useProfile, useLanguages, useAvatarUrl } from "../../lib/hooks";
 import { useSession } from "../../lib/session";
-import { authedFetch } from "../../lib/api";
+import { authedFetch, uploadAvatar } from "../../lib/api";
 import { upsertProfile } from "../../lib/db";
 import { useQueryClient } from "@tanstack/react-query";
 import { LEVELS } from "@repo/types";
@@ -16,16 +17,49 @@ const FLAG: Record<string, string> = { en: "🇬🇧", id: "🇮🇩", tr: "🇹
 
 // 10 · Einstellungen — Profil, Prüfung, Anmeldung, Erscheinungsbild, Sprache, Daten.
 export function SettingsScreen() {
-  const { c, mode, setMode, accent } = useTheme();
+  const { c, mode, setMode, accent, fonts } = useTheme();
   const { session, signOut } = useSession();
   const profile = useProfile();
   const languages = useLanguages();
+  const avatar = useAvatarUrl();
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
+  const [nameDraft, setNameDraft] = useState("");
   const uid = session?.user.id;
+
+  // Namensentwurf mit dem geladenen Profil synchronisieren (useState-Init greift nur beim Loading-Render).
+  useEffect(() => { setNameDraft(profile.data?.displayName ?? ""); }, [profile.data?.displayName]);
 
   if (profile.isLoading) return <Loading />;
   const p = profile.data;
+  const initials = (p?.displayName || "?").trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase() || "?";
+
+  // Anzeigename ändern — Schreibpfad existiert (upsertProfile whitelistet display_name, ≤80).
+  const saveName = async () => {
+    const v = nameDraft.trim().slice(0, 80);
+    if (!uid || v === (p?.displayName ?? "")) return;
+    await upsertProfile(uid, { displayName: v || null });
+    qc.invalidateQueries({ queryKey: ["profile"] });
+  };
+
+  // Profilbild wählen → geroutet hochladen (resize/webp/EXIF-strip serverseitig) → signierte URL cachen.
+  const pickAvatar = async () => {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) { Alert.alert("Kein Zugriff", "Erlaube den Fotozugriff, um ein Profilbild zu wählen."); return; }
+    const r = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"], allowsEditing: true, aspect: [1, 1], quality: 0.6, base64: true,
+    });
+    if (r.canceled || !r.assets?.[0]?.base64) return;
+    setBusy(true);
+    try {
+      const signed = await uploadAvatar(r.assets[0].base64);
+      if (uid) qc.setQueryData(["avatarUrl", uid], signed);
+      qc.invalidateQueries({ queryKey: ["profile"] });
+    } catch (e) {
+      const err = e as Error & { status?: number };
+      Alert.alert("Fehler", err.status === 413 ? "Das Bild ist zu groß (max. 2 MB)." : "Bild konnte nicht hochgeladen werden.");
+    } finally { setBusy(false); }
+  };
 
   const setLang = async (code: string) => {
     if (!uid) return;
@@ -76,9 +110,30 @@ export function SettingsScreen() {
     <>
       <AppText role="serif" size={26} color={c.textHi} style={{ marginTop: 8, marginBottom: 16 }}>Einstellungen</AppText>
 
-      <Card>
-        <AppText role="uiSemi" size={16} color={c.textHi}>{p?.displayName ?? "Profil"}</AppText>
-        <AppText size={13} color={c.textMuted} style={{ marginTop: 2 }}>{session?.user.email}</AppText>
+      <Card style={{ gap: 14 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
+          {avatar.data ? (
+            <Image source={{ uri: avatar.data }} style={{ width: 56, height: 56, borderRadius: 999 }} />
+          ) : (
+            <View style={{ width: 56, height: 56, borderRadius: 999, backgroundColor: accent.lila + "26", alignItems: "center", justifyContent: "center" }}>
+              <AppText role="uiSemi" size={18} color={accent.lila}>{initials}</AppText>
+            </View>
+          )}
+          <View style={{ flex: 1 }}>
+            <AppText size={13} color={c.textMuted}>{session?.user.email}</AppText>
+            <Pressable onPress={pickAvatar} hitSlop={6} disabled={busy} accessibilityRole="button" accessibilityLabel="Profilbild ändern" style={{ marginTop: 4 }}>
+              <AppText size={13} color={accent.lila}>Profilbild ändern</AppText>
+            </Pressable>
+          </View>
+        </View>
+        <View>
+          <Eyebrow>Anzeigename</Eyebrow>
+          <TextInput
+            value={nameDraft} onChangeText={setNameDraft} onBlur={saveName} onSubmitEditing={saveName}
+            maxLength={80} placeholder="Dein Name" placeholderTextColor={c.textFaint} returnKeyType="done"
+            style={{ marginTop: 6, color: c.textHi, fontFamily: fonts.uiSemi, fontSize: 16, paddingVertical: 4 }}
+          />
+        </View>
       </Card>
 
       <View style={{ height: 18 }} />

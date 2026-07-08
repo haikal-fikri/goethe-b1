@@ -89,3 +89,29 @@ export async function POST(request: Request) {
     { headers: { "Cache-Control": "no-store" } }
   );
 }
+
+// Re-signiert den gespeicherten avatar_url-Schlüssel (signierte URLs verfallen nach ~1 h),
+// damit der Client das Profilbild auch nach App-Neustarts anzeigen kann. Kein Body.
+export async function GET(request: Request) {
+  const requestId = newRequestId();
+  let auth: Awaited<ReturnType<typeof requireUser>> = null;
+  try {
+    auth = await requireUser(request);
+  } catch (e) {
+    if (e instanceof RateLimitError) return apiError(429, "rate_limited", "Zu viele Anfragen.", { requestId, retryAfter: e.retryAfterSec });
+    throw e;
+  }
+  if (!auth) return apiError(401, "unauthorized", "Nicht autorisiert.", { requestId });
+  if (!supabaseServiceConfigured()) return apiError(503, "internal_error", "Nicht verfügbar.", { requestId });
+
+  const service = supabaseService();
+  const { data: prof } = await service.from("profiles").select("avatar_url").eq("id", auth.user.id).maybeSingle();
+  const key = prof?.avatar_url ?? null;
+  if (!key) return Response.json({ avatarKey: null, signedUrl: null }, { headers: { "Cache-Control": "no-store" } });
+
+  const signed = await service.storage.from("avatars").createSignedUrl(key, 3600);
+  return Response.json(
+    { avatarKey: key, signedUrl: signed.data?.signedUrl ?? null },
+    { headers: { "Cache-Control": "no-store" } }
+  );
+}

@@ -2,6 +2,9 @@
 // hardcoden — immer aus dem Theme lesen. Akzente/CEFR/Radien sind über beide
 // Themes geteilt; der Primary-Button invertiert (Tinte auf hell, Papier auf dunkel).
 
+// Tints: `*TintLight` für helles Theme, `*TintDark` (transparente Akzent-Lasuren) für
+// dunkles Theme. IMMER über useTheme().tint(name) lesen, nie eine Tint-Konstante direkt —
+// sonst bleibt die Karte im Dark Mode hell (siehe README „Nie Hex in Komponenten").
 export const accent = {
   gruen: "#1C8A5B",
   gruenAlt: "#2E9E6B",
@@ -11,17 +14,21 @@ export const accent = {
   blau: "#2B7FD4",
   blauDarkText: "#5B9BE0",
   blauTintLight: "#E7F0FA",
+  blauTintDark: "rgba(43,127,212,0.18)",
   lila: "#7A52D9",
   lilaDark: "#9D78E6",
   lilaTintLight: "#F0EAFA",
+  lilaTintDark: "rgba(122,82,217,0.20)",
   gold: "#DD8A22",
   goldText: "#B96F12",
   goldHi: "#FFC95C",
   goldTintLight: "#FBF0DD",
+  goldTintDark: "rgba(221,138,34,0.18)",
   rot: "#D6463C",
   rotText: "#C0392E",
   rotDark: "#E8776C",
   rotTintLight: "#FBE9E7",
+  rotTintDark: "rgba(214,70,60,0.18)",
 } as const;
 
 export const cefr = {
@@ -86,7 +93,7 @@ const dark: ThemeColors = {
   primaryBtnBg: "#F3EEE6",
   primaryBtnFg: "#1C1815",
   islandBg: "rgba(34,29,23,0.84)",
-  islandBorder: "rgba(255,255,255,0.10)",
+  islandBorder: "rgba(255,255,255,0.12)", // R4: Schatten trägt auf dunklem BG kaum — Border trennt
 };
 
 export const palettes = { light, dark } as const;
@@ -102,7 +109,7 @@ export const shadow = {
   island: {
     shadowColor: "#1C1814",
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.14,
+    shadowOpacity: 0.16, // R4: etwas mehr BG-Trennung (Schatten war zuvor iOS-geclippt)
     shadowRadius: 22,
     elevation: 10,
   },

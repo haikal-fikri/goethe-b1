@@ -64,6 +64,9 @@ export function UebenAreaScreen() {
   // Anzahl der Wendungen einer Funktion IM gewählten Niveau-Filter.
   const scopedCount = (f: { levels: string[]; countByLevel: Record<string, number> }) =>
     f.levels.reduce((n, lvl) => n + (inLevelScope(lvl as "B1", scope, examLevel) ? (f.countByLevel[lvl] ?? 0) : 0), 0);
+  // Niveaus einer Funktion im gewählten Filter → Badges folgen der Auswahl (exam=1, „Alle"=alle inline).
+  const scopedLevels = (f: { levels: string[] }) =>
+    f.levels.filter((lvl) => inLevelScope(lvl as "B1", scope, examLevel));
 
   if (isLoading) return <Loading />;
   if (!group) return null;
@@ -85,7 +88,11 @@ export function UebenAreaScreen() {
                     <ListRow
                       title={f.functionName}
                       subtitle={`${scopedCount(f)} Wendungen`}
-                      right={<LevelBadge level={f.levels[0] ?? "B1"} />}
+                      right={
+                        <View style={{ flexDirection: "row", gap: 4, flexWrap: "wrap", justifyContent: "flex-end", maxWidth: 120 }}>
+                          {scopedLevels(f).map((lvl) => <LevelBadge key={lvl} level={lvl} />)}
+                        </View>
+                      }
                       // BUG-7: Sprechen → Sprechen-Player; sonst Wortbank/Cloze. Niveau-Scope mitgeben.
                       onPress={() => nav.navigate(skill === "sprechen" ? "Speaking" : "Exercise", { lessonId: f.lessonId, levelScope: scope })}
                     />
