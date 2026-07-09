@@ -8,4 +8,6 @@ export * from "./examPrompt";
 export * from "./adminSchema";
 export * from "./content";
 export * from "./requestSchemas";
+export * from "./teacherSchemas";
+export * from "./fairUse";
 export * from "./apiError";

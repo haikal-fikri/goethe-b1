@@ -29,7 +29,7 @@ const SCALE_6: BandPoints = { A: 6, B: 4.5, C: 3, D: 1.5, E: 0 };
 
 export const PASS_RATIO = 0.6;
 
-function scaleFor(aufgabe: AufgabeNr, key: CriterionKey): BandPoints {
+export function scaleFor(aufgabe: AufgabeNr, key: CriterionKey): BandPoints {
   if (aufgabe === 3) {
     if (key === "erfuellung" || key === "kohaerenz") return SCALE_4;
     return SCALE_6; // wortschatz, strukturen
@@ -46,7 +46,50 @@ export function criterionPoints(
   return { punkte: scale[band], maxPunkte: scale.A };
 }
 
-const round1 = (n: number) => Math.round(n * 10) / 10;
+export const round1 = (n: number) => Math.round(n * 10) / 10;
+
+/** Kanonische Reihenfolge der vier Schreiben-Kriterien (Punkte-Neuberechnung). */
+export const WRITING_CRITERION_KEYS: CriterionKey[] = [
+  "erfuellung",
+  "kohaerenz",
+  "wortschatz",
+  "strukturen",
+];
+
+export interface RecomputedCriterion {
+  key: CriterionKey;
+  band: CriterionBand;
+  punkte: number;
+  maxPunkte: number;
+}
+export interface RecomputedGrade {
+  criteria: RecomputedCriterion[];
+  gesamtpunkte: number;
+  maxPunkte: number;
+  bestanden: boolean;
+}
+
+/**
+ * Rechnet aus den (Lehrer- oder Modell-)Bändern die Punkte SERVERSEITIG neu —
+ * die einzige vertrauenswürdige Quelle für gesamtpunkte/max_punkte/bestanden
+ * (teacher-lms/04 §2 Invariante 2). Der Klient liefert NIE eine Punktzahl; die
+ * Skala kommt aus der aufgelösten `aufgabe` (Korpus 1|2|3 / Custom 2). Nur
+ * Schreiben (4 Kriterien) — Sprechen (5. Kriterium `aussprache`) wird in Phase 3
+ * mit der dann geklärten Punkteskala ergänzt.
+ */
+export function pointsFromBands(
+  aufgabe: AufgabeNr,
+  bands: Record<CriterionKey, CriterionBand>
+): RecomputedGrade {
+  const criteria = WRITING_CRITERION_KEYS.map((key) => {
+    const { punkte, maxPunkte } = criterionPoints(aufgabe, key, bands[key]);
+    return { key, band: bands[key], punkte, maxPunkte };
+  });
+  const gesamtpunkte = round1(criteria.reduce((s, c) => s + c.punkte, 0));
+  const maxPunkte = criteria.reduce((s, c) => s + c.maxPunkte, 0);
+  const bestanden = gesamtpunkte >= PASS_RATIO * maxPunkte;
+  return { criteria, gesamtpunkte, maxPunkte, bestanden };
+}
 
 /** Baut aus den Modell-Bändern die vollständige, punktierte Bewertung. */
 export function buildGrade(task: ExamTask, model: ExamGradeModel): ExamGrade {

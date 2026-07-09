@@ -46,12 +46,17 @@ export const resetProgressSchema = z.object({
   includeExamHistory: z.boolean().default(false),
 });
 
-// --- Sprechen (DEFERRED — spezifiziert, in v1 nicht verdrahtet) ---
+// --- Sprechen (Teacher-LMS · teacher-lms/04 §3.1) ---
 
+/**
+ * POST /api/speaking/submit — Body ist NUR `{assignmentId}` (04 §3.1): der Server
+ * generiert den audio_key, pinnt Content-Type/-Length beim R2-Presign und prüft
+ * die Dauer serverseitig per ffprobe neu (Client-Dauer wird nie vertraut).
+ * (Reconciled aus der mobile-v1-Skizze mit durationMs/contentType — beide werden
+ * vom Teacher-LMS-Kontrakt nicht benutzt und wären ein Trust-Footgun.)
+ */
 export const speakingSubmitSchema = z.object({
   assignmentId: z.uuid(),
-  durationMs: z.number().int().min(0).max(300000),
-  contentType: z.enum(["audio/m4a", "audio/mp4", "audio/aac"]),
 });
 export type SpeakingSubmitInput = z.infer<typeof speakingSubmitSchema>;
 
