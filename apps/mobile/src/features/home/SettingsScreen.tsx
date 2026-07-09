@@ -3,7 +3,7 @@ import { View, Alert, Image, TextInput, Pressable } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useTheme, type ThemeMode } from "../../theme/ThemeProvider";
 import { AppText, Eyebrow, Card, ListRow, Loading } from "../../components/ui";
-import { Segmented } from "../../components/widgets";
+import { Segmented, Calendar } from "../../components/widgets";
 import { useProfile, useLanguages, useAvatarUrl } from "../../lib/hooks";
 import { useSession } from "../../lib/session";
 import { authedFetch, uploadAvatar } from "../../lib/api";
@@ -15,6 +15,14 @@ import type { CEFRLevel } from "@repo/types";
 // Flaggen-Emoji je Sprachcode (Labels selbst kommen aus der languages-Tabelle).
 const FLAG: Record<string, string> = { en: "🇬🇧", id: "🇮🇩", tr: "🇹🇷", ar: "🇸🇦", uk: "🇺🇦", ru: "🇷🇺", es: "🇪🇸" };
 
+// Prüfungstermin-Label: „14. September 2026 · in N Tg." — new Date(iso) wie HomeScreen (gleiche „in N Tagen").
+const examDateLabel = (iso: string) => {
+  const d = new Date(iso);
+  const days = Math.ceil((d.getTime() - Date.now()) / 86400000);
+  const date = d.toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" });
+  return days > 0 ? `${date} · in ${days} Tg.` : days === 0 ? `${date} · heute` : date;
+};
+
 // 10 · Einstellungen — Profil, Prüfung, Anmeldung, Erscheinungsbild, Sprache, Daten.
 export function SettingsScreen() {
   const { c, mode, setMode, accent, fonts } = useTheme();
@@ -25,6 +33,7 @@ export function SettingsScreen() {
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
   const [nameDraft, setNameDraft] = useState("");
+  const [showCal, setShowCal] = useState(false);
   const uid = session?.user.id;
 
   // Namensentwurf mit dem geladenen Profil synchronisieren (useState-Init greift nur beim Loading-Render).
@@ -75,6 +84,13 @@ export function SettingsScreen() {
     if (!uid) return;
     await upsertProfile(uid, { level });
     qc.invalidateQueries(); // Profil + Fortschritt + Readiness neu laden
+  };
+
+  // Prüfungstermin setzen/ändern/entfernen. Fließt in keine Server-View → nur „profile" neu laden.
+  const setExamDate = async (iso: string | null) => {
+    if (!uid) return;
+    await upsertProfile(uid, { examDate: iso });
+    qc.invalidateQueries({ queryKey: ["profile"] });
   };
 
   const resetProgress = () =>
@@ -143,6 +159,25 @@ export function SettingsScreen() {
         options={LEVELS.map((l) => ({ label: l, value: l }))}
         value={(p?.level ?? "B1") as CEFRLevel} onChange={setLevel}
       />
+
+      {/* Prüfungstermin — im Onboarding optional; hier nachträglich setz-/änder-/entfernbar. Steuert Home-Countdown + On-Track-Rampe. */}
+      <Pressable onPress={() => setShowCal((v) => !v)} accessibilityRole="button" accessibilityLabel="Prüfungstermin"
+        style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 14 }}>
+        <AppText size={14} color={c.textHi}>Prüfungstermin</AppText>
+        <AppText size={13} color={p?.examDate ? c.textBody : c.textMuted}>
+          {p?.examDate ? examDateLabel(p.examDate) : "Nicht festgelegt"}  {showCal ? "▲" : "▼"}
+        </AppText>
+      </Pressable>
+      {showCal && (
+        <View style={{ marginTop: 10, gap: 8 }}>
+          <Calendar value={p?.examDate ?? null} onChange={(iso) => { setExamDate(iso); setShowCal(false); }} />
+          {p?.examDate && (
+            <Pressable onPress={() => { setExamDate(null); setShowCal(false); }} accessibilityRole="button" accessibilityLabel="Termin entfernen">
+              <AppText size={13} color={accent.rotText} align="center">Termin entfernen</AppText>
+            </Pressable>
+          )}
+        </View>
+      )}
 
       <View style={{ height: 18 }} />
       <Eyebrow>Erscheinungsbild</Eyebrow>

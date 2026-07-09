@@ -14,6 +14,11 @@ import { getDeadline, setDeadline as storeDeadline, clearDeadline, getActiveSim,
 import { gradeStream, type GradeEvent } from "../../lib/api";
 import type { ExamGrade, ExamResult, ExamTask, AufgabeNr } from "@repo/types";
 
+// ⚠️ Prüfungsintegrität: Kopieren/Einfügen im Prüfungs-Editor (Screen-Capture-Block-Ergänzung).
+// TEMP `true`, damit Beispieltexte zum AI-Testen eingefügt werden können.
+// VOR Release / echten Prüfungen wieder auf `false` setzen (dann ist Einfügen blockiert).
+const ALLOW_EXAM_PASTE = true;
+
 // 23 · Prüfen (KI-Prüfer Landing) — Simulation 1–4 + Aufgabe 1/2/3.
 export function PruefenLandingScreen() {
   const { c, accent, tint } = useTheme();
@@ -280,10 +285,10 @@ export function ExamScreen() {
             </View>
           ) : null}
         </Card>
-        {/* Kopieren/Einfügen deaktiviert (Prüfungsintegrität) — ergänzt den Screen-Capture-Block */}
+        {/* Kopieren/Einfügen: via ALLOW_EXAM_PASTE (oben) gesteuert — TEMP an fürs AI-Testen. */}
         <TextInput
           value={text} onChangeText={onChange} multiline editable={!locked}
-          contextMenuHidden selectTextOnFocus={false}
+          contextMenuHidden={!ALLOW_EXAM_PASTE} selectTextOnFocus={false}
           placeholder="Schreibe hier deinen Text…" placeholderTextColor={c.textFaint}
           style={{ marginTop: 12, minHeight: 220, borderRadius: radius.card, borderWidth: 1, borderColor: c.border, backgroundColor: c.surface, padding: 14, color: c.textHi, fontFamily: fonts.mono, fontSize: 14, lineHeight: 22, textAlignVertical: "top", opacity: locked ? 0.6 : 1 }}
         />

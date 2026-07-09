@@ -170,6 +170,29 @@ export interface AssignmentSubmission {
   createdAt: string;
 }
 
+// --- 0015 · Klasse-Read-RPCs (LIVE-Runtime) ---
+// Rückgabeformen der SECURITY-DEFINER-RPCs my_classes() / class_leaderboard():
+// liefern, was einem eingeschriebenen Schüler unter 0008-RLS NICHT direkt lesbar
+// ist (Lehrkraft-Name, aktive Mitgliederzahl, klassenweite Wochen-Rangliste).
+
+export interface EnrolledClass {
+  classId: string;
+  name: string;
+  joinCode: string;
+  teacherId: string;
+  teacherName: string | null; // display_name der Lehrkraft (kann NULL sein)
+  memberCount: number; // aktive Mitglieder
+  enrolledAt: string;
+}
+
+export interface ClassLeaderboardEntry {
+  rank: number;
+  userId: string;
+  displayName: string | null; // im UI zu „Vorname N." verkürzt
+  points: number; // Punkte der laufenden ISO-Woche
+  isMe: boolean;
+}
+
 // --- 0009 · Sprechen (DEFERRED-Runtime) ---
 
 export type SpeakingStatus =

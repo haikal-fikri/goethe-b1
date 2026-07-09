@@ -3,7 +3,7 @@ import {
   View, Text, Pressable, ScrollView, ActivityIndicator, StyleSheet,
   type ViewStyle, type TextStyle, type StyleProp,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../theme/ThemeProvider";
 import { HeartIcon } from "./icons";
 import { cefr as CEFR } from "../theme/tokens";
@@ -236,5 +236,37 @@ export function Loading({ label }: { label?: string }) {
       <ActivityIndicator color={c.textMuted} />
       {label ? <AppText color={c.textMuted} size={13} style={{ marginTop: 10 }}>{label}</AppText> : null}
     </Center>
+  );
+}
+
+/** Game-over-Panel („Keine Herzen mehr") — Übung + Sprechen teilen es. Vollbild-Ersatz
+ *  fürs Übungs-Item; bietet Neustart (volle Herzen) + Beenden. */
+export function GameOver({ heartsStart, mastered, total, onRetry, onExit }: {
+  heartsStart: number; mastered: number; total: number; onRetry: () => void; onExit: () => void;
+}) {
+  const { c, accent, tint } = useTheme();
+  const insets = useSafeAreaInsets();
+  return (
+    <View style={{ flex: 1, backgroundColor: c.bg, paddingHorizontal: 22, paddingTop: 90, alignItems: "center" }}>
+      <View style={{ width: 84, height: 84, borderRadius: 999, backgroundColor: tint("rot"), alignItems: "center", justifyContent: "center" }}>
+        <HeartIcon size={44} strokeWidth={1.9} color={accent.rot} />
+      </View>
+      <AppText role="serif" size={26} color={c.textHi} style={{ marginTop: 18 }}>Keine Herzen mehr</AppText>
+      <AppText size={14} color={c.textMuted} align="center" lh={20} style={{ marginTop: 6 }}>
+        Diese Runde ist vorbei. Versuch es noch einmal mit vollen Herzen.
+      </AppText>
+      <View style={{ marginTop: 18 }}>
+        <Hearts start={heartsStart} left={0} />
+      </View>
+      <Card style={{ marginTop: 22, alignSelf: "stretch", alignItems: "center", paddingVertical: 16 }}>
+        <AppText role="serif" size={24} color={c.textHi}>{mastered}/{total}</AppText>
+        <AppText size={11.5} color={c.textMuted} style={{ marginTop: 2 }}>gemeistert</AppText>
+      </Card>
+      <View style={{ flex: 1 }} />
+      <View style={{ alignSelf: "stretch", gap: 10, marginBottom: Math.max(insets.bottom, 16) + 24 }}>
+        <AccentButton label="Nochmal versuchen" onPress={onRetry} />
+        <SecondaryButton label="Beenden" onPress={onExit} />
+      </View>
+    </View>
   );
 }

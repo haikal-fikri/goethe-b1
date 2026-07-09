@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "seed:export": "node scripts/export-seed.mjs"
+    "seed:export": "node scripts/export-seed.mjs",
+    "seed:class-dev": "node scripts/seed-class-dev.mjs"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.39",

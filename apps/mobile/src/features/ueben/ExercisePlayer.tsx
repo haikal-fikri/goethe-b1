@@ -1,15 +1,15 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeProvider";
-import { AppText, Eyebrow, Card, AccentButton, PrimaryButton, LevelBadge, Loading, Center, Hearts } from "../../components/ui";
+import { AppText, Eyebrow, Card, AccentButton, PrimaryButton, LevelBadge, Loading, Center, Hearts, GameOver } from "../../components/ui";
 import { CloseIcon, SpeakerIcon } from "../../components/icons";
 import { WordArrange } from "../../components/WordArrange";
 import { useRedemittel, useProfile } from "../../lib/hooks";
 import { useInvalidateProgress } from "../../lib/hooks";
 import { useSession } from "../../lib/session";
-import { recordAttempt, startSet, type AttemptResult } from "../../lib/db";
+import { recordAttempt, startSet, abandonSession, type AttemptResult } from "../../lib/db";
 import {
   buildTiles, arraysEqual, buildClozePills, clozeBlanks, parseCloze, makeLessonId, pickExerciseKind,
   inLevelScope, type LevelScope, type Tile,
@@ -54,12 +54,14 @@ export function ExercisePlayer() {
   const [mastered, setMastered] = useState(0);
   const [ready, setReady] = useState(false);
   const [present, setPresent] = useState(0); // erhöht sich bei jedem Wechsel → ExerciseItem-Reset
+  const [gameOver, setGameOver] = useState(false); // Herzen leer → Runde vorbei (nur echte Session)
   const startedRef = useRef(false);
 
-  // Serverseitiges Set starten (einmal), sonst Fallback auf lokale Lektion.
-  useEffect(() => {
-    if (startedRef.current || !all) return;
-    startedRef.current = true;
+  // Serverseitiges Set starten (Mount + Retry), sonst Fallback auf lokale Lektion.
+  const startSession = useCallback(async () => {
+    setGameOver(false); setReady(false);
+    setSessionId(null); setHeartsStart(0); setHeartsLeft(0);
+    setQueue([]); setMastered(0); setPresent(0);
     const useFallback = () => {
       const ids = fallbackIds.slice(0, 12);
       setSessionId(null); setHeartsStart(0); setHeartsLeft(0);
@@ -67,15 +69,29 @@ export function ExercisePlayer() {
       setQueue(ids); setTotal(ids.length); setReady(true);
     };
     if (!uid) { useFallback(); return; }
-    startSet(lessonId, mode, levelScope)
-      .then((r) => {
-        if ("error" in r || !r.items?.length) return useFallback();
-        setSessionId(r.sessionId); setHeartsStart(r.hearts); setHeartsLeft(r.hearts);
-        setKinds(new Map(r.items.map((it) => [it.id, it.kind])));
-        setQueue(r.items.map((it) => it.id)); setTotal(r.items.length); setReady(true);
-      })
-      .catch(useFallback);
-  }, [all, uid, lessonId, mode, fallbackIds]);
+    const r = await startSet(lessonId, mode, levelScope).catch(() => null);
+    if (!r || "error" in r || !r.items?.length) return useFallback();
+    setSessionId(r.sessionId); setHeartsStart(r.hearts); setHeartsLeft(r.hearts);
+    setKinds(new Map(r.items.map((it) => [it.id, it.kind])));
+    setQueue(r.items.map((it) => it.id)); setTotal(r.items.length); setReady(true);
+  }, [uid, lessonId, mode, levelScope, fallbackIds]);
+
+  useEffect(() => {
+    if (startedRef.current || !all) return;
+    startedRef.current = true; // einmal beim Mount; Retry ruft startSession direkt (kein Reset von startedRef)
+    startSession();
+  }, [all, startSession]);
+
+  // Nach Game-over: alte (0-Herzen-)Session verwerfen (sonst resumt daily_mix sie) → frisch starten.
+  const retry = useCallback(async () => {
+    if (sessionId) await abandonSession(sessionId).catch(() => {});
+    await startSession();
+  }, [sessionId, startSession]);
+
+  const handleExit = useCallback(() => {
+    if (sessionId) abandonSession(sessionId).catch(() => {}); // auch beim Beenden aufräumen (daily_mix-Resume-Falle)
+    nav.goBack();
+  }, [sessionId, nav]);
 
   const finish = (comp?: AttemptResult["result"]) => {
     invalidate();
@@ -101,6 +117,10 @@ export function ExercisePlayer() {
 
   // Nach „Weiter": Queue fortschreiben (korrekt → raus, falsch → ans Ende) + evtl. Abschluss.
   const advance = (correct: boolean, comp?: AttemptResult["result"]) => {
+    // Game-over: echte Session, mit Herzen gestartet, jetzt bei 0, Set nicht fertig → Runde stoppen.
+    if (sessionId != null && heartsStart > 0 && heartsLeft === 0 && !comp?.completed) {
+      invalidate(); setGameOver(true); return; // Queue nicht anfassen — Retry verwirft sie ohnehin
+    }
     setQueue((q) => {
       const [head, ...rest] = q;
       const next = correct ? rest : [...rest, head];
@@ -112,6 +132,7 @@ export function ExercisePlayer() {
   };
 
   if (isLoading || !ready) return <Loading label="Übung wird geladen…" />;
+  if (gameOver) return <GameOver heartsStart={heartsStart} mastered={mastered} total={total} onRetry={retry} onExit={handleExit} />;
   const currentId = queue[0];
   const item = currentId ? byId.get(currentId) : undefined;
   if (!item) return <Center><AppText color={undefined}>Keine Übungen in dieser Kategorie.</AppText></Center>;

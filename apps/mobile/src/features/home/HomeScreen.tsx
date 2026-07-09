@@ -4,8 +4,9 @@ import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeProvider";
 import { AppText, Eyebrow, Card, LevelBadge } from "../../components/ui";
 import { ReadinessRings } from "../../components/widgets";
-import { FlameIcon, SKILL_ICON } from "../../components/icons";
-import { useProfile, useMyDaily, useMyReadiness, useMyDailyStatus, useDailyMixToday, useReadinessDelta, useAvatarUrl, computeStreak } from "../../lib/hooks";
+import { FlameIcon, PeopleIcon, SKILL_ICON } from "../../components/icons";
+import { useProfile, useMyDaily, useMyReadiness, useMyDailyStatus, useDailyMixToday, useReadinessDelta, useAvatarUrl, useMyClasses, computeStreak } from "../../lib/hooks";
+import { useFeatureFlags } from "../../lib/featureFlags";
 import { SKILL_LABEL } from "@repo/types";
 import type { Module } from "@repo/types";
 
@@ -23,6 +24,11 @@ export function HomeScreen() {
   const dailyMix = useDailyMixToday();
   const avatar = useAvatarUrl();
   const { weekAgoOverall } = useReadinessDelta();
+  // 09 · „Deine Klasse"-Karte — nur bei aktivem class_enabled UND Einschreibung
+  // (der enabled-Gate hält my_classes() bei Flag-aus aus; setzt 0015 nicht voraus).
+  const { classEnabled } = useFeatureFlags();
+  const myClasses = useMyClasses({ enabled: classEnabled });
+  const enrolledClass = classEnabled ? myClasses.data?.[0] : undefined;
 
   const streak = computeStreak(daily.data ?? []);
   const name = profile.data?.displayName ?? "";
@@ -181,6 +187,37 @@ export function HomeScreen() {
           );
         })}
       </View>
+
+      {/* 09 · Deine Klasse (class_enabled) — unter „Lernen". Eingeschrieben →
+          Zusammenfassung; sonst Aufforderung, einer Klasse beizutreten. → Klasse-Tab. */}
+      {classEnabled && (enrolledClass || !myClasses.isLoading) ? (
+        <>
+          <View style={{ marginTop: 22, marginBottom: 9 }}><Eyebrow>Deine Klasse</Eyebrow></View>
+          {enrolledClass ? (
+            <Card onPress={() => nav.navigate("Klasse")} style={{ backgroundColor: c.primaryBtnBg, flexDirection: "row", alignItems: "center", gap: 12 }}>
+              <LevelBadge level="B1" />
+              <View style={{ flex: 1 }}>
+                <AppText role="uiSemi" size={15} color={c.primaryBtnFg}>{enrolledClass.name}</AppText>
+                <AppText size={12.5} color={c.primaryBtnFg} style={{ opacity: 0.7 }}>
+                  {enrolledClass.memberCount} {enrolledClass.memberCount === 1 ? "Mitglied" : "Mitglieder"}
+                </AppText>
+              </View>
+              <AppText size={18} color={c.primaryBtnFg} style={{ opacity: 0.6 }}>›</AppText>
+            </Card>
+          ) : (
+            <Card onPress={() => nav.navigate("Klasse")} style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+              <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: tint("lila"), alignItems: "center", justifyContent: "center" }}>
+                <PeopleIcon size={20} color={accent.lila} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <AppText role="uiSemi" size={14.5} color={c.textHi}>Einer Klasse beitreten</AppText>
+                <AppText size={12.5} color={c.textMuted} style={{ marginTop: 2 }}>Mit dem Code deiner Lehrkraft oder über unsere Website</AppText>
+              </View>
+              <AppText size={18} color={c.textFaint}>›</AppText>
+            </Card>
+          )}
+        </>
+      ) : null}
     </>
   );
 }

@@ -4,7 +4,7 @@ import * as Notifications from "expo-notifications";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "../../theme/ThemeProvider";
 import { AppText, Eyebrow, PrimaryButton, AccentButton, Card, LevelBadge } from "../../components/ui";
-import { StepDots, Toggle } from "../../components/widgets";
+import { StepDots, Toggle, Calendar } from "../../components/widgets";
 import { CheckCircle, LockIcon } from "../../components/icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSession } from "../../lib/session";
@@ -142,7 +142,7 @@ export function OnboardingScreen() {
         <AppText role="serif" size={25} color={c.textHi} style={{ marginTop: 20 }}>Wann ist deine Prüfung?</AppText>
         <AppText size={14} color={c.textMuted} style={{ marginTop: 6 }}>Optional — hilft dir, dranzubleiben.</AppText>
         <View style={{ marginTop: 20, gap: 10 }}>
-          <MiniDate value={examDate} onChange={setExamDate} />
+          <Calendar value={examDate} onChange={setExamDate} />
           <Pressable onPress={() => { setExamDate(null); setI(4); }}>
             <AppText size={13.5} color={c.textMuted} align="center" style={{ marginTop: 8 }}>Später festlegen</AppText>
           </Pressable>
@@ -166,30 +166,4 @@ export function OnboardingScreen() {
     );
 
   return null;
-}
-
-// Kompakter Monats-Picker (nächste 60 Tage als Grid).
-function MiniDate({ value, onChange }: { value: string | null; onChange: (v: string) => void }) {
-  const { c, accent, fonts } = useTheme();
-  const today = new Date();
-  const days = Array.from({ length: 42 }).map((_, k) => {
-    const d = new Date(today); d.setDate(today.getDate() + k);
-    return d;
-  });
-  return (
-    <Card>
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-        {days.map((d) => {
-          const iso = d.toISOString().slice(0, 10);
-          const sel = iso === value;
-          return (
-            <Pressable key={iso} onPress={() => onChange(iso)}
-              style={{ width: 40, height: 40, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: sel ? accent.gruen : "transparent" }}>
-              <AppText size={13} color={sel ? "#fff" : c.textBody} style={{ fontFamily: fonts.serif }}>{d.getDate()}</AppText>
-            </Pressable>
-          );
-        })}
-      </View>
-    </Card>
-  );
 }

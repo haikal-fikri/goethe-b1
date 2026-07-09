@@ -15,6 +15,10 @@ import type {
   DailyMixRun,
   Language,
   Module,
+  EnrolledClass,
+  Assignment,
+  AssignmentSubmission,
+  ClassLeaderboardEntry,
 } from "@repo/types";
 import type { LevelScope } from "@repo/core";
 import { getSupabase } from "./supabase";
@@ -222,6 +226,11 @@ export async function recordSpeechPractice(
 export async function bumpActiveSeconds(seconds: number): Promise<void> {
   await sb().rpc("bump_active_seconds", { p_seconds: Math.max(0, Math.round(seconds)) });
 }
+/** Verwirft eine (Game-over-)Session, damit ein Retry sie nicht fortsetzt — start_set('daily_mix')
+ *  resumt sonst dieselbe Session bei 0 Herzen. RLS erlaubt DELETE der eigenen practice_sessions-Zeile. */
+export async function abandonSession(sessionId: string): Promise<void> {
+  await sb().from("practice_sessions").delete().eq("id", sessionId);
+}
 
 export async function getMyProgress(uid: string): Promise<ExerciseProgress[]> {
   const { data } = await sb().from("exercise_progress").select("*").eq("user_id", uid);
@@ -262,6 +271,70 @@ export async function getReadinessSnapshots(): Promise<ReadinessSnapshot[]> {
     userId: r.user_id, capturedOn: r.captured_on, overall: r.overall,
     schreiben: r.schreiben, sprechen: r.sprechen, konnektoren: r.konnektoren,
   }));
+}
+
+// ── Klasse (0008 RLS-Reads + 0015 Definer-RPCs) ─────────────────────
+const mapEnrolledClass = (r: Row): EnrolledClass => ({
+  classId: r.class_id, name: r.name, joinCode: r.join_code, teacherId: r.teacher_id,
+  teacherName: r.teacher_name ?? null, memberCount: r.member_count ?? 0, enrolledAt: r.enrolled_at,
+});
+const mapAssignment = (r: Row): Assignment => ({
+  id: r.id, classId: r.class_id, kind: r.kind, title: r.title,
+  simulationId: r.simulation_id ?? null, taskId: r.task_id ?? null,
+  dueAt: r.due_at ?? null, createdAt: r.created_at,
+});
+const mapSubmission = (r: Row): AssignmentSubmission => ({
+  id: r.id, assignmentId: r.assignment_id, studentId: r.student_id, status: r.status,
+  examResultId: r.exam_result_id ?? null, submittedAt: r.submitted_at ?? null,
+  gradedAt: r.graded_at ?? null, createdAt: r.created_at,
+});
+const mapLeaderboardEntry = (r: Row): ClassLeaderboardEntry => ({
+  rank: r.rank, userId: r.user_id, displayName: r.display_name ?? null,
+  points: r.points ?? 0, isMe: Boolean(r.is_me),
+});
+
+/** Eingeschriebene Klassen des Aufrufers (my_classes-RPC: Lehrkraft-Name +
+ *  Mitgliederzahl, die unter 0008-RLS nicht direkt lesbar sind). */
+export async function getMyClasses(): Promise<EnrolledClass[]> {
+  const { data, error } = await sb().rpc("my_classes");
+  if (error) throw error;
+  return ((data as Row[]) ?? []).map(mapEnrolledClass);
+}
+/** Aufgaben einer Klasse (RLS-direkt: „assign read" = is_enrolled(class_id)). */
+export async function getClassAssignments(classId: string): Promise<Assignment[]> {
+  const { data } = await sb().from("assignments").select("*").eq("class_id", classId)
+    .order("due_at", { ascending: true, nullsFirst: false });
+  return (data ?? []).map(mapAssignment);
+}
+/** Eigene Abgaben (RLS-direkt: „asub student select" = student_id = auth.uid()). */
+export async function getMySubmissions(uid: string): Promise<AssignmentSubmission[]> {
+  const { data } = await sb().from("assignment_submissions").select("*").eq("student_id", uid);
+  return (data ?? []).map(mapSubmission);
+}
+/** Klassenweite Wochen-Rangliste (class_leaderboard-RPC, enrollment-gated). */
+export async function getClassLeaderboard(classId: string): Promise<ClassLeaderboardEntry[]> {
+  const { data, error } = await sb().rpc("class_leaderboard", { p_class_id: classId });
+  if (error) throw error;
+  return ((data as Row[]) ?? []).map(mapLeaderboardEntry);
+}
+
+/** find_class_by_code: Vorschau (Klassenname) vor dem Beitritt. null = kein Treffer. */
+export async function findClassByCode(code: string): Promise<{ classId: string; className: string } | null> {
+  const { data, error } = await sb().rpc("find_class_by_code", { p_code: code.trim().toUpperCase() });
+  if (error) return null;
+  const row = ((data as Row[]) ?? [])[0];
+  return row ? { classId: row.class_id, className: row.class_name } : null;
+}
+/** join_class: idempotenter Beitritt per Code. Fehler (roher Code) → { ok:false }. */
+export async function joinClass(code: string): Promise<{ ok: boolean; className?: string; error?: string }> {
+  const { data, error } = await sb().rpc("join_class", { p_code: code.trim().toUpperCase() });
+  if (error) return { ok: false, error: error.message };
+  const row = ((data as Row[]) ?? [])[0];
+  return { ok: true, className: row?.class_name };
+}
+/** leave_class: setzt die eigene Einschreibung auf 'removed'. */
+export async function leaveClass(classId: string): Promise<void> {
+  await sb().rpc("leave_class", { p_class: classId });
 }
 
 // ── Entwürfe (client-direkt, RLS own) ───────────────────────────────

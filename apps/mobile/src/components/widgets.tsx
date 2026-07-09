@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Pressable, Text, StyleSheet } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import { useTheme } from "../theme/ThemeProvider";
@@ -117,3 +117,63 @@ export function Toggle({ value, onChange }: { value: boolean; onChange: (v: bool
 const styles = StyleSheet.create({
   knob: { shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 2, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
 });
+
+// ── Inline-Monatskalender (Zukunft-only): Prüfungstermin in Onboarding + Einstellungen ──
+const WEEKDAYS_DE = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+const pad2 = (n: number) => String(n).padStart(2, "0");
+const isoOf = (y: number, m: number, d: number) => `${y}-${pad2(m + 1)}-${pad2(d)}`; // m 0-basiert; aus Datumsteilen (kein toISOString → keine TZ-Verschiebung)
+const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+export function Calendar({ value, onChange, minDate }: {
+  value: string | null; onChange: (iso: string) => void; minDate?: Date;
+}) {
+  const { c, accent, fonts, radius } = useTheme();
+  const min = startOfDay(minDate ?? new Date());
+  const initial = value ? new Date(`${value}T00:00:00`) : new Date(); // lokal, damit der Startmonat stimmt
+  const [view, setView] = useState(new Date(initial.getFullYear(), initial.getMonth(), 1));
+
+  const y = view.getFullYear();
+  const m = view.getMonth();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const lead = (new Date(y, m, 1).getDay() + 6) % 7; // Montag zuerst
+  const cells: (number | null)[] = [...Array(lead).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
+  const atMinMonth = y < min.getFullYear() || (y === min.getFullYear() && m <= min.getMonth());
+  const shift = (delta: number) => setView(new Date(y, m + delta, 1));
+
+  return (
+    <View style={{ backgroundColor: c.surface, borderWidth: 1, borderColor: c.border, borderRadius: radius.card, padding: 12 }}>
+      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+        <Pressable onPress={() => !atMinMonth && shift(-1)} hitSlop={10} disabled={atMinMonth} accessibilityRole="button" accessibilityLabel="Vorheriger Monat">
+          <Text style={{ fontSize: 22, color: atMinMonth ? c.textFaint : c.textMuted, paddingHorizontal: 6 }}>‹</Text>
+        </Pressable>
+        <Text style={{ fontFamily: fonts.serifMed, fontSize: 16, color: c.textHi }}>
+          {view.toLocaleDateString("de-DE", { month: "long", year: "numeric" })}
+        </Text>
+        <Pressable onPress={() => shift(1)} hitSlop={10} accessibilityRole="button" accessibilityLabel="Nächster Monat">
+          <Text style={{ fontSize: 22, color: c.textMuted, paddingHorizontal: 6 }}>›</Text>
+        </Pressable>
+      </View>
+      <View style={{ flexDirection: "row" }}>
+        {WEEKDAYS_DE.map((w) => (
+          <Text key={w} style={{ flex: 1, textAlign: "center", fontFamily: fonts.uiMed, fontSize: 11, color: c.textFaint }}>{w}</Text>
+        ))}
+      </View>
+      <View style={{ flexDirection: "row", flexWrap: "wrap", marginTop: 4 }}>
+        {cells.map((day, i) => {
+          if (day == null) return <View key={`b${i}`} style={{ width: `${100 / 7}%`, height: 40 }} />;
+          const iso = isoOf(y, m, day);
+          const past = new Date(y, m, day) < min;
+          const sel = iso === value;
+          return (
+            <View key={iso} style={{ width: `${100 / 7}%`, height: 40, alignItems: "center", justifyContent: "center" }}>
+              <Pressable disabled={past} onPress={() => onChange(iso)} accessibilityRole="button"
+                style={{ width: 36, height: 36, borderRadius: 999, alignItems: "center", justifyContent: "center", backgroundColor: sel ? accent.gruen : "transparent" }}>
+                <Text style={{ fontFamily: fonts.serif, fontSize: 14, color: sel ? "#fff" : past ? c.textFaint : c.textBody }}>{day}</Text>
+              </Pressable>
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
+}

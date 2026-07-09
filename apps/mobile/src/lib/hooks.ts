@@ -119,6 +119,58 @@ export function useInvalidateProgress() {
   }, [qc, uid]);
 }
 
+// ── Klasse (0008 Reads + 0015 RPCs) ─────────────────────────────────
+// class_enabled-gated: die Klasse-Screens laufen nur bei aktivem Flag; die
+// Heute-Klassenkarte übergibt `enabled: classEnabled`, damit my_classes() NICHT
+// läuft (und 0015 nicht voraussetzt), solange das Flag aus ist.
+export function useMyClasses(opts?: { enabled?: boolean }) {
+  const { session } = useSession();
+  const uid = session?.user.id;
+  return useQuery({
+    queryKey: ["myClasses", uid],
+    enabled: !!uid && (opts?.enabled ?? true),
+    queryFn: () => db.getMyClasses(),
+  });
+}
+
+export function useClassAssignments(classId: string | undefined) {
+  return useQuery({
+    queryKey: ["classAssignments", classId],
+    enabled: !!classId,
+    queryFn: () => db.getClassAssignments(classId!),
+  });
+}
+
+export function useMySubmissions() {
+  const { session } = useSession();
+  const uid = session?.user.id;
+  return useQuery({ queryKey: ["submissions", uid], enabled: !!uid, queryFn: () => db.getMySubmissions(uid!) });
+}
+
+export function useClassLeaderboard(classId: string | undefined) {
+  return useQuery({
+    queryKey: ["classLeaderboard", classId],
+    enabled: !!classId,
+    queryFn: () => db.getClassLeaderboard(classId!),
+  });
+}
+
+/** Nach Beitritt/Verlassen die Klasse-Caches invalidieren (kein useMutation-Setup). */
+export function useInvalidateClass() {
+  const qc = useQueryClient();
+  const { session } = useSession();
+  const uid = session?.user.id;
+  return useCallback(async () => {
+    if (!uid) return;
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: ["myClasses", uid] }),
+      qc.invalidateQueries({ queryKey: ["submissions", uid] }),
+      qc.invalidateQueries({ queryKey: ["classAssignments"] }), // Präfix-Match über classId
+      qc.invalidateQueries({ queryKey: ["classLeaderboard"] }),
+    ]);
+  }, [qc, uid]);
+}
+
 /**
  * BUG-4 „Woche": Vordergrund-Sitzungszeit erfassen und periodisch (alle 30 s + beim
  * Hintergrund) über bump_active_seconds nach daily_activity.active_seconds flushen.

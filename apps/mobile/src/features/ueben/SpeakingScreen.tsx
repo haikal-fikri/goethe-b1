@@ -8,7 +8,7 @@ import {
   useSpeechRecognitionEvent,
 } from "expo-speech-recognition";
 import { useTheme } from "../../theme/ThemeProvider";
-import { AppText, Eyebrow, Card, AccentButton, SecondaryButton, LevelBadge, Loading, Center, Hearts } from "../../components/ui";
+import { AppText, Eyebrow, Card, AccentButton, SecondaryButton, LevelBadge, Loading, Center, Hearts, GameOver } from "../../components/ui";
 import { CloseIcon, MicIcon, PlayIcon } from "../../components/icons";
 import { WordArrange } from "../../components/WordArrange";
 import { useRedemittel, useProfile, useInvalidateProgress } from "../../lib/hooks";
@@ -61,6 +61,7 @@ export function SpeakingScreen() {
   const [placed, setPlaced] = useState<Tile[]>([]);
   const [result, setResult] = useState<null | boolean>(null);
   const [heartsLost, setHeartsLost] = useState(0);
+  const [gameOver, setGameOver] = useState(false); // Herzen leer → Runde vorbei
   const item = items[idx];
 
   // R3: Zweistufigkeit wie start_set (0012): 3 Herzen bei ≤8 Items, sonst 4.
@@ -112,6 +113,7 @@ export function SpeakingScreen() {
 
   const next = () => {
     if (phaseRef.current === "listening") ExpoSpeechRecognitionModule.abort(); // spätes "end" → no-op auf idle
+    if (heartsLeft === 0) { invalidate().catch(() => {}); setGameOver(true); return; } // Herzen leer (nur falsches Anordnen zieht ab)
     if (item) {
       // Erfolg = Anordnen korrekt geprüft ODER alle Wörter per STT erkannt. Der 3-Versuch-Escape
       // und verweigertes Mikro zählen als Aktivität (Serie), aber NICHT als gemeistert.
@@ -125,11 +127,19 @@ export function SpeakingScreen() {
     if (idx + 1 < items.length) setIdx(idx + 1); else nav.goBack();
   };
 
+  // Game-over-Neustart (lokal, keine Session): gleiches Set ab vorn, volle Herzen.
+  const retry = () => {
+    setGameOver(false); setIdx(0); setHeartsLost(0);
+    setRecognized(""); setPlaced([]); setResult(null); setPhaseSync("idle");
+    setTries(0); setMicDenied(false); setPassed(false);
+  };
+
   useEffect(() => { ensureSpeechAudioMode(); }, []); // R1: Session hörbar machen, bevor der erste Play-Tap kommt
   useEffect(() => () => { ExpoSpeechRecognitionModule.abort(); Speech.stop(); }, []); // Unmount-Cleanup
 
   if (isLoading) return <Loading />;
   if (!item) return <Center><AppText color={c.textMuted}>Keine Sprechübungen verfügbar.</AppText></Center>;
+  if (gameOver) return <GameOver heartsStart={heartsStart} mastered={idx} total={items.length} onRetry={retry} onExit={() => nav.goBack()} />;
 
   const saidWords = new Set(wordsOf(recognized));
   const hit = targetWords.filter((w) => saidWords.has(w)).length;

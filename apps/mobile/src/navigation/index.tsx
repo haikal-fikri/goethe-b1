@@ -22,7 +22,7 @@ import { SpeakingScreen } from "../features/ueben/SpeakingScreen";
 import { UebungAbgeschlossenScreen } from "../features/ueben/UebungAbgeschlossen";
 import { PruefenLandingScreen, ExamScreen, ExamResultScreen } from "../features/pruefen/PruefenScreens";
 import { FortschrittScreen, ProbeScreen } from "../features/fortschritt/FortschrittScreens";
-import { KlasseScreen, KlasseJoinScreen, SprechenTaskScreen, SprechenRecordScreen, SprechenReviewScreen } from "../features/klasse/KlasseScreens";
+import { KlasseScreen, KlasseJoinScreen, KlasseAufgabeScreen, SprechenTaskScreen, SprechenRecordScreen, SprechenReviewScreen } from "../features/klasse/KlasseScreens";
 
 // Fragment-Screens in <Screen> wrappen + optionaler Zurück-Header (kein Native-
 // Header → volle Layout-Kontrolle, SafeAreaView top).
@@ -89,6 +89,7 @@ function KlasseStack() {
     <S.Navigator screenOptions={stackOpts}>
       <S.Screen name="KlasseHome" component={wrap(KlasseScreen, { scroll: false })} />
       <S.Screen name="KlasseJoin" component={KlasseJoinScreen} />
+      <S.Screen name="KlasseAufgabe" component={wrap(KlasseAufgabeScreen, { back: true })} />
       <S.Screen name="SprechenTask" component={SprechenTaskScreen} />
       <S.Screen name="SprechenRecord" component={SprechenRecordScreen} />
       <S.Screen name="SprechenReview" component={wrap(SprechenReviewScreen, { scroll: false })} />
