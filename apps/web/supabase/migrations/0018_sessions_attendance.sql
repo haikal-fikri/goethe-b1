@@ -1,0 +1,7 @@
+-- ============================================================
+--  0018_sessions_attendance — Recurring timetable, sessions, attendance
+--  session_status/attendance_status enums; class_schedules/class_sessions/attendance; is_session_teacher(); generate_sessions() (cron-only); cancel_session()
+--  Depends on: 0008
+--  STUB (teacher-lms Plan Phase 0d) — DDL added in Phase 1.
+--  Applies as a no-op until then (kept in the CI apply loop from 0f).
+-- ============================================================

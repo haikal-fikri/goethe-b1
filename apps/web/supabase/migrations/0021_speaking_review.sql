@@ -1,0 +1,7 @@
+-- ============================================================
+--  0021_speaking_review — Speaking review (transcription-first) + 72h retention
+--  speaking_submissions.transcribed_at + audio_purge_at default 72h; speaking_ai_recommendations (teacher-only); transcribe_budget_hit() mirroring grade_budget_hit/app_global_rate_limits
+--  Depends on: 0009
+--  STUB (teacher-lms Plan Phase 0d) — DDL added in Phase 1.
+--  Applies as a no-op until then (kept in the CI apply loop from 0f).
+-- ============================================================

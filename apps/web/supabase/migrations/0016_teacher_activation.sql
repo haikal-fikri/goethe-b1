@@ -1,0 +1,7 @@
+-- ============================================================
+--  0016_teacher_activation — Plan tiers, caps, class-dashboard visibility, teacher readiness, term duration (D13)
+--  teacher_plan+entitlements.plan; plan_limits(+max_seats)/teacher_plan_of/teacher_active_student_count; trg_enforce_class_cap; classes.term_start/term_end + is_class_locked(); revised teacher-reads (exam_results dashboard; drop attempts/progress reads); teacher_student_readiness()+_readiness_for(); readiness_snap teacher read
+--  Depends on: 0008 (entitlements/classes/app_teacher_can_read), 0013 (v_readiness CTE)
+--  STUB (teacher-lms Plan Phase 0d) — DDL added in Phase 1.
+--  Applies as a no-op until then (kept in the CI apply loop from 0f).
+-- ============================================================

@@ -24,8 +24,31 @@ jobs:
       - name: Mobile typecheck
         working-directory: apps/mobile
         run: npm run typecheck
+      - name: Teacher-web build (TypeScript-Gate · Vercel B)
+        working-directory: apps/teacher-web
+        env:
+          DATABASE_URL: postgres://build:build@localhost:5432/build
+        run: npm run build
+      - name: Admin build (TypeScript-Gate · Vercel C)
+        working-directory: apps/admin
+        env:
+          DATABASE_URL: postgres://build:build@localhost:5432/build
+        run: npm run build
+      - name: Web-Client-Bundle-Audit (kein Server-Secret im Client-Chunk)
+        run: |
+          set -euo pipefail
+          # Nur NEXT_PUBLIC_* dürfen im Client-Bundle (.next/static) stehen.
+          FORBIDDEN='SERVICE_ROLE|service_role|POLAR_ACCESS|POLAR_WEBHOOK|R2_SECRET|R2_ACCESS_KEY|EXPO_ACCESS_TOKEN|CRON_SECRET|SPEECHACE|GROQ_API_KEY|DATABASE_URL|UPSTASH_REDIS_REST_TOKEN|ADMIN_PASSWORD|ADMIN_SESSION_SECRET'
+          for app in web teacher-web admin; do
+            dir="apps/$app/.next/static"
+            [ -d "$dir" ] || continue
+            if grep -REn "$FORBIDDEN" "$dir" 2>/dev/null | grep -q .; then
+              echo "::error::Server-Secret-Name im Client-Bundle von apps/$app"; exit 1
+            fi
+          done
+          echo "web-bundle-audit OK — kein Server-Secret im Client-Chunk"
 
-  # ── DB-Sicherheit: RLS-Matrix (RLS-1..24) + RLS-Lint auf Shadow-DB ──
+  # ── DB-Sicherheit: RLS-Matrix (RLS-1..24 + T-1..T-28b) + RLS-Lint auf Shadow-DB ──
   db-security:
     runs-on: ubuntu-latest
     services:
@@ -54,12 +77,12 @@ jobs:
           MIG=apps/web/supabase/migrations
           T=apps/web/supabase/tests
           psql -v ON_ERROR_STOP=1 -q -f "$T/00_bootstrap_shim.sql"
-          for f in 0001_content_schema 0002_exam_schema 0003_exam_sample_answer \
-                   0004_corrections_and_examples 0005_identity_profiles \
-                   0006_progress_exams 0007_rate_limiting \
-                   0008_classes_entitlements 0009_speaking 0010_gamification \
-                   0011_i18n_and_examples 0012_gamification_v2; do
-            echo "── $f"; psql -v ON_ERROR_STOP=1 -q -f "$MIG/$f.sql"
+          # Apply EVERY shipped migration in order (0001→0026). The loop previously
+          # stopped at 0012 — extended to include 0013–0015 (live) + the additive
+          # teacher-LMS range 0016–0026 (teacher-lms Plan Phase 1). New files are
+          # no-ops until their DDL lands, so this loop is safe from Phase 0 onward.
+          for f in "$MIG"/[0-9][0-9][0-9][0-9]_*.sql; do
+            echo "── $(basename "$f")"; psql -v ON_ERROR_STOP=1 -q -f "$f"
           done
           echo "── RLS-lint";   psql -v ON_ERROR_STOP=1 -f "$T/rls_lint.sql"
           echo "── RLS-matrix"; psql -v ON_ERROR_STOP=1 -f "$T/rls_matrix.sql"
@@ -104,3 +127,31 @@ jobs:
         with: { node-version: 20, cache: npm }
       - run: npm ci
       - run: npm audit signatures
+
+  # ── server-only-Lint: jedes Server-Modul markiert sich, damit ein
+  #    versehentlicher Client-Import beim Build scheitert (teacher-lms/06 §5.2) ──
+  server-only-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assert `import "server-only"` on shared/app server modules
+        run: |
+          set -euo pipefail
+          FILES="
+            packages/server/src/db.ts
+            packages/server/src/log.ts
+            packages/server/src/ratelimit.ts
+            packages/server/src/supabaseServer.ts
+            apps/teacher-web/src/lib/ratelimit.ts
+            apps/teacher-web/src/lib/transcribe.ts
+            apps/teacher-web/src/lib/r2.ts
+            apps/teacher-web/src/lib/polar.ts
+            apps/teacher-web/src/lib/expoPush.ts
+            apps/teacher-web/src/lib/resolveWritingTask.ts
+            apps/admin/src/lib/ratelimit.ts
+          "
+          for f in $FILES; do
+            [ -f "$f" ] || { echo "::error::$f fehlt"; exit 1; }
+            head -5 "$f" | grep -q 'server-only' || { echo "::error::$f fehlt import \"server-only\""; exit 1; }
+          done
+          echo "server-only-lint OK"

@@ -1,0 +1,7 @@
+-- ============================================================
+--  0023_usage_metering — Usage metering (fair-use)
+--  usage_counters (teacher x month); bump_usage() (service-role); usage teacher/admin select
+--  Depends on: 0016
+--  STUB (teacher-lms Plan Phase 0d) — DDL added in Phase 1.
+--  Applies as a no-op until then (kept in the CI apply loop from 0f).
+-- ============================================================

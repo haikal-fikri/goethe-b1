@@ -1,0 +1,7 @@
+-- ============================================================
+--  0017_class_invites — Email invitations + join-code plan-cap override
+--  invite_status enum; class_invites; claim_invites(); teacher_pending_invite_count(); override join_class() with the plan student-cap (base on the 0015 body)
+--  Depends on: 0016
+--  STUB (teacher-lms Plan Phase 0d) — DDL added in Phase 1.
+--  Applies as a no-op until then (kept in the CI apply loop from 0f).
+-- ============================================================

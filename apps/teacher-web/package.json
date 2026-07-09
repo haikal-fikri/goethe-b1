@@ -1,0 +1,36 @@
+{
+  "name": "teacher-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3001",
+    "build": "next build",
+    "start": "next start --port 3001"
+  },
+  "dependencies": {
+    "@ai-sdk/groq": "^3.0.39",
+    "@marsidev/react-turnstile": "^1.5.3",
+    "@phosphor-icons/react": "^2.1.10",
+    "@repo/core": "*",
+    "@repo/server": "*",
+    "@repo/types": "*",
+    "@supabase/supabase-js": "^2.110.0",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.0",
+    "ai": "^6.0.196",
+    "next": "16.2.7",
+    "postgres": "^3.4.9",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "resend": "^6.16.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

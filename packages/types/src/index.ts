@@ -101,6 +101,27 @@ export interface ExamGrade {
   korrekturen?: string[];
 }
 
+/**
+ * D14 — span-anchored inline Korrektur (teacher-authored on the Bewerten page).
+ * DELIBERATELY separate from ExamGrade.korrekturen (the AI's free-text string[],
+ * kept untouched so the shipped student exam flow + Groq strict json_schema are
+ * unaffected). Persisted in assignment_grades.final.inlineKorrekturen (jsonb, no
+ * migration); the grade route validates offsets against the server-stored
+ * answer_text (teacher-lms/04 §2.4, /02 §5.4). Mirror of @repo/core
+ * `korrekturSchema` — keep the two in sync.
+ */
+export interface Korrektur {
+  start: number; // UTF-16 offset into answer_text where the highlight begins (inclusive)
+  end: number; // offset where it ends (exclusive) → 0 ≤ start < end ≤ answer_text.length
+  quote: string; // the selected substring — must equal answer_text.slice(start,end)
+  kind?: "grammatik" | "wortschatz" | "struktur" | "inhalt" | "ausdruck";
+  comment_de: string; // teacher's note, ≤ 500
+  suggestion_de?: string; // optional corrected form
+}
+
+/** Teacher subscription plan derived from the Polar product (entitlements.plan; teacher-lms/02 §1.1). */
+export type TeacherPlan = "starter" | "pro";
+
 export const CRITERION_LABEL: Record<CriterionKey, string> = {
   erfuellung: "Erfüllung",
   kohaerenz: "Kohärenz",

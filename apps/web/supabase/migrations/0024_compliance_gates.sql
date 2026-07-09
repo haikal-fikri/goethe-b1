@@ -1,0 +1,7 @@
+-- ============================================================
+--  0024_compliance_gates — Compliance gates (teacher DPA + guardian consent)
+--  consent_status enum; teacher_agreements (DPA); guardian_consents; teacher_dpa_ok()/guardian_consent_ok()
+--  Depends on: 0008, 0016
+--  STUB (teacher-lms Plan Phase 0d) — DDL added in Phase 1.
+--  Applies as a no-op until then (kept in the CI apply loop from 0f).
+-- ============================================================

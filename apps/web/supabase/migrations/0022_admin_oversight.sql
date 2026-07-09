@@ -1,0 +1,7 @@
+-- ============================================================
+--  0022_admin_oversight — Superadmin oversight + audit
+--  audit_log (ensure-exists) + audit admin read; is_admin() cross-tenant read policies; advisory-lock exam_simulations id allocation note
+--  Depends on: 0005 (is_admin), all above
+--  STUB (teacher-lms Plan Phase 0d) — DDL added in Phase 1.
+--  Applies as a no-op until then (kept in the CI apply loop from 0f).
+-- ============================================================

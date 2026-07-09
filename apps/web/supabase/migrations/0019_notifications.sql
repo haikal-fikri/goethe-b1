@@ -1,0 +1,7 @@
+-- ============================================================
+--  0019_notifications — In-app notifications + push tokens
+--  notification_kind enum; notifications (+pushed_at, read_at column-lock); push_tokens; notify() (definer-only)
+--  Depends on: 0008
+--  STUB (teacher-lms Plan Phase 0d) — DDL added in Phase 1.
+--  Applies as a no-op until then (kept in the CI apply loop from 0f).
+-- ============================================================

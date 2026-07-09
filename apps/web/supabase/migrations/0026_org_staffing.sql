@@ -1,0 +1,7 @@
+-- ============================================================
+--  0026_org_staffing — Organizations, teacher seats, class staffing (Pro, D12)
+--  org_member_role/class_staff_role enums; organizations/org_members/org_invites/class_staff; classes.org_id; has_active_sub()/is_org_owner()/class_sub_active(); create-or-replace is_class_teacher() (lead/owner); new is_class_grader()/is_submission_grader()/is_speaking_grader() (is_speaking_grader JOINS speaking_assignments for class_id); broaden app_teacher_can_read() (invoker->definer); trg_enforce_seat_cap; claim_org_invite()
+--  Depends on: 0008, 0016, 0017, 0020, 0021
+--  STUB (teacher-lms Plan Phase 0d) — DDL added in Phase 1.
+--  Applies as a no-op until then (kept in the CI apply loop from 0f).
+-- ============================================================

@@ -17,6 +17,7 @@
     "@marsidev/react-turnstile": "^1.5.3",
     "@phosphor-icons/react": "^2.1.10",
     "@repo/core": "*",
+    "@repo/server": "*",
     "@repo/types": "*",
     "@supabase/supabase-js": "^2.110.0",
     "@upstash/ratelimit": "^2.0.8",

@@ -1,0 +1,7 @@
+-- ============================================================
+--  0020_writing_review — Writing assignments (corpus/custom) + teacher-review grading
+--  assignments custom cols + assignments_writing_source_ck; assignment_submissions.answer_text/word_count + route-only (drop asub student insert/update; replace asub teacher select); assignment_ai_recommendations (teacher-only); assignment_grades (release-gated); submission_owner()/is_submission_teacher(); assignment_new/speaking notify triggers; reconcile trg_asub_guard for service-role graded write
+--  Depends on: 0008
+--  STUB (teacher-lms Plan Phase 0d) — DDL added in Phase 1.
+--  Applies as a no-op until then (kept in the CI apply loop from 0f).
+-- ============================================================

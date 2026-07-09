@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   // from apps/web) so hoisted root node_modules are included in the bundle.
   outputFileTracingRoot: path.join(__dirname, "../../"),
   // Shared workspace packages ship raw TS source — let Next transpile them.
-  transpilePackages: ["@repo/types", "@repo/core"],
+  transpilePackages: ["@repo/types", "@repo/core", "@repo/server"],
   // Sicherheits-Header (backend/12 §5). HSTS/nosniff/Referrer global;
   // no-store zusätzlich auf allen /api-Routen.
   async headers() {

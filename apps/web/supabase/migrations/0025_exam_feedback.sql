@@ -1,0 +1,7 @@
+-- ============================================================
+--  0025_exam_feedback — Teacher feedback on built-in simulations
+--  exam_result_feedback (release-gated) + exam_result_owner(); feedback route write path
+--  Depends on: 0006 (exam_results), 0016
+--  STUB (teacher-lms Plan Phase 0d) — DDL added in Phase 1.
+--  Applies as a no-op until then (kept in the CI apply loop from 0f).
+-- ============================================================
