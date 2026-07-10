@@ -78,13 +78,26 @@ export async function POST(req: Request) {
       .maybeSingle<{ owner_id: string }>();
     if (org?.owner_id) subscriberId = org.owner_id;
   }
-  const { data: plan } = await svc.rpc("teacher_plan_of", { p_teacher: subscriberId });
-  const { data: limitRows } = await svc.rpc("plan_limits", { p_plan: plan });
+  // FAIL-CLOSED: jeder RPC-Fehler → 500 (nie fail-open). teacher_plan_of coalesct
+  // auf Erfolg immer zu 'starter', also ist plan==null NUR ein Transport-Fehler;
+  // plan_limits(NULL) gäbe sonst max_students=null → Cap übersprungen. max_students
+  // == null NACH fehlerfreiem plan_limits bedeutet echt Pro (unbegrenzt).
+  const { data: plan, error: planErr } = await svc.rpc("teacher_plan_of", { p_teacher: subscriberId });
+  if (planErr || !plan) {
+    return apiError(500, "internal_error", "Plan konnte nicht bestimmt werden.", { requestId });
+  }
+  const { data: limitRows, error: limErr } = await svc.rpc("plan_limits", { p_plan: plan });
+  if (limErr) {
+    return apiError(500, "internal_error", "Plan-Limit konnte nicht bestimmt werden.", { requestId });
+  }
   const maxStudents = (limitRows?.[0] as { max_students: number | null } | undefined)?.max_students ?? null;
   if (maxStudents != null) {
-    const { data: active } = await svc.rpc("teacher_active_student_count", { p_teacher: cls.teacher_id });
-    const { data: pending } = await svc.rpc("teacher_pending_invite_count", { p_teacher: cls.teacher_id });
-    if (Number(active ?? 0) + Number(pending ?? 0) + normalized.length > maxStudents) {
+    const { data: active, error: acErr } = await svc.rpc("teacher_active_student_count", { p_teacher: cls.teacher_id });
+    const { data: pending, error: pendErr } = await svc.rpc("teacher_pending_invite_count", { p_teacher: cls.teacher_id });
+    if (acErr || pendErr || active == null || pending == null) {
+      return apiError(500, "internal_error", "Teilnehmer-Zählung fehlgeschlagen.", { requestId });
+    }
+    if (Number(active) + Number(pending) + normalized.length > maxStudents) {
       return apiError(409, "conflict", `Plan-Limit erreicht: max. ${maxStudents} aktive Teilnehmende. Bitte upgraden.`, {
         requestId,
       });

@@ -15,9 +15,15 @@ export async function pushToUser(
 ): Promise<boolean> {
   try {
     const svc = supabaseService();
-    const { data } = await svc.from("push_tokens").select("token").eq("user_id", userId);
+    const { data, error } = await svc.from("push_tokens").select("token").eq("user_id", userId);
+    // Ein SELECT-Fehler ist NICHT „keine Tokens": false zurückgeben, damit der
+    // push-flush-Cron pushed_at NICHT stampt und es erneut versucht.
+    if (error) {
+      log("push.best-effort", { userId, ok: false, err: error.message });
+      return false;
+    }
     const tokens = (data ?? []).map((r) => (r as { token: string }).token);
-    if (!tokens.length) return true; // nichts zu tun → als erledigt behandeln
+    if (!tokens.length) return true; // wirklich keine Tokens → als erledigt behandeln
     await sendPush(tokens.map((t) => ({ to: t, ...msg })));
     return true;
   } catch (e) {
