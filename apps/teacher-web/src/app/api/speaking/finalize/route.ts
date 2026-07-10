@@ -12,6 +12,7 @@ export const runtime = "nodejs";
 export const maxDuration = 300;
 
 const MAX_DURATION_SEC = 300; // ≤5:00
+const MAX_AUDIO_BYTES = 20 * 1024 * 1024; // ≤20 MB — Ingest-Deckel (presigned PUT kann ihn nicht hart erzwingen)
 
 interface SubRow {
   id: string;
@@ -121,6 +122,15 @@ export async function POST(req: Request) {
     const getUrl = await presignGet(sub.audio_key);
     const res = await fetch(getUrl);
     if (!res.ok) throw new Error(`r2 get ${res.status}`);
+    // Größendeckel VOR dem Puffern: presigned PUT kann keine Content-Length-Range
+    // erzwingen, ein Client könnte also ein überdimensioniertes Objekt hochgeladen
+    // haben. R2 liefert Content-Length beim GET → zu groß ⇒ 422 (Claim zurück),
+    // OHNE das Objekt in den Speicher zu ziehen (OOM-/Egress-Schutz).
+    const declaredBytes = Number(res.headers.get("content-length"));
+    if (Number.isFinite(declaredBytes) && declaredBytes > MAX_AUDIO_BYTES) {
+      await revertClaim();
+      return apiError(422, "validation_failed", "Die Aufnahme ist zu groß (max. 20 MB).", { requestId });
+    }
     const audio = await res.arrayBuffer();
     const { text, durationSec, model } = await transcriber.transcribe(audio, { languageDe: true });
 

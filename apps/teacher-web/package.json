@@ -9,8 +9,11 @@
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.39",
+    "@aws-sdk/client-s3": "^3.1085.0",
+    "@aws-sdk/s3-request-presigner": "^3.1085.0",
     "@marsidev/react-turnstile": "^1.5.3",
     "@phosphor-icons/react": "^2.1.10",
+    "@polar-sh/sdk": "^0.48.1",
     "@repo/core": "*",
     "@repo/server": "*",
     "@repo/types": "*",

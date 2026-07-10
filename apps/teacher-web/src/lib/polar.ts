@@ -1,6 +1,8 @@
 import "server-only";
+import { Polar } from "@polar-sh/sdk";
+import { validateEvent } from "@polar-sh/sdk/webhooks";
 
-// Polar (Merchant-of-Record) — teacher-lms/05 §1. Reine Abbildung + Phase-6-Seams.
+// Polar (Merchant-of-Record) — teacher-lms/05 §1. Reine Abbildung + SDK-Wiring.
 // planForProduct THROWt bei unbekannter product_id — ein umbenanntes/mispreistes
 // Produkt muss LAUT scheitern, nie still die falschen Caps gewähren.
 export function planForProduct(productId: string): "starter" | "pro" {
@@ -79,18 +81,90 @@ export function mapPolarEvent(ev: PolarWebhookEvent): EntitlementPatch | null {
   }
 }
 
-// ── Phase-6-Seams (@polar-sh/nextjs · Polar API) ────────────────────────────
-// Bis zur Verdrahtung werfen sie → checkout/portal 503, webhook 400 (Signatur).
-export function verifyPolarWebhook(_rawBody: string, _headers: Headers): PolarWebhookEvent {
-  throw new Error("verifyPolarWebhook(): not implemented (Phase 6)");
+// ── Polar API wiring (@polar-sh/sdk) ────────────────────────────────────────
+// Lazy-Client: fehlendes Secret wirft erst zur Laufzeit (sauberer 503/400 in der
+// Route), nie beim `next build`. server = sandbox (Default) | production.
+function polarClient(): Polar {
+  const accessToken = process.env.POLAR_ACCESS_TOKEN;
+  if (!accessToken) throw new Error("POLAR_ACCESS_TOKEN not set");
+  const server = process.env.POLAR_SERVER === "production" ? "production" : "sandbox";
+  return new Polar({ accessToken, server });
 }
-export function createCheckoutUrl(_opts: {
+
+function productIdFor(plan: "starter" | "pro"): string {
+  const id = plan === "pro" ? process.env.POLAR_PRO_PRODUCT_ID : process.env.POLAR_STARTER_PRODUCT_ID;
+  if (!id) throw new Error(`Polar product id für Tarif '${plan}' fehlt`);
+  return id;
+}
+
+/**
+ * Verifiziert die Signatur (POLAR_WEBHOOK_SECRET) auf dem ROHBODY und bildet das
+ * Polar-Event auf die SDK-agnostische Minimalform ab. Wirft bei ungültiger
+ * Signatur/fehlendem Secret → die Route antwortet 400 OHNE Aufzeichnung.
+ * Idempotenz-Schlüssel = `webhook-id`-Header (Standard-Webhooks-Zustell-ID; bei
+ * Retry gleich), sonst Fallback aus Typ + Entity-ID.
+ */
+export function verifyPolarWebhook(rawBody: string, headers: Headers): PolarWebhookEvent {
+  const secret = process.env.POLAR_WEBHOOK_SECRET;
+  if (!secret) throw new Error("POLAR_WEBHOOK_SECRET not set");
+
+  const headerRecord: Record<string, string> = {};
+  headers.forEach((value, key) => {
+    headerRecord[key] = value;
+  });
+
+  // Wirft WebhookVerificationError bei ungültiger Signatur.
+  const event = validateEvent(rawBody, headerRecord, secret);
+
+  const data = event.data as {
+    id?: string;
+    metadata?: Record<string, unknown>;
+    productId?: string;
+    customerId?: string;
+    currentPeriodEnd?: Date | string | null;
+  };
+  const cpe = data.currentPeriodEnd;
+  const currentPeriodEnd =
+    cpe instanceof Date ? cpe.toISOString() : typeof cpe === "string" ? cpe : null;
+
+  return {
+    id: headerRecord["webhook-id"] || `${event.type}:${data.id ?? ""}`,
+    type: event.type,
+    data: {
+      metadata: data.metadata,
+      productId: data.productId,
+      customerId: data.customerId,
+      currentPeriodEnd,
+      subscriptionId: data.id, // Subscription-Events: data IST die Subscription
+    },
+  };
+}
+
+/**
+ * Server-initiierter Checkout. Die authentifizierte user.id wird server-seitig in
+ * die Metadata gestempelt (der Webhook vertraut NUR darauf, nie der E-Mail) und
+ * zusätzlich als externalCustomerId gesetzt, damit der Portal-Call den Kunden
+ * ohne DB-Lookup auflöst. Gibt die gehostete Checkout-URL zurück.
+ */
+export async function createCheckoutUrl(opts: {
   plan: "starter" | "pro";
   userId: string;
   successUrl: string;
 }): Promise<string> {
-  throw new Error("createCheckoutUrl(): not implemented (Phase 6)");
+  const checkout = await polarClient().checkouts.create({
+    products: [productIdFor(opts.plan)],
+    successUrl: opts.successUrl,
+    externalCustomerId: opts.userId,
+    metadata: { supabase_user_id: opts.userId, plan: opts.plan },
+  });
+  return checkout.url;
 }
-export function createPortalUrl(_opts: { userId: string }): Promise<string> {
-  throw new Error("createPortalUrl(): not implemented (Phase 6)");
+
+/** Gehostetes Polar-Kundenportal (Upgrade/Downgrade/Kündigen/Karte) für die
+ *  eigene user.id — aufgelöst über die beim Checkout gesetzte externalCustomerId. */
+export async function createPortalUrl(opts: { userId: string }): Promise<string> {
+  const session = await polarClient().customerSessions.create({
+    externalCustomerId: opts.userId,
+  });
+  return session.customerPortalUrl;
 }

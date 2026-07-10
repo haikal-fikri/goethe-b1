@@ -10,7 +10,7 @@ import { presignPut } from "@/lib/r2";
 // Der Client schreibt NIE die Zeile/den Key. teacher-lms/04 §3.1.
 export const runtime = "nodejs";
 
-const MAX_AUDIO_BYTES = 20 * 1024 * 1024; // ≤20 MB (Presign pinnt Content-Length-Range)
+const MAX_AUDIO_BYTES = 20 * 1024 * 1024; // ≤20 MB — Client-Hinweis; hart erzwungen erst in finalize (presigned PUT kann keine Content-Length-Range pinnen)
 
 function utcPeriod(): string {
   return new Date().toISOString().slice(0, 7); // 'YYYY-MM'
@@ -125,8 +125,9 @@ export async function POST(req: Request) {
     return apiError(500, "internal_error", "Aufnahme konnte nicht angelegt werden.", { requestId });
   }
 
-  // 7) Kurzlebiges (≤300 s) R2-PUT-Presign — Content-Length-Range + Content-Type
-  //    gepinnt. URL wird NIE geloggt/gespeichert. (r2-Seam: Phase 6.)
+  // 7) Kurzlebiges (≤300 s) R2-PUT-Presign — nur Content-Type wird signiert/gepinnt
+  //    (presigned PUT kann keine Content-Length-Range erzwingen; die ≤20-MB-Grenze
+  //    setzt finalize per GET-Content-Length durch). URL wird NIE geloggt/gespeichert.
   try {
     const uploadUrl = await presignPut(audioKey, {
       maxBytes: MAX_AUDIO_BYTES,
