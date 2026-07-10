@@ -67,11 +67,16 @@ export async function POST(req: Request) {
     }
   }
 
-  // (b) Push-Flush — noch nicht gepushte notifications versenden + pushed_at stampen.
+  // (b) Push-Flush — NUR Trigger-Herkunfts-Zeilen (kind='assignment_new', via
+  //     trg_assignment_notify/trg_speaking_assignment_notify), die KEINEN Inline-
+  //     Push haben. Alle Route-Herkunfts-kinds (assignment_graded, grade_released,
+  //     session_canceled, enrollment_removed) werden in ihren Routen bereits inline
+  //     gepusht → ohne diesen Filter würde der Flush sie ein ZWEITES Mal senden.
   const { data: pending } = await svc
     .from("notifications")
     .select("id, user_id, kind, title, body, data")
     .is("pushed_at", null)
+    .eq("kind", "assignment_new")
     .limit(300)
     .returns<NotifRow[]>();
 

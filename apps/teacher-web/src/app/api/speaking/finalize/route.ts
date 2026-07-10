@@ -94,9 +94,29 @@ export async function POST(req: Request) {
     }
   }
 
-  // 4) ── R2-Fetch + Whisper (Phase-6-Seam-Grenze) ─────────────────────────────
+  // 4) Atomischer CLAIM (recorded→scored, compare-and-swap) VOR der teuren
+  //    Transkription: die Statusprüfung oben (Zeile ~51) ist ein reiner Read und
+  //    serialisiert NICHTS. Nur dieser bedingte UPDATE hat genau einen Gewinner —
+  //    ein gleichzeitiger/wiederholter finalize kann so nicht doppelt
+  //    transkribieren (2× Whisper) oder bump_usage doppelt zählen (TOCTOU-Fix).
+  const { data: claimed } = await svc
+    .from("speaking_submissions")
+    .update({ status: "scored" })
+    .eq("id", submissionId)
+    .eq("status", "recorded")
+    .select("id");
+  if (!claimed || claimed.length === 0) {
+    return apiError(409, "conflict", "Diese Aufnahme wird bereits verarbeitet.", { requestId });
+  }
+  // Bei jedem Fehlschlag den Claim zurücknehmen (→ 'recorded'), damit ein Retry
+  // möglich bleibt (sonst hinge die Zeile in 'scored' ohne Transkript).
+  const revertClaim = async () => {
+    await svc.from("speaking_submissions").update({ status: "recorded" }).eq("id", submissionId);
+  };
+
+  // ── R2-Fetch + Whisper (Phase-6-Seam-Grenze) ────────────────────────────────
   // r2.presignGet + transcriber.transcribe werfen bis zur Phase-6-Verdrahtung →
-  // sauberer 503. Danach: Dauer-Guard, Transkript persistieren, Usage bumpen.
+  // sauberer 503 (Claim wird zurückgenommen). Danach: Dauer-Guard, Transkript, Usage.
   try {
     const getUrl = await presignGet(sub.audio_key);
     const res = await fetch(getUrl);
@@ -105,6 +125,7 @@ export async function POST(req: Request) {
     const { text, durationSec, model } = await transcriber.transcribe(audio, { languageDe: true });
 
     if (durationSec !== undefined && durationSec > MAX_DURATION_SEC) {
+      await revertClaim();
       return apiError(422, "validation_failed", "Die Aufnahme ist länger als 5 Minuten.", { requestId });
     }
 
@@ -114,7 +135,6 @@ export async function POST(req: Request) {
       .update({
         transcript: text,
         transcribed_at: new Date().toISOString(),
-        status: "scored",
         audio_purge_at: purgeAt,
         duration_ms: durationSec !== undefined ? Math.round(durationSec * 1000) : null,
       })
@@ -134,6 +154,7 @@ export async function POST(req: Request) {
     log("speaking/finalize", { requestId, submissionId, model, ok: true });
     return ok({ status: "scored" }, requestId);
   } catch (e) {
+    await revertClaim(); // Claim zurücknehmen → Retry bleibt möglich
     log("speaking/finalize.transcribe", { requestId, submissionId, ok: false, err: String(e) });
     return apiError(503, "upstream_error", "Transkription derzeit nicht verfügbar.", { requestId });
   }
