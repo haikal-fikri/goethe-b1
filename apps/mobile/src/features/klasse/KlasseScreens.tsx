@@ -1,12 +1,27 @@
-import React, { useState, useEffect, useRef } from "react";
-import { View, ScrollView, TextInput, Alert, Pressable, Linking } from "react-native";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { View, ScrollView, TextInput, Alert, Pressable, Linking, AppState } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  useAudioRecorder, useAudioRecorderState, RecordingPresets,
+  setAudioModeAsync, requestRecordingPermissionsAsync,
+} from "expo-audio";
+import { getInfoAsync, deleteAsync } from "expo-file-system/legacy";
 import { useTheme } from "../../theme/ThemeProvider";
 import { AppText, Eyebrow, Card, PrimaryButton, AccentButton, SecondaryButton, Center, Loading, LevelBadge, Chip } from "../../components/ui";
 import { PeopleIcon, MicIcon, CloseIcon } from "../../components/icons";
 import * as db from "../../lib/db";
-import { useMyClasses, useClassAssignments, useMySubmissions, useClassLeaderboard, useInvalidateClass } from "../../lib/hooks";
-import type { EnrolledClass, Assignment, AssignmentKind, SubmissionStatus } from "@repo/types";
+import * as api from "../../lib/api";
+import { resetSpeechAudioMode } from "../../lib/tts";
+import { useSession } from "../../lib/session";
+import {
+  useMyClasses, useClassAssignments, useMySubmissions, useClassLeaderboard, useInvalidateClass,
+  useSpeakingAssignments, useMySpeakingSubmissions, useMySpeakingGrades, useSpeakingConsent, useInvalidateSpeaking,
+} from "../../lib/hooks";
+import type {
+  EnrolledClass, Assignment, AssignmentKind, SubmissionStatus,
+  SpeakingAssignment, SpeakingSubmission, SpeakingStatus, SpeakingGrade,
+} from "@repo/types";
 
 // 29–34 · Klasse. Nur bei aktivem class_enabled sichtbar (Tab flag-gated). Phase 1
 // wired: Beitritt, eingeschriebenes Dashboard (my_classes), Aufgabenliste + Status,
@@ -19,6 +34,10 @@ const ENROLL_URL = "https://example.org/kurse";
 const KIND_LABEL: Record<AssignmentKind, string> = { writing: "Schreiben", speaking: "Sprechen", practice: "Übung" };
 const STATUS_LABEL: Record<SubmissionStatus, string> = { pending: "Begonnen", submitted: "Eingereicht", graded: "Bewertet" };
 const statusText = (s?: SubmissionStatus) => (s ? STATUS_LABEL[s] : "Offen");
+const SPK_STATUS_LABEL: Record<SpeakingStatus, string> = {
+  recorded: "Eingereicht", scored: "In Auswertung", graded: "Bewertet", purged: "Bewertet", failed: "Fehlgeschlagen",
+};
+const spkStatusText = (s?: SpeakingStatus) => (s ? SPK_STATUS_LABEL[s] : "Offen");
 
 /** display_name → „Vorname N." (Rangliste, datensparsam). Fallback ohne Namen. */
 function firstNameShort(name: string | null): string {
@@ -106,11 +125,17 @@ function KlasseDashboard({ cls }: { cls: EnrolledClass }) {
   const assignments = useClassAssignments(cls.classId);
   const submissions = useMySubmissions();
   const leaderboard = useClassLeaderboard(cls.classId);
+  const speakingAssignments = useSpeakingAssignments(cls.classId);
+  const speakingSubs = useMySpeakingSubmissions();
 
   const statusColor = (s?: SubmissionStatus) =>
     s === "graded" ? accent.gruen : s === "submitted" ? accent.blau : s === "pending" ? accent.gold : c.textFaint;
   const kindColor = (k: AssignmentKind) => (k === "speaking" ? accent.blau : k === "writing" ? accent.gruen : accent.lila);
   const subStatus = (aid: string) => (submissions.data ?? []).find((s) => s.assignmentId === aid)?.status;
+  // Sprech-Abgaben stecken in speaking_submissions (eigene Tabelle), nicht in assignment_submissions.
+  const spkStatusColor = (s?: SpeakingStatus) =>
+    s === "graded" || s === "purged" ? accent.gruen : s === "scored" ? accent.gold : s === "recorded" ? accent.blau : s === "failed" ? accent.rot : c.textFaint;
+  const spkSubOf = (aid: string) => (speakingSubs.data ?? []).find((s) => s.assignmentId === aid);
 
   const leave = () => {
     Alert.alert("Klasse verlassen?", `Möchtest du „${cls.name}" wirklich verlassen?`, [
@@ -163,6 +188,33 @@ function KlasseDashboard({ cls }: { cls: EnrolledClass }) {
           );
         })
       )}
+
+      {(speakingAssignments.data ?? []).length > 0 ? (
+        <>
+          <View style={{ marginTop: 22, marginBottom: 8 }}><Eyebrow color={accent.blau}>Sprechen</Eyebrow></View>
+          {(speakingAssignments.data ?? []).map((a) => {
+            const sub = spkSubOf(a.id);
+            const due = formatDueShort(a.dueAt);
+            return (
+              <Card key={a.id} onPress={() => nav.navigate("SprechenTask", { assignment: a })} style={{ marginTop: 10 }}>
+                <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                  <Eyebrow color={accent.blau}>Sprechen · Teil {a.teil}</Eyebrow>
+                  {due ? (
+                    <View style={{ backgroundColor: tint("gold"), paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 }}>
+                      <AppText size={11.5} color={accent.goldText}>{due}</AppText>
+                    </View>
+                  ) : null}
+                </View>
+                <AppText role="uiSemi" size={15} color={c.textHi} style={{ marginTop: 6 }} numberOfLines={2}>{a.promptDe}</AppText>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 7, marginTop: 6 }}>
+                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: spkStatusColor(sub?.status) }} />
+                  <AppText size={13} color={c.textMuted}>{spkStatusText(sub?.status)}</AppText>
+                </View>
+              </Card>
+            );
+          })}
+        </>
+      ) : null}
 
       <View style={{ marginTop: 22, marginBottom: 8 }}><Eyebrow>Rangliste · diese Woche</Eyebrow></View>
       <Card>
@@ -285,66 +337,389 @@ export function KlasseAufgabeScreen() {
   );
 }
 
-// 32–34 · Sprechen Teil 2 — inaktive Shells (Lehrkraft-Phase). Kein Recording,
-// keine Abgabe: die Aufnahme + der Upload zur Bewertung folgen mit R2 + /api/speaking/*.
+// 32 · Sprech-Aufgabe: Aufgabenstellung + Einwilligungs-Gate (read-only) → Aufnahme.
 export function SprechenTaskScreen() {
-  const { c, accent } = useTheme();
+  const { c, accent, tint } = useTheme();
   const nav = useNavigation<any>();
+  const route = useRoute<any>();
+  const assignment: SpeakingAssignment | undefined = route.params?.assignment;
+  const consent = useSpeakingConsent();
+  const mySubs = useMySpeakingSubmissions();
+
+  if (!assignment) return <Loading />;
+  const existing = (mySubs.data ?? []).find((s) => s.assignmentId === assignment.id);
+  const due = formatDueLong(assignment.dueAt);
+  const consentOk = consent.data === true;
+
   return (
     <View style={{ flex: 1, backgroundColor: c.bg, paddingHorizontal: 18, paddingTop: 56 }}>
       <Pressable onPress={() => nav.goBack()} hitSlop={10}><CloseIcon color={c.textMuted} /></Pressable>
       <AppText role="serif" size={22} color={c.textHi} style={{ marginTop: 16 }}>Ein Thema präsentieren</AppText>
       <Card style={{ marginTop: 16 }}>
-        <Eyebrow color={accent.blau}>Deine Aufgabe</Eyebrow>
-        <AppText size={14} color={c.textBody} lh={20} style={{ marginTop: 6 }}>Präsentiere das Thema in ca. 3 Minuten anhand der Stichpunkte.</AppText>
+        <Eyebrow color={accent.blau}>Deine Aufgabe · Teil {assignment.teil}</Eyebrow>
+        <AppText size={14} color={c.textBody} lh={20} style={{ marginTop: 6 }}>{assignment.promptDe}</AppText>
+        {due ? <AppText size={12.5} color={c.textMuted} style={{ marginTop: 10 }}>{due}</AppText> : null}
       </Card>
+      {existing ? (
+        <Card style={{ marginTop: 12 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
+            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: accent.blau }} />
+            <AppText size={13.5} color={c.textBody}>{spkStatusText(existing.status)}</AppText>
+          </View>
+        </Card>
+      ) : null}
+
       <View style={{ position: "absolute", left: 18, right: 18, bottom: 24 }}>
-        <AppText size={12.5} color={c.textMuted} align="center" style={{ marginBottom: 10 }}>Die Aufnahme ist bald verfügbar.</AppText>
-        <AccentButton label="Aufnahme starten" color={accent.blau} onPress={() => nav.navigate("SprechenRecord")} />
+        {consent.isLoading ? (
+          <Loading />
+        ) : (
+          <>
+            {consent.data === false ? (
+              <Card style={{ marginBottom: 12, backgroundColor: tint("gold") }}>
+                <AppText size={13} color={c.textBody} lh={19}>
+                  Für Sprachaufnahmen fehlt die Einwilligung. Sie wird von deiner Lehrkraft bzw. deinen Erziehungsberechtigten erfasst.
+                </AppText>
+              </Card>
+            ) : null}
+            {existing ? (
+              <SecondaryButton
+                label="Ergebnis ansehen"
+                onPress={() => nav.navigate("SprechenReview", { assignment, submissionId: existing.id })}
+                style={{ marginBottom: 10 }}
+              />
+            ) : null}
+            {existing?.status === "graded" ? null : (
+              <AccentButton
+                label={existing ? "Neu aufnehmen" : "Aufnahme starten"}
+                color={accent.blau}
+                disabled={!consentOk}
+                onPress={() => nav.navigate("SprechenRecord", { assignment })}
+              />
+            )}
+          </>
+        )}
       </View>
     </View>
   );
 }
 
+// 33 · Aufnahme (expo-audio) → submit → R2-PUT → finalize. ≤5:00, ≤20 MB.
 export function SprechenRecordScreen() {
   const { c, accent, tint } = useTheme();
   const nav = useNavigation<any>();
-  const [seconds, setSeconds] = useState(300);
+  const route = useRoute<any>();
+  const assignment: SpeakingAssignment | undefined = route.params?.assignment;
+  const qc = useQueryClient();
+  const { session } = useSession();
+  const uid = session?.user.id;
+  const invalidateSpeaking = useInvalidateSpeaking();
+
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const recState = useAudioRecorderState(recorder);
+
+  const [phase, setPhase] = useState<"prepare" | "recording" | "confirm">("prepare");
+  const [recUri, setRecUri] = useState<string | null>(null);
+  const [recMs, setRecMs] = useState(0);
+  const [recBytes, setRecBytes] = useState(0);
+  const [up, setUp] = useState<"idle" | "submitting" | "uploading" | "finalizing">("idle");
+  const [cooldownUntil, setCooldownUntil] = useState(0);
+  const startingRef = useRef(false);
+  const stoppingRef = useRef(false);
+  const submittedRef = useRef(false);
+  const recUriRef = useRef<string | null>(null);
+  recUriRef.current = recUri;
+
+  // Mikrofon-Rechte → Aufnahme-Session → Aufnahme starten.
+  const begin = useCallback(async () => {
+    if (startingRef.current) return;
+    startingRef.current = true;
+    try {
+      const perm = await requestRecordingPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert("Mikrofon nötig", "Bitte erlaube den Mikrofonzugriff, um eine Aufnahme zu machen.");
+        nav.goBack();
+        return;
+      }
+      await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
+      resetSpeechAudioMode(); // Aufnahme kippt die iOS-Session → TTS-Cache invalidieren
+      await recorder.prepareToRecordAsync();
+      recorder.record();
+      stoppingRef.current = false;
+      setPhase("recording");
+    } catch {
+      Alert.alert("Fehler", "Die Aufnahme konnte nicht gestartet werden.");
+      nav.goBack();
+    } finally {
+      startingRef.current = false;
+    }
+  }, [nav, recorder]);
+
+  const doStop = useCallback(async () => {
+    if (stoppingRef.current) return;
+    stoppingRef.current = true;
+    const durMs = recState.durationMillis;
+    try { await recorder.stop(); } catch { /* egal */ }
+    const uri = recorder.uri;
+    if (!uri) {
+      Alert.alert("Fehler", "Die Aufnahme wurde nicht gespeichert.");
+      nav.goBack();
+      return;
+    }
+    let size = 0;
+    try {
+      const info = await getInfoAsync(uri);
+      if (info.exists && typeof info.size === "number") size = info.size;
+    } catch { /* Größe optional */ }
+    if (durMs > 300000 || size > 20 * 1024 * 1024) {
+      Alert.alert("Aufnahme zu lang oder zu groß", "Bitte nimm eine Aufnahme von höchstens 5 Minuten auf.");
+      deleteAsync(uri, { idempotent: true }).catch(() => {});
+      startingRef.current = false;
+      begin();
+      return;
+    }
+    setRecUri(uri); setRecMs(durMs); setRecBytes(size); setPhase("confirm");
+  }, [recorder, recState.durationMillis, nav, begin]);
+
+  useEffect(() => { begin(); }, [begin]);
+
+  // Auto-Stopp KURZ vor 5:00: der Poll-Takt (~500 ms) überschießt sonst die
+  // 300000er-Grenze (z. B. 300240) → doStops „> 300000"-Reject würde die volle
+  // Aufnahme verwerfen. Mit 298000 bleibt die behaltene Datei sicher unter dem Cap.
   useEffect(() => {
-    const iv = setInterval(() => setSeconds((s) => (s > 0 ? s - 1 : (nav.navigate("SprechenReview"), 0))), 1000);
-    return () => clearInterval(iv);
-  }, []);
-  const mm = Math.floor(seconds / 60), ss = String(seconds % 60).padStart(2, "0");
+    if (phase === "recording" && recState.durationMillis >= 298000) void doStop();
+  }, [phase, recState.durationMillis, doStop]);
+
+  // App in den Hintergrund während der Aufnahme → stoppen (kein Background-Audio).
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (st) => {
+      if (st !== "active" && phase === "recording") void doStop();
+    });
+    return () => sub.remove();
+  }, [phase, doStop]);
+
+  // Verlassen: Aufnahme stoppen, Session zurücksetzen, nicht abgesendete Datei löschen.
+  useEffect(() => {
+    return () => {
+      try { recorder.stop(); } catch { /* egal */ }
+      setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true }).catch(() => {});
+      resetSpeechAudioMode();
+      const u = recUriRef.current;
+      if (u && !submittedRef.current) deleteAsync(u, { idempotent: true }).catch(() => {});
+    };
+  }, [recorder]);
+
+  function handleErr(e: api.LmsError, subId: string | null) {
+    setUp("idle");
+    if (e.reason === "consent_required") {
+      if (uid) qc.invalidateQueries({ queryKey: ["speakingConsent", uid] });
+      Alert.alert("Einwilligung fehlt", "Für Sprachaufnahmen fehlt die Einwilligung.");
+      nav.goBack();
+      return;
+    }
+    if (e.status === 429) {
+      const secs = e.retryAfterSec ?? 60;
+      setCooldownUntil(Date.now() + secs * 1000);
+      Alert.alert("Zu viele Aufnahmen", `Bitte in etwa ${Math.max(1, Math.ceil(secs / 60))} Minute(n) erneut versuchen.`);
+      return;
+    }
+    if (e.status === 422) {
+      Alert.alert("Aufnahme ungültig", "Die Aufnahme ist zu lang oder zu groß. Bitte nimm sie neu auf.");
+      return;
+    }
+    // Audio ist bereits hochgeladen (subId gesetzt) → im Review die Auswertung erneut anstoßen.
+    if (subId && (e.status === 409 || e.status === 503)) {
+      submittedRef.current = true;
+      const u = recUriRef.current; // lokale Kopie ist redundant (liegt auf R2) → aufräumen
+      if (u) deleteAsync(u, { idempotent: true }).catch(() => {});
+      nav.replace("SprechenReview", { assignment, submissionId: subId });
+      return;
+    }
+    Alert.alert("Fehler", e.message || "Bitte später erneut versuchen.");
+  }
+
+  async function absenden() {
+    if (!recUri || !assignment) return;
+    if (cooldownUntil && Date.now() < cooldownUntil) return;
+    let subId: string | null = null;
+    try {
+      setUp("submitting");
+      let sub = await api.speakingSubmit(assignment.id);
+      subId = sub.submissionId;
+      setUp("uploading");
+      try {
+        await api.uploadSpeakingAudio(sub.uploadUrl, recUri);
+      } catch {
+        // Presign evtl. abgelaufen (≤300 s) → einmal frisch anfordern + erneut PUTen.
+        sub = await api.speakingSubmit(assignment.id);
+        subId = sub.submissionId;
+        await api.uploadSpeakingAudio(sub.uploadUrl, recUri);
+      }
+      setUp("finalizing");
+      await api.speakingFinalize(subId);
+      submittedRef.current = true;
+      deleteAsync(recUri, { idempotent: true }).catch(() => {});
+      await invalidateSpeaking();
+      nav.replace("SprechenReview", { assignment, submissionId: subId });
+    } catch (e) {
+      handleErr(e as api.LmsError, subId);
+    }
+  }
+
+  if (!assignment) return <Loading />;
+  const busy = up !== "idle";
+
+  if (phase === "prepare") {
+    return <Center><Loading label="Aufnahme wird vorbereitet…" /></Center>;
+  }
+  if (phase === "recording") {
+    const remain = Math.max(0, 300 - Math.floor(recState.durationMillis / 1000));
+    const mm = Math.floor(remain / 60), ss = String(remain % 60).padStart(2, "0");
+    return (
+      <Center>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: tint("rot"), paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 }}>
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: accent.rot }} />
+          <AppText size={12} color={accent.rotText}>AUFNAHME LÄUFT</AppText>
+        </View>
+        <View style={{ width: 104, height: 104, borderRadius: 999, backgroundColor: accent.blau, alignItems: "center", justifyContent: "center", marginTop: 24 }}>
+          <MicIcon size={40} color="#fff" strokeWidth={2} />
+        </View>
+        <AppText role="serif" size={40} color={c.textHi} style={{ marginTop: 20 }}>{mm}:{ss}</AppText>
+        <AppText size={13} color={c.textMuted}>verbleibend · max. 5:00</AppText>
+        <PrimaryButton label="Aufnahme stoppen" onPress={() => void doStop()} style={{ marginTop: 24, alignSelf: "stretch" }} />
+      </Center>
+    );
+  }
+  // confirm
+  const secs = Math.round(recMs / 1000);
+  const mmC = Math.floor(secs / 60), ssC = String(secs % 60).padStart(2, "0");
+  const sizeLabel = recBytes ? ` · ${Math.round(recBytes / 1024)} KB` : "";
+  const upLabel = up === "submitting" ? "Wird vorbereitet…" : up === "uploading" ? "Wird hochgeladen…" : up === "finalizing" ? "Wird ausgewertet…" : "Absenden";
   return (
     <Center>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: tint("rot"), paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 }}>
-        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: accent.rot }} />
-        <AppText size={12} color={accent.rotText}>AUFNAHME LÄUFT</AppText>
+      <View style={{ width: 88, height: 88, borderRadius: 999, backgroundColor: tint("blau"), alignItems: "center", justifyContent: "center" }}>
+        <MicIcon size={34} color={accent.blau} strokeWidth={2} />
       </View>
-      <View style={{ width: 104, height: 104, borderRadius: 999, backgroundColor: accent.blau, alignItems: "center", justifyContent: "center", marginTop: 24 }}>
-        <MicIcon size={40} color="#fff" strokeWidth={2} />
-      </View>
-      <AppText role="serif" size={40} color={c.textHi} style={{ marginTop: 20 }}>{mm}:{ss}</AppText>
-      <AppText size={13} color={c.textMuted}>verbleibend · max. 5:00</AppText>
-      <PrimaryButton label="Aufnahme stoppen" onPress={() => nav.navigate("SprechenReview")} style={{ marginTop: 24, alignSelf: "stretch" }} />
+      <AppText role="serif" size={22} color={c.textHi} style={{ marginTop: 18 }}>Aufnahme fertig</AppText>
+      <AppText size={13.5} color={c.textMuted} style={{ marginTop: 6 }}>{mmC}:{ssC}{sizeLabel}</AppText>
+      <AccentButton label={upLabel} color={accent.blau} loading={busy} disabled={busy} onPress={absenden} style={{ marginTop: 28, alignSelf: "stretch" }} />
+      <SecondaryButton
+        label="Neu aufnehmen"
+        disabled={busy}
+        onPress={() => {
+          if (recUri) deleteAsync(recUri, { idempotent: true }).catch(() => {});
+          setRecUri(null); setUp("idle"); setPhase("prepare");
+          startingRef.current = false; begin();
+        }}
+        style={{ marginTop: 10 }}
+      />
     </Center>
   );
 }
 
-export function SprechenReviewScreen() {
+const CRIT_LABEL: Record<string, string> = {
+  erfuellung: "Erfüllung", kohaerenz: "Kohärenz", wortschatz: "Wortschatz", strukturen: "Strukturen", aussprache: "Aussprache",
+};
+function SpeakingBands({ criteria }: { criteria: unknown }) {
   const { c } = useTheme();
-  const nav = useNavigation<any>();
+  if (!criteria || typeof criteria !== "object") return null;
+  const obj = criteria as Record<string, unknown>;
+  const keys = Object.keys(CRIT_LABEL).filter((k) => obj[k] != null);
+  if (keys.length === 0) return null;
   return (
-    <View style={{ flex: 1, backgroundColor: c.bg, paddingHorizontal: 18, paddingTop: 56 }}>
-      <AppText role="serif" size={22} color={c.textHi}>Deine Aufnahme</AppText>
-      <Card style={{ marginTop: 16 }}>
-        <AppText size={14} color={c.textMuted}>Höre dir die Aufnahme an, bevor du sie einreichst.</AppText>
-      </Card>
-      <View style={{ position: "absolute", left: 18, right: 18, bottom: 24 }}>
-        {/* Kein Fake-Write: die Abgabe an die Lehrkraft folgt in der Lehrkraft-Phase. */}
-        <AppText size={12.5} color={c.textMuted} align="center" style={{ marginBottom: 10 }}>Die Abgabe an die Lehrkraft ist bald verfügbar.</AppText>
-        <SecondaryButton label="Neu aufnehmen" onPress={() => nav.navigate("SprechenRecord")} />
-      </View>
+    <View style={{ marginTop: 14, gap: 7 }}>
+      {keys.map((k) => (
+        <View key={k} style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+          <AppText size={13} color={c.textMuted}>{CRIT_LABEL[k]}</AppText>
+          <AppText role="uiSemi" size={13.5} color={c.textHi}>{String(obj[k])}</AppText>
+        </View>
+      ))}
     </View>
+  );
+}
+
+// 34 · Status + Transkript (ab „scored") + Note & Feedback (ab Freigabe). Kein Playback.
+export function SprechenReviewScreen() {
+  const { c, accent } = useTheme();
+  const route = useRoute<any>();
+  const assignment: SpeakingAssignment | undefined = route.params?.assignment;
+  const submissionId: string | undefined = route.params?.submissionId;
+  const subs = useMySpeakingSubmissions();
+  const grades = useMySpeakingGrades();
+  const invalidateSpeaking = useInvalidateSpeaking();
+  const [busy, setBusy] = useState(false);
+
+  const sub =
+    (subs.data ?? []).find((s) => s.id === submissionId) ??
+    (assignment ? (subs.data ?? []).find((s) => s.assignmentId === assignment.id) : undefined);
+  const grade = sub ? (grades.data ?? []).find((g) => g.submissionId === sub.id) : undefined;
+
+  const retry = async () => {
+    if (!sub) return;
+    setBusy(true);
+    try {
+      await api.speakingFinalize(sub.id);
+    } catch (e) {
+      Alert.alert("Auswertung nicht möglich", (e as api.LmsError).message || "Bitte später erneut versuchen.");
+    } finally {
+      // Immer invalidieren: bei 409 ist der Server bereits weiter (scored/graded) →
+      // Refetch zeigt Transkript/Note statt endlos „ausstehend" mit 409-Button.
+      await invalidateSpeaking();
+      setBusy(false);
+    }
+  };
+
+  if (subs.isLoading) return <Loading />;
+
+  return (
+    <>
+      <AppText role="serif" size={22} color={c.textHi}>Deine Aufnahme</AppText>
+
+      {!sub ? (
+        <Card style={{ marginTop: 16 }}><AppText size={14} color={c.textMuted}>Keine Abgabe gefunden.</AppText></Card>
+      ) : sub.status === "recorded" ? (
+        <>
+          <Card style={{ marginTop: 16 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
+              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: accent.blau }} />
+              <AppText size={14} color={c.textBody}>Eingereicht — Auswertung ausstehend.</AppText>
+            </View>
+            <AppText size={13} color={c.textMuted} lh={19} style={{ marginTop: 8 }}>
+              Sobald die Auswertung läuft, erscheint hier das Transkript. Deine Lehrkraft bewertet die Aufnahme anschließend.
+            </AppText>
+          </Card>
+          <AccentButton label="Auswertung erneut versuchen" color={accent.blau} loading={busy} disabled={busy} onPress={retry} style={{ marginTop: 16 }} />
+        </>
+      ) : sub.status === "failed" ? (
+        <Card style={{ marginTop: 16 }}>
+          <AppText size={14} color={c.textBody} lh={20}>Die Auswertung ist fehlgeschlagen. Bitte nimm die Aufnahme neu auf.</AppText>
+        </Card>
+      ) : (
+        <>
+          {grade && grade.releasedAt ? (
+            <Card style={{ marginTop: 16 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                <Eyebrow color={grade.bestanden ? accent.gruen : accent.rot}>{grade.bestanden ? "Bestanden" : "Nicht bestanden"}</Eyebrow>
+                {grade.gesamt != null ? <AppText role="serifMed" size={20} color={c.textHi}>{grade.gesamt}</AppText> : null}
+              </View>
+              {grade.feedbackDe ? <AppText size={13.5} color={c.textBody} lh={20} style={{ marginTop: 10 }}>{grade.feedbackDe}</AppText> : null}
+              <SpeakingBands criteria={grade.criteria} />
+            </Card>
+          ) : (
+            <Card style={{ marginTop: 16 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
+                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: accent.gold }} />
+                <AppText size={14} color={c.textBody}>In Auswertung — deine Lehrkraft bewertet die Aufnahme.</AppText>
+              </View>
+            </Card>
+          )}
+          {sub.transcript ? (
+            <Card style={{ marginTop: 12 }}>
+              <Eyebrow>Transkript</Eyebrow>
+              <AppText size={13.5} color={c.textBody} lh={21} style={{ marginTop: 8 }}>{sub.transcript}</AppText>
+            </Card>
+          ) : null}
+        </>
+      )}
+    </>
   );
 }

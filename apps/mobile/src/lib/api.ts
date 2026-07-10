@@ -1,6 +1,7 @@
 import { fetch as streamFetch } from "expo/fetch";
+import { uploadAsync, FileSystemUploadType } from "expo-file-system/legacy";
 import { getSupabase } from "./supabase";
-import { env, apiConfigured } from "./env";
+import { env, apiConfigured, lmsConfigured } from "./env";
 
 // authedFetch: hängt den Bearer-JWT an; bei 401 einmal Session refreshen + retry.
 // Trusted-Server-Calls (grade persist, avatar, konto). Client-direkte
@@ -12,10 +13,11 @@ async function token(): Promise<string | null> {
   return data.session?.access_token ?? null;
 }
 
-export async function authedFetch(path: string, init: RequestInit = {}): Promise<Response> {
-  if (!apiConfigured()) throw new Error("API_BASE nicht konfiguriert.");
+// Gemeinsamer Bearer-Fetch gegen eine BASIS-URL; bei 401 einmal refreshen + retry.
+// base = env.apiBase (Projekt A) ODER env.lmsApiBase (teacher-web, /api/speaking/*).
+async function doAuthedFetch(base: string, path: string, init: RequestInit = {}): Promise<Response> {
   const doFetch = async (t: string | null) =>
-    fetch(`${env.apiBase}${path}`, {
+    fetch(`${base}${path}`, {
       ...init,
       headers: {
         "content-type": "application/json",
@@ -29,6 +31,18 @@ export async function authedFetch(path: string, init: RequestInit = {}): Promise
     res = await doFetch(await token());
   }
   return res;
+}
+
+export async function authedFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  if (!apiConfigured()) throw new Error("API_BASE nicht konfiguriert.");
+  return doAuthedFetch(env.apiBase, path, init);
+}
+
+/** Wie authedFetch, aber gegen das LMS-Backend (teacher-web) — selbes Supabase-Projekt,
+ *  also gilt der Student-JWT; RN-fetch unterliegt keinem CORS. */
+export async function authedLmsFetch(path: string, init: RequestInit = {}): Promise<Response> {
+  if (!lmsConfigured()) throw new Error("LMS_API_BASE nicht konfiguriert.");
+  return doAuthedFetch(env.lmsApiBase, path, init);
 }
 
 /** Profilbild: aktuelle signierte URL holen (GET, re-signiert serverseitig). Null wenn keins/Fehler. */
@@ -103,4 +117,66 @@ export async function gradeStream(
       }
     }
   }
+}
+
+// ── Sprechen-Abgabe (LMS-Backend teacher-web: submit → R2-PUT → finalize) ────
+export interface LmsError extends Error {
+  status?: number;
+  code?: string; // apiError-Code (forbidden, rate_limited, conflict, …)
+  reason?: string; // error.details.reason (z. B. "consent_required")
+  retryAfterSec?: number; // aus dem Retry-After-Header
+}
+
+/** Fehler-Envelope { error:{ code, message, details } } + Retry-After-Header → LmsError. */
+async function lmsThrow(res: Response): Promise<never> {
+  const body = (await res.json().catch(() => null)) as
+    | { error?: { code?: string; message?: string; details?: { reason?: string } } }
+    | null;
+  const err = new Error(body?.error?.message ?? `HTTP ${res.status}`) as LmsError;
+  err.status = res.status;
+  err.code = body?.error?.code;
+  err.reason = body?.error?.details?.reason;
+  const ra = res.headers.get("retry-after");
+  if (ra) {
+    const n = Number(ra);
+    if (Number.isFinite(n)) err.retryAfterSec = n;
+  }
+  throw err;
+}
+
+/** 1) Zeile + Presign anfordern. Nur { assignmentId } — der Server erzeugt Key + Zeile. */
+export async function speakingSubmit(
+  assignmentId: string
+): Promise<{ submissionId: string; uploadUrl: string }> {
+  const res = await authedLmsFetch("/api/speaking/submit", {
+    method: "POST",
+    body: JSON.stringify({ assignmentId }),
+  });
+  if (!res.ok) return lmsThrow(res);
+  return (await res.json()) as { submissionId: string; uploadUrl: string };
+}
+
+/** 2) Audio DIREKT zu R2 PUTen — KEIN Bearer; Content-Type MUSS exakt "audio/m4a" sein
+ *  (sonst lehnt die signierte URL ab). uploadAsync streamt von der Platte (kein Base64). */
+export async function uploadSpeakingAudio(uploadUrl: string, fileUri: string): Promise<void> {
+  const res = await uploadAsync(uploadUrl, fileUri, {
+    httpMethod: "PUT",
+    uploadType: FileSystemUploadType.BINARY_CONTENT,
+    headers: { "Content-Type": "audio/m4a" },
+  });
+  if (res.status < 200 || res.status >= 300) {
+    const e = new Error(`R2 PUT ${res.status}`) as LmsError;
+    e.status = res.status;
+    throw e;
+  }
+}
+
+/** 3) Transkription auslösen (CAS recorded→scored). Serverseitig idempotent/retry-sicher. */
+export async function speakingFinalize(submissionId: string): Promise<{ status: "scored" }> {
+  const res = await authedLmsFetch("/api/speaking/finalize", {
+    method: "POST",
+    body: JSON.stringify({ submissionId }),
+  });
+  if (!res.ok) return lmsThrow(res);
+  return (await res.json()) as { status: "scored" };
 }

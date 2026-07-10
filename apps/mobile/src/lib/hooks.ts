@@ -167,6 +167,62 @@ export function useInvalidateClass() {
       qc.invalidateQueries({ queryKey: ["submissions", uid] }),
       qc.invalidateQueries({ queryKey: ["classAssignments"] }), // Präfix-Match über classId
       qc.invalidateQueries({ queryKey: ["classLeaderboard"] }),
+      qc.invalidateQueries({ queryKey: ["speakingSubmissions", uid] }),
+      qc.invalidateQueries({ queryKey: ["speakingGrades", uid] }),
+      qc.invalidateQueries({ queryKey: ["speakingAssignments"] }), // Präfix-Match
+    ]);
+  }, [qc, uid]);
+}
+
+// ── Sprechen (0009 Reads + Consent-RPC) ─────────────────────────────
+export function useSpeakingAssignments(classId: string | undefined) {
+  return useQuery({
+    queryKey: ["speakingAssignments", classId],
+    enabled: !!classId,
+    queryFn: () => db.getSpeakingAssignments(classId!),
+  });
+}
+export function useMySpeakingSubmissions() {
+  const { session } = useSession();
+  const uid = session?.user.id;
+  return useQuery({
+    queryKey: ["speakingSubmissions", uid],
+    enabled: !!uid,
+    queryFn: () => db.getMySpeakingSubmissions(uid!),
+  });
+}
+export function useMySpeakingGrades() {
+  const { session } = useSession();
+  const uid = session?.user.id;
+  return useQuery({
+    queryKey: ["speakingGrades", uid],
+    enabled: !!uid,
+    queryFn: () => db.getMySpeakingGrades(),
+  });
+}
+/** Einwilligungs-Gate (nur UX; der Server prüft autoritativ). Bei Re-Eintritt neu prüfen. */
+export function useSpeakingConsent() {
+  const { session } = useSession();
+  const uid = session?.user.id;
+  return useQuery({
+    queryKey: ["speakingConsent", uid],
+    enabled: !!uid,
+    queryFn: () => db.isSpeakingConsentOk(uid!),
+    staleTime: 5 * 60_000,
+    refetchOnMount: true,
+  });
+}
+/** Nach finalize die Sprech-Caches invalidieren (Submissions + Noten + Aufgaben-Status). */
+export function useInvalidateSpeaking() {
+  const qc = useQueryClient();
+  const { session } = useSession();
+  const uid = session?.user.id;
+  return useCallback(async () => {
+    if (!uid) return;
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: ["speakingSubmissions", uid] }),
+      qc.invalidateQueries({ queryKey: ["speakingGrades", uid] }),
+      qc.invalidateQueries({ queryKey: ["speakingAssignments"] }),
     ]);
   }, [qc, uid]);
 }

@@ -4,6 +4,9 @@ export const env = {
   supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL ?? "",
   supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? "",
   apiBase: process.env.EXPO_PUBLIC_API_BASE ?? "",
+  // LMS-Backend (Vercel-Projekt B, teacher-web) — Basis für /api/speaking/*.
+  // Eigener Origin/Port; selbes Supabase-Projekt → der Student-JWT gilt dort auch.
+  lmsApiBase: process.env.EXPO_PUBLIC_LMS_API_BASE ?? "",
   turnstileSiteKey: process.env.EXPO_PUBLIC_TURNSTILE_SITE_KEY ?? "",
   googleWebClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? "",
   googleIosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? "",
@@ -15,6 +18,7 @@ export const env = {
 export const supabaseConfigured = () =>
   Boolean(env.supabaseUrl && env.supabaseAnonKey);
 export const apiConfigured = () => Boolean(env.apiBase);
+export const lmsConfigured = () => Boolean(env.lmsApiBase);
 export const googleConfigured = () => Boolean(env.googleWebClientId || env.googleIosClientId);
 export const turnstileConfigured = () => Boolean(env.turnstileSiteKey);
 

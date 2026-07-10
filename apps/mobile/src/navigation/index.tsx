@@ -92,7 +92,7 @@ function KlasseStack() {
       <S.Screen name="KlasseAufgabe" component={wrap(KlasseAufgabeScreen, { back: true })} />
       <S.Screen name="SprechenTask" component={SprechenTaskScreen} />
       <S.Screen name="SprechenRecord" component={SprechenRecordScreen} />
-      <S.Screen name="SprechenReview" component={wrap(SprechenReviewScreen, { scroll: false })} />
+      <S.Screen name="SprechenReview" component={wrap(SprechenReviewScreen, { scroll: true, back: true })} />
     </S.Navigator>
   );
 }

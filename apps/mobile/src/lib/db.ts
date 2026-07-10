@@ -19,6 +19,9 @@ import type {
   Assignment,
   AssignmentSubmission,
   ClassLeaderboardEntry,
+  SpeakingAssignment,
+  SpeakingSubmission,
+  SpeakingGrade,
 } from "@repo/types";
 import type { LevelScope } from "@repo/core";
 import { getSupabase } from "./supabase";
@@ -335,6 +338,48 @@ export async function joinClass(code: string): Promise<{ ok: boolean; className?
 /** leave_class: setzt die eigene Einschreibung auf 'removed'. */
 export async function leaveClass(classId: string): Promise<void> {
   await sb().rpc("leave_class", { p_class: classId });
+}
+
+// ── Sprechen (0009 RLS-Reads + Consent-RPC) ─────────────────────────
+const mapSpeakingAssignment = (r: Row): SpeakingAssignment => ({
+  id: r.id, classId: r.class_id, teil: r.teil, promptDe: r.prompt_de,
+  partnerMode: r.partner_mode ?? null, dueAt: r.due_at ?? null, createdAt: r.created_at,
+});
+const mapSpeakingSubmission = (r: Row): SpeakingSubmission => ({
+  id: r.id, assignmentId: r.assignment_id, studentId: r.student_id, audioKey: r.audio_key ?? null,
+  transcript: r.transcript ?? null, speechace: r.speechace ?? null, durationMs: r.duration_ms ?? null,
+  status: r.status, audioPurgeAt: r.audio_purge_at, createdAt: r.created_at,
+});
+const mapSpeakingGrade = (r: Row): SpeakingGrade => ({
+  id: r.id, submissionId: r.submission_id, gradedBy: r.graded_by, criteria: r.criteria,
+  gesamt: r.gesamt ?? null, bestanden: r.bestanden ?? null, feedbackDe: r.feedback_de ?? null,
+  releasedAt: r.released_at ?? null, gradedAt: r.graded_at, createdAt: r.created_at,
+});
+
+/** Sprech-Aufgaben einer Klasse (RLS-direkt: „spk_assign read" = is_enrolled(class_id)).
+ *  Eigene Tabelle speaking_assignments — NICHT die generische assignments-Liste. */
+export async function getSpeakingAssignments(classId: string): Promise<SpeakingAssignment[]> {
+  const { data } = await sb().from("speaking_assignments").select("*").eq("class_id", classId)
+    .order("due_at", { ascending: true, nullsFirst: false });
+  return (data ?? []).map(mapSpeakingAssignment);
+}
+/** Eigene Sprech-Abgaben (RLS-direkt: „spk_sub student select" = student_id = auth.uid()). */
+export async function getMySpeakingSubmissions(uid: string): Promise<SpeakingSubmission[]> {
+  const { data } = await sb().from("speaking_submissions").select("*").eq("student_id", uid);
+  return (data ?? []).map(mapSpeakingSubmission);
+}
+/** Eigene FREIGEGEBENE Sprech-Noten (RLS „spk_grade student select" liefert nur
+ *  released_at != null + eigene). Client-seitig nach submissionId indizieren. */
+export async function getMySpeakingGrades(): Promise<SpeakingGrade[]> {
+  const { data } = await sb().from("speaking_grades").select("*");
+  return (data ?? []).map(mapSpeakingGrade);
+}
+/** Einwilligung (Stimme) vorhanden? guardian_consent_ok(p_student) — definer, für
+ *  authenticated. Bei Fehler fail-closed (false → UI blockt; der Server prüft ohnehin). */
+export async function isSpeakingConsentOk(uid: string): Promise<boolean> {
+  const { data, error } = await sb().rpc("guardian_consent_ok", { p_student: uid });
+  if (error) return false;
+  return Boolean(data);
 }
 
 // ── Entwürfe (client-direkt, RLS own) ───────────────────────────────
