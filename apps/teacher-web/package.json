@@ -14,6 +14,7 @@
     "@repo/core": "*",
     "@repo/server": "*",
     "@repo/types": "*",
+    "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.110.0",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
