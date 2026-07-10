@@ -91,6 +91,44 @@ export function pointsFromBands(
   return { criteria, gesamtpunkte, maxPunkte, bestanden };
 }
 
+// ── Sprechen: 5 Kriterien inkl. `aussprache` (teacher-lms/04 §2.6/§3.1) ──────
+
+export type SpeakingCriterionKey = CriterionKey | "aussprache";
+export const SPEAKING_CRITERION_KEYS: SpeakingCriterionKey[] = [
+  "erfuellung",
+  "kohaerenz",
+  "wortschatz",
+  "strukturen",
+  "aussprache",
+];
+
+/**
+ * ⚠️ OWNER-CONFIRM Punkteskala. Die Doku nennt „SCALE_4/SCALE_6 Teil-3-Stil"
+ * (04 §2.6/§3.1), lässt die `aussprache`-Skala aber offen. Gewählt: erfuellung/
+ * kohaerenz → SCALE_4, wortschatz/strukturen/aussprache → SCALE_6 ⇒ max 26,
+ * bestanden ≥ 60 %. Sprechen ist „Übungsfeedback" (formativ) und `aussprache`
+ * ist in v1 eine manuelle Lehrer-Schätzung — die Zahl ist tunebar, und
+ * speaking_grades.gesamt/bestanden sind nullable. Bei Bedarf hier zentral ändern.
+ */
+function speakingScaleFor(key: SpeakingCriterionKey): BandPoints {
+  return key === "erfuellung" || key === "kohaerenz" ? SCALE_4 : SCALE_6;
+}
+
+/** Rechnet gesamt/bestanden serverseitig aus den 5 Sprechen-Bändern (nie vom Client). */
+export function pointsFromSpeakingBands(
+  bands: Record<SpeakingCriterionKey, CriterionBand>
+): { gesamt: number; maxPunkte: number; bestanden: boolean } {
+  let gesamt = 0;
+  let maxPunkte = 0;
+  for (const key of SPEAKING_CRITERION_KEYS) {
+    const scale = speakingScaleFor(key);
+    gesamt += scale[bands[key]];
+    maxPunkte += scale.A;
+  }
+  gesamt = round1(gesamt);
+  return { gesamt, maxPunkte, bestanden: gesamt >= PASS_RATIO * maxPunkte };
+}
+
 /** Baut aus den Modell-Bändern die vollständige, punktierte Bewertung. */
 export function buildGrade(task: ExamTask, model: ExamGradeModel): ExamGrade {
   const criteria = model.criteria.map((c) => {

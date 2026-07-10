@@ -1,9 +1,24 @@
+import { apiError } from "@repo/core";
+import { requireCron, ok } from "@/lib/guard";
+import { supabaseService } from "@/lib/supabaseServer";
+import { newRequestId, log } from "@/lib/log";
+
+// POST /api/jobs/generate-sessions — wöchentlich. Materialisiert Sitzungen für
+// aktive Zeitpläne bis current_date+42 (idempotent via uq_class_sessions_sched).
+// teacher-lms/03 §2.9.
 export const runtime = "nodejs";
 
-// STUB — teacher-lms/03 §2.9 — weekly cron (CRON_SECRET_B). Implementiert in Phase 3 (service-role route, teacher-lms/03/04/05).
-export async function POST() {
-  return Response.json(
-    { error: { code: "not_implemented", message: "Noch nicht implementiert.", requestId: "" } },
-    { status: 501, headers: { "cache-control": "no-store" } }
-  );
+export async function POST(req: Request) {
+  const requestId = newRequestId();
+  const denied = requireCron(req, requestId);
+  if (denied) return denied;
+
+  const svc = supabaseService();
+  const { data, error } = await svc.rpc("generate_sessions", {});
+  if (error) {
+    log("jobs/generate-sessions", { requestId, ok: false, err: error.message });
+    return apiError(500, "internal_error", "Sitzungen konnten nicht erzeugt werden.", { requestId });
+  }
+  log("jobs/generate-sessions", { requestId, generated: data, ok: true });
+  return ok({ generated: data ?? 0 }, requestId);
 }

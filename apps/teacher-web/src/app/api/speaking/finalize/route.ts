@@ -1,9 +1,140 @@
-export const runtime = "nodejs";
+import { apiError, speakingFinalizeSchema } from "@repo/core";
+import { authenticate, parseJson, ok } from "@/lib/guard";
+import { supabaseService } from "@/lib/supabaseServer";
+import { enforce } from "@/lib/ratelimit";
+import { newRequestId, log } from "@/lib/log";
+import { presignGet } from "@/lib/r2";
+import { transcriber } from "@/lib/transcribe";
 
-// STUB — teacher-lms/04 §3.1 — Whisper transcribe + AI recommend. Implementiert in Phase 3 (service-role route, teacher-lms/03/04/05).
-export async function POST() {
-  return Response.json(
-    { error: { code: "not_implemented", message: "Noch nicht implementiert.", requestId: "" } },
-    { status: 501, headers: { "cache-control": "no-store" } }
-  );
+// POST /api/speaking/finalize — nach dem R2-Upload: Dauer prüfen → Whisper →
+// Transkript + AI-Empfehlung. Der Cost-Breaker ist FAIL-CLOSED. teacher-lms/04 §3.1.
+export const runtime = "nodejs";
+export const maxDuration = 300;
+
+const MAX_DURATION_SEC = 300; // ≤5:00
+
+interface SubRow {
+  id: string;
+  assignment_id: string;
+  student_id: string;
+  audio_key: string | null;
+  status: string;
+  created_at: string;
+}
+
+export async function POST(req: Request) {
+  const requestId = newRequestId();
+
+  const ctx = await authenticate(req, requestId);
+  if (ctx instanceof Response) return ctx;
+  const studentId = ctx.user.id;
+
+  const parsed = await parseJson(req, speakingFinalizeSchema, requestId);
+  if (parsed instanceof Response) return parsed;
+  const { submissionId } = parsed;
+
+  if (process.env.TRANSCRIBE_ENABLED === "false") {
+    return apiError(503, "upstream_error", "Transkription derzeit nicht verfügbar.", { requestId });
+  }
+
+  const svc = supabaseService();
+
+  // 1) Eigene Aufnahme im Zustand 'recorded'.
+  const { data: sub } = await svc
+    .from("speaking_submissions")
+    .select("id, assignment_id, student_id, audio_key, status, created_at")
+    .eq("id", submissionId)
+    .maybeSingle<SubRow>();
+  if (!sub || sub.student_id !== studentId) {
+    return apiError(404, "not_found", "Aufnahme nicht gefunden.", { requestId });
+  }
+  if (sub.status !== "recorded") {
+    return apiError(409, "conflict", "Diese Aufnahme ist bereits verarbeitet.", { requestId });
+  }
+  if (!sub.audio_key) {
+    return apiError(409, "conflict", "Für diese Aufnahme fehlt die Audio-Datei.", { requestId });
+  }
+
+  // 2) Einwilligung erneut prüfen (kann zwischen submit und finalize widerrufen sein).
+  const { data: consentOk } = await svc.rpc("guardian_consent_ok", { p_student: studentId });
+  if (!consentOk) {
+    return apiError(403, "forbidden", "Für Sprachaufnahmen fehlt die Einwilligung.", {
+      requestId,
+      details: { reason: "consent_required" },
+    });
+  }
+
+  // Lehrkraft (für whisper-Limiter + Usage-Metering).
+  const { data: sa } = await svc
+    .from("speaking_assignments")
+    .select("class_id")
+    .eq("id", sub.assignment_id)
+    .maybeSingle<{ class_id: string }>();
+  const { data: cls } = sa
+    ? await svc.from("classes").select("teacher_id").eq("id", sa.class_id).maybeSingle<{ teacher_id: string }>()
+    : { data: null };
+  const teacherId = cls?.teacher_id ?? null;
+
+  // 3) transcribe_budget_hit FAIL-CLOSED (Groq-Whisper-Kostendeckel).
+  const { data: budget, error: budgetErr } = await svc.rpc("transcribe_budget_hit");
+  const budgetRow = budget?.[0] as { limited: boolean; retry_after: number } | undefined;
+  if (budgetErr || !budgetRow || budgetRow.limited) {
+    return apiError(429, "rate_limited", "Tageskapazität für Transkriptionen erreicht. Bitte später erneut.", {
+      requestId,
+      retryAfter: budgetRow?.retry_after ?? 3600,
+    });
+  }
+  if (teacherId) {
+    const rl = await enforce("whisperTeacher", teacherId); // fail-open (Budget deckt)
+    if (!rl.ok) {
+      return apiError(429, "rate_limited", "Zu viele Transkriptionen. Bitte später erneut.", {
+        requestId,
+        retryAfter: rl.retryAfterSec,
+      });
+    }
+  }
+
+  // 4) ── R2-Fetch + Whisper (Phase-6-Seam-Grenze) ─────────────────────────────
+  // r2.presignGet + transcriber.transcribe werfen bis zur Phase-6-Verdrahtung →
+  // sauberer 503. Danach: Dauer-Guard, Transkript persistieren, Usage bumpen.
+  try {
+    const getUrl = await presignGet(sub.audio_key);
+    const res = await fetch(getUrl);
+    if (!res.ok) throw new Error(`r2 get ${res.status}`);
+    const audio = await res.arrayBuffer();
+    const { text, durationSec, model } = await transcriber.transcribe(audio, { languageDe: true });
+
+    if (durationSec !== undefined && durationSec > MAX_DURATION_SEC) {
+      return apiError(422, "validation_failed", "Die Aufnahme ist länger als 5 Minuten.", { requestId });
+    }
+
+    const purgeAt = new Date(new Date(sub.created_at).getTime() + 72 * 3600 * 1000).toISOString();
+    await svc
+      .from("speaking_submissions")
+      .update({
+        transcript: text,
+        transcribed_at: new Date().toISOString(),
+        status: "scored",
+        audio_purge_at: purgeAt,
+        duration_ms: durationSec !== undefined ? Math.round(durationSec * 1000) : null,
+      })
+      .eq("id", submissionId);
+
+    // AI-Empfehlung (4 Inhaltskriterien, KEIN aussprache) → Phase 6 (speaking-tuned
+    // Prompt). Transkript reicht der Lehrkraft, um manuell alle 5 Bänder zu setzen.
+
+    if (teacherId && durationSec !== undefined) {
+      await svc.rpc("bump_usage", {
+        p_teacher: teacherId,
+        p_audio_seconds: Math.round(durationSec),
+        p_speaking: 1,
+      });
+    }
+
+    log("speaking/finalize", { requestId, submissionId, model, ok: true });
+    return ok({ status: "scored" }, requestId);
+  } catch (e) {
+    log("speaking/finalize.transcribe", { requestId, submissionId, ok: false, err: String(e) });
+    return apiError(503, "upstream_error", "Transkription derzeit nicht verfügbar.", { requestId });
+  }
 }
