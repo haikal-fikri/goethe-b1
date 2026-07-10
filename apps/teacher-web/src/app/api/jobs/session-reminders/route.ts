@@ -63,6 +63,15 @@ export async function POST(req: Request) {
         p_body: "Du hast bald einen Klassentermin.",
         p_data: { classId: s.class_id, sessionId: s.id, startsAt: s.starts_at },
       });
+      // INLINE-Push (wie alle Route-Herkunfts-kinds): session_reminder wird HIER
+      // erzeugt und ist per kind-Filter aus dem Flush (b) ausgeschlossen — ohne
+      // diesen Push bekäme der/die Schüler:in nur den In-App-Eintrag, nie eine
+      // Push-Benachrichtigung (Zweck des Reminder-Jobs). Best-effort.
+      await pushToUser(e.student_id, {
+        title: "Erinnerung: bevorstehender Termin",
+        body: "Du hast bald einen Klassentermin.",
+        data: { classId: s.class_id, sessionId: s.id },
+      });
       reminded++;
     }
   }
