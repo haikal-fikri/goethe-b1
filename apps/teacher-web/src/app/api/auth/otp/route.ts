@@ -47,7 +47,7 @@ export async function POST(request: Request) {
   // Turnstile auf der OTP-Route separat abschaltbar (OTP_TURNSTILE_DISABLED=true).
   if (process.env.OTP_TURNSTILE_DISABLED !== "true") {
     if (!(await verifyTurnstile(turnstileToken, ip))) {
-      return apiError(403, "forbidden", "Bitte bestätige, dass du kein Roboter bist.", { requestId });
+      return apiError(403, "forbidden", "Bitte bestätigen Sie, dass Sie kein Roboter sind.", { requestId });
     }
   }
 

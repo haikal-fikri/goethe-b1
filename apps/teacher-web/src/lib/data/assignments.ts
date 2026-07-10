@@ -97,6 +97,36 @@ export function createAssignment(
     .single();
 }
 
+/**
+ * Sprech-Aufgabe. WICHTIG: eigene Tabelle `speaking_assignments` (NICHT
+ * `assignments`) — nur sie speist die Sprech-Pipeline (speaking_submissions →
+ * speaking_grades → /bewerten/sprechen + /api/speaking/*). Ein kind='speaking'-
+ * Insert in `assignments` erzeugte eine tote Aufgabe, die niemand einreichen
+ * oder bewerten kann. RLS "spk_assign teacher insert": is_class_teacher AND
+ * has_active_teacher_sub. `teil` ∈ {1,2} und `prompt_de` sind NOT NULL.
+ */
+export interface SpeakingAssignmentInput {
+  class_id: string;
+  teil: 1 | 2;
+  prompt_de: string;
+  partner_mode?: "peer" | "ai_fallback" | null; // nur Teil 1
+  due_at?: string | null;
+}
+
+export function createSpeakingAssignment(sb: SupabaseClient, input: SpeakingAssignmentInput) {
+  return sb
+    .from("speaking_assignments")
+    .insert({
+      class_id: input.class_id,
+      teil: input.teil,
+      prompt_de: input.prompt_de,
+      partner_mode: input.partner_mode ?? null,
+      due_at: input.due_at ?? null,
+    })
+    .select()
+    .single();
+}
+
 export function updateAssignment(
   sb: SupabaseClient,
   assignmentId: string,

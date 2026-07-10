@@ -3,10 +3,13 @@ import { Suspense, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { supabaseBrowser } from "@/lib/supabase/browser";
+import { Button } from "@/components/ui/controls";
+import { IconArrowRight } from "@/components/icons";
 
-// Minimale, FUNKTIONALE Lehrkraft-Anmeldung (Phase 4). Phase 5 gestaltet sie neu.
-// Ablauf: E-Mail → POST /api/auth/otp (gehärteter Proxy) → 8-stelliger Code →
-// client-seitiges verifyOtp (setzt die Session-Cookies) → Redirect auf ?next.
+// FUNKTIONALE Lehrkraft-Anmeldung. Ablauf: E-Mail → POST /api/auth/otp
+// (gehärteter Proxy) → 8-stelliger Code → client-seitiges verifyOtp (setzt die
+// Session-Cookies) → Redirect auf ?next. Phase 5: neu gestaltet (Design-Comp),
+// Logik unverändert.
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 // Nur relative Same-Origin-Pfade zulassen (Open-Redirect-Schutz). Der WHATWG-
@@ -21,6 +24,26 @@ function safeNext(raw: string): string {
   }
   return raw;
 }
+
+const INPUT_STYLE = {
+  width: "100%",
+  height: 50,
+  borderRadius: 14,
+  border: "1px solid var(--border-1)",
+  background: "var(--surface-1)",
+  padding: "0 16px",
+  fontSize: 15,
+  color: "var(--text-hi)",
+} as const;
+
+const LABEL_STYLE = {
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: ".1em",
+  textTransform: "uppercase",
+  color: "var(--text-2)",
+  marginBottom: 8,
+} as const;
 
 function LoginInner() {
   const router = useRouter();
@@ -77,49 +100,146 @@ function LoginInner() {
   }
 
   return (
-    <main style={{ fontFamily: "system-ui", padding: "2rem", maxWidth: 420, margin: "0 auto" }}>
-      <h1 style={{ fontSize: "1.4rem" }}>Lehrkraft-Anmeldung</h1>
-      {!sent ? (
-        <form onSubmit={requestCode} style={{ display: "grid", gap: 12, marginTop: 16 }}>
-          <label>
-            E-Mail
+    <main
+      style={{
+        minHeight: "100dvh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24,
+        background: "var(--bg)",
+      }}
+    >
+      <div style={{ width: 400, maxWidth: "100%" }}>
+        {/* Marke */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 30 }}>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 13,
+              background: "var(--gruen)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "var(--glow-gruen)",
+            }}
+          >
+            <span style={{ fontFamily: "var(--font-serif)", fontWeight: 600, fontSize: 20, color: "#fff" }}>B1</span>
+          </div>
+          <div>
+            <div style={{ fontSize: 16, fontWeight: 600, color: "var(--text-hi)" }}>B1+Trainer</div>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: ".1em",
+                textTransform: "uppercase",
+                color: "var(--text-2)",
+              }}
+            >
+              Lehrkraft
+            </div>
+          </div>
+        </div>
+
+        <h1
+          style={{
+            fontFamily: "var(--font-serif)",
+            fontSize: 30,
+            fontWeight: 600,
+            color: "var(--text-hi)",
+            margin: "0 0 8px",
+            letterSpacing: "-.01em",
+          }}
+        >
+          Willkommen zurück
+        </h1>
+        <p style={{ margin: "0 0 26px", fontSize: 14.5, lineHeight: 1.55, color: "var(--text-2)" }}>
+          Melden Sie sich in Ihrem Lehrkraft-Konto an, um Bewertungen und Klassen zu verwalten.
+        </p>
+
+        {!sent ? (
+          <form onSubmit={requestCode}>
+            <div style={LABEL_STYLE}>E-Mail</div>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
-              style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+              placeholder="name@schule.de"
+              className="focus-ring"
+              style={{ ...INPUT_STYLE, marginBottom: SITE_KEY ? 14 : 16 }}
             />
-          </label>
-          {SITE_KEY ? <Turnstile siteKey={SITE_KEY} onSuccess={setTsToken} /> : null}
-          <button type="submit" disabled={busy} style={{ padding: 10 }}>
-            {busy ? "Sende…" : "Code senden"}
-          </button>
-        </form>
-      ) : (
-        <form onSubmit={verify} style={{ display: "grid", gap: 12, marginTop: 16 }}>
-          <p>Wir haben einen Code an {email} gesendet.</p>
-          <label>
-            Code
+            {SITE_KEY ? (
+              <div style={{ marginBottom: 16 }}>
+                <Turnstile siteKey={SITE_KEY} onSuccess={setTsToken} />
+              </div>
+            ) : null}
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={busy}
+              style={{ width: "100%", height: 52, borderRadius: 14, fontSize: 15, opacity: busy ? 0.7 : 1 }}
+            >
+              {busy ? "Sende…" : "Code senden"}
+              {!busy ? <IconArrowRight size={18} /> : null}
+            </Button>
+          </form>
+        ) : (
+          <form onSubmit={verify}>
+            <p style={{ margin: "0 0 18px", fontSize: 14, lineHeight: 1.55, color: "var(--text-1)" }}>
+              Wir haben einen Code an <strong style={{ color: "var(--text-hi)" }}>{email}</strong> gesendet.
+            </p>
+            <div style={LABEL_STYLE}>Code</div>
             <input
               inputMode="numeric"
               required
               value={code}
               onChange={(e) => setCode(e.target.value)}
               autoComplete="one-time-code"
-              style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+              placeholder="8-stelliger Code"
+              className="focus-ring"
+              style={{ ...INPUT_STYLE, marginBottom: 16, letterSpacing: ".18em", fontFamily: "var(--font-mono)" }}
             />
-          </label>
-          <button type="submit" disabled={busy} style={{ padding: 10 }}>
-            {busy ? "Prüfe…" : "Anmelden"}
-          </button>
-          <button type="button" onClick={() => setSent(false)} style={{ padding: 6 }}>
-            Andere E-Mail
-          </button>
-        </form>
-      )}
-      {err ? <p style={{ color: "#C0392E", marginTop: 12 }}>{err}</p> : null}
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={busy}
+              style={{ width: "100%", height: 52, borderRadius: 14, fontSize: 15, marginBottom: 10, opacity: busy ? 0.7 : 1 }}
+            >
+              {busy ? "Prüfe…" : "Anmelden"}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={busy}
+              onClick={() => setSent(false)}
+              style={{ width: "100%", height: 46 }}
+            >
+              Andere E-Mail
+            </Button>
+          </form>
+        )}
+
+        {err ? (
+          <p
+            style={{
+              margin: "16px 0 0",
+              fontSize: 13.5,
+              fontWeight: 500,
+              color: "var(--rot-text)",
+              background: "var(--rot-tint)",
+              border: "1px solid color-mix(in oklab, var(--rot) 22%, transparent)",
+              borderRadius: 12,
+              padding: "11px 14px",
+            }}
+          >
+            {err}
+          </p>
+        ) : null}
+      </div>
     </main>
   );
 }
