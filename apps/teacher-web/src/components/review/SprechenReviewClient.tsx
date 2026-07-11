@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { CriterionBand } from "@repo/types";
 import { pointsFromSpeakingBands, SPEAKING_CRITERION_KEYS, type SpeakingCriterionKey } from "@repo/core";
@@ -7,7 +7,7 @@ import { authedFetch } from "@/lib/api";
 import { CriterionBands, type CritItem } from "@/components/review/CriterionBands";
 import { ScoreSummary } from "@/components/review/ScoreSummary";
 import { FreigebenModal } from "@/components/review/FreigebenModal";
-import { IconChevronLeft, IconMic, IconSend, IconCheck, IconPlay, IconClock } from "@/components/icons";
+import { IconChevronLeft, IconMic, IconSend, IconCheck, IconPlay, IconPause, IconClock } from "@/components/icons";
 
 type SpkBands = Record<SpeakingCriterionKey, CriterionBand>;
 
@@ -65,6 +65,56 @@ export function SprechenReviewClient(props: SprechenReviewData) {
   const [modal, setModal] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+
+  // Audio-Wiedergabe: presigned GET wird beim ERSTEN Play geladen (kurzlebig; Audio
+  // purged 24 Std. nach der Bewertung → 410 sauber anzeigen). Kein CORS nötig — das
+  // <audio>-Element lädt Cross-Origin-Medien ohne Preflight.
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playing, setPlaying] = useState(false);
+  const [curMs, setCurMs] = useState(0);
+  const [durMs, setDurMs] = useState(props.durationMs ?? 0);
+  const [audioLoaded, setAudioLoaded] = useState(false);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [audioErr, setAudioErr] = useState<string | null>(null);
+
+  async function toggleAudio() {
+    const el = audioRef.current;
+    if (!el) return;
+    if (playing) {
+      el.pause();
+      return;
+    }
+    if (!audioLoaded) {
+      setAudioLoading(true);
+      setAudioErr(null);
+      try {
+        const res = await authedFetch(
+          `/api/speaking/audio?submissionId=${encodeURIComponent(props.submissionId)}`
+        );
+        if (!res.ok) {
+          const b = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
+          throw new Error(
+            res.status === 410
+              ? "Audio wurde bereits gelöscht (24 Std. nach der Bewertung)."
+              : b?.error?.message ?? "Audio konnte nicht geladen werden."
+          );
+        }
+        const { url } = (await res.json()) as { url: string };
+        el.src = url;
+        setAudioLoaded(true);
+      } catch (e) {
+        setAudioErr(e instanceof Error ? e.message : "Fehler.");
+        setAudioLoading(false);
+        return;
+      }
+      setAudioLoading(false);
+    }
+    try {
+      await el.play();
+    } catch {
+      setAudioErr("Wiedergabe nicht möglich.");
+    }
+  }
 
   const totals = useMemo(() => pointsFromSpeakingBands(bands), [bands]);
 
@@ -175,8 +225,10 @@ export function SprechenReviewClient(props: SprechenReviewData) {
             <div style={{ background: "var(--surface-1)", border: "1px solid var(--border-1)", borderRadius: 16, boxShadow: "var(--shadow-card-now)", padding: "18px 20px", marginBottom: 12 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                 <button
-                  title="Audio-Wiedergabe wird nach dem R2-Setup (Phase 6) aktiviert"
-                  disabled
+                  onClick={toggleAudio}
+                  disabled={audioLoading}
+                  title={playing ? "Pause" : "Abspielen"}
+                  className="press"
                   style={{
                     width: 52,
                     height: 52,
@@ -185,31 +237,48 @@ export function SprechenReviewClient(props: SprechenReviewData) {
                     border: "none",
                     background: "var(--blau)",
                     color: "#fff",
-                    cursor: "not-allowed",
+                    cursor: audioLoading ? "default" : "pointer",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     boxShadow: "var(--glow-blau)",
-                    opacity: 0.85,
+                    opacity: audioLoading ? 0.7 : 1,
                   }}
                 >
-                  <IconPlay size={22} style={{ marginLeft: 2 }} />
+                  {playing ? <IconPause size={22} /> : <IconPlay size={22} style={{ marginLeft: 2 }} />}
                 </button>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 46, padding: "2px 0" }}>
-                    {WAVE.map((h, i) => (
-                      <span
-                        key={i}
-                        style={{ flex: 1, height: `${Math.round(h * 100)}%`, minWidth: 2, borderRadius: 2, background: "var(--border-strong)" }}
-                      />
-                    ))}
+                    {WAVE.map((h, i) => {
+                      const played = durMs > 0 && i / WAVE.length <= curMs / durMs;
+                      return (
+                        <span
+                          key={i}
+                          style={{ flex: 1, height: `${Math.round(h * 100)}%`, minWidth: 2, borderRadius: 2, background: played ? "var(--blau)" : "var(--border-strong)" }}
+                        />
+                      );
+                    })}
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-                    <span style={{ fontFamily: "var(--font-serif)", fontSize: 13, color: "var(--text-hi)" }}>0:00</span>
-                    <span style={{ fontFamily: "var(--font-serif)", fontSize: 13, color: "var(--text-2)" }}>{mmss(props.durationMs)}</span>
+                    <span style={{ fontFamily: "var(--font-serif)", fontSize: 13, color: "var(--text-hi)" }}>{mmss(curMs)}</span>
+                    <span style={{ fontFamily: "var(--font-serif)", fontSize: 13, color: "var(--text-2)" }}>{mmss(durMs || props.durationMs)}</span>
                   </div>
                 </div>
               </div>
+              {audioErr ? (
+                <div style={{ marginTop: 12, fontSize: 12.5, color: "var(--rot-text)" }}>{audioErr}</div>
+              ) : null}
+              {/* Hidden native element — der Custom-Button steuert Play/Pause. */}
+              <audio
+                ref={audioRef}
+                preload="none"
+                onPlay={() => setPlaying(true)}
+                onPause={() => setPlaying(false)}
+                onEnded={() => { setPlaying(false); setCurMs(0); }}
+                onTimeUpdate={(e) => setCurMs(Math.round(e.currentTarget.currentTime * 1000))}
+                onLoadedMetadata={(e) => { const d = e.currentTarget.duration; if (Number.isFinite(d) && d > 0) setDurMs(Math.round(d * 1000)); }}
+                style={{ display: "none" }}
+              />
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 9, padding: "10px 14px", borderRadius: 12, background: "var(--gold-tint)", marginBottom: 24 }}>
               <IconClock size={16} strokeWidth={1.8} style={{ color: "var(--gold-text)", flex: "0 0 auto" }} />
