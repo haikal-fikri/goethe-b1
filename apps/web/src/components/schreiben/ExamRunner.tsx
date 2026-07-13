@@ -638,9 +638,16 @@ function SendResultByEmail({
   const [teacherName, setTeacherName] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  // Eigenes Turnstile-Token für den E-Mail-Versand — getrennt vom Bewertungs-Flow,
+  // dessen Token bereits verbraucht/zurückgesetzt wurde. Ohne Site-Key inert.
+  const [token, setToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileGateHandle>(null);
 
   const canSend =
-    isEmail(studentEmail) && isEmail(teacherEmail) && status !== "loading";
+    isEmail(studentEmail) &&
+    isEmail(teacherEmail) &&
+    status !== "loading" &&
+    (!turnstileEnabledClient || !!token);
 
   async function send() {
     if (!isEmail(studentEmail) || !isEmail(teacherEmail)) {
@@ -670,6 +677,7 @@ function SendResultByEmail({
       grade,
       examiners,
       thirdUsed,
+      turnstileToken: token ?? undefined,
     };
 
     try {
@@ -694,6 +702,9 @@ function SendResultByEmail({
     } catch {
       setStatus("error");
       setErrorMsg("Verbindung fehlgeschlagen. Bitte versuche es erneut.");
+    } finally {
+      // Turnstile-Tokens sind Einweg — nach jedem Versuch ein frisches holen.
+      turnstileRef.current?.reset();
     }
   }
 
@@ -795,6 +806,8 @@ function SendResultByEmail({
           {errorMsg}
         </p>
       )}
+
+      <TurnstileGate ref={turnstileRef} onToken={setToken} />
 
       <div className="mt-4 flex items-center gap-3">
         <button

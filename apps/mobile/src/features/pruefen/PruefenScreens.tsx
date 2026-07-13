@@ -15,9 +15,9 @@ import { gradeStream, type GradeEvent } from "../../lib/api";
 import type { ExamGrade, ExamResult, ExamTask, AufgabeNr } from "@repo/types";
 
 // ⚠️ Prüfungsintegrität: Kopieren/Einfügen im Prüfungs-Editor (Screen-Capture-Block-Ergänzung).
-// TEMP `true`, damit Beispieltexte zum AI-Testen eingefügt werden können.
-// VOR Release / echten Prüfungen wieder auf `false` setzen (dann ist Einfügen blockiert).
-const ALLOW_EXAM_PASTE = true;
+// An `__DEV__` gebunden: in Dev-Builds erlaubt (Beispieltexte zum AI-Testen einfügbar),
+// in Release-Builds IMMER blockiert — kann nicht versehentlich aktiviert ausgeliefert werden.
+const ALLOW_EXAM_PASTE = __DEV__;
 
 // 23 · Prüfen (KI-Prüfer Landing) — Simulation 1–4 + Aufgabe 1/2/3.
 export function PruefenLandingScreen() {

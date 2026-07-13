@@ -1,6 +1,7 @@
 import { getResend, RESEND_FROM_HEADER } from "@/lib/resend";
 import { siteUrl } from "@/lib/site";
-import { getClientIp, checkRateLimit, enforce, enforceAll } from "@/lib/ratelimit";
+import { getClientIp, enforce, enforceAll } from "@/lib/ratelimit";
+import { verifyTurnstile } from "@/lib/turnstile";
 import {
   buildSubject,
   examEmailSchema,
@@ -56,8 +57,8 @@ export async function POST(request: Request) {
     if (!email) return err(400, "Kein E-Mail-Konto hinterlegt.");
 
     const rl = await enforceAll([
-      () => enforce("emailWin", auth!.user.id),
-      () => enforce("emailDay", auth!.user.id),
+      () => enforce("emailWin", auth!.user.id, /* failClosed */ true),
+      () => enforce("emailDay", auth!.user.id, /* failClosed */ true),
     ]);
     if (!rl.ok) return err(429, "Zu viele E-Mails. Bitte später erneut.", { retryAfterSec: rl.retryAfterSec });
 
@@ -106,11 +107,22 @@ export async function POST(request: Request) {
     }
   }
 
-  // ── Anonymer Web-Pfad (/pruefen — unverändertes Verhalten) ─────────
+  // ── Anonymer Web-Pfad (/pruefen) ───────────────────────────────────
   const parsed = examEmailSchema.safeParse(body);
   if (!parsed.success) return err(400, "Die E-Mail-Daten sind unvollständig oder ungültig.");
 
-  const rl = await checkRateLimit("email", getClientIp(request));
+  const ip = getClientIp(request);
+  // Turnstile VOR der Ratenbegrenzung (tokenlose Bots ziehen kein Kontingent) —
+  // spiegelt /api/exam/grade und verhindert Missbrauch als E-Mail-Relay über die eigene Domain.
+  const turnstileToken = (body as { turnstileToken?: string })?.turnstileToken;
+  if (!(await verifyTurnstile(turnstileToken, ip))) {
+    return err(403, "Bitte bestätige, dass du kein Roboter bist.");
+  }
+  // Fail-CLOSED: ein Redis-/Upstash-Ausfall darf den anonymen Versand nicht öffnen.
+  const rl = await enforceAll([
+    () => enforce("emailWin", ip, /* failClosed */ true),
+    () => enforce("emailDay", ip, /* failClosed */ true),
+  ]);
   if (!rl.ok) {
     return err(429, `Zu viele E-Mails. Bitte versuche es in ca. ${rl.retryAfterSec} Sekunden erneut.`, { retryAfterSec: rl.retryAfterSec });
   }

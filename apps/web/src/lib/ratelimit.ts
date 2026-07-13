@@ -33,7 +33,8 @@ export type LimiterName =
   | "emailWin" | "emailDay"
   | "avatarUser"
   | "acctExport" | "acctDelete" | "resetProgress"
-  | "otpEmail" | "otpIp";
+  | "otpEmail" | "otpIp"
+  | "payCheckout";
 
 registerLimiters((mk: MkFn) => ({
   preAuthIp:  mk("rl:api:preauth:ip",  Ratelimit.slidingWindow(60,  "1 m")),   // fail-CLOSED, alle /api
@@ -49,6 +50,7 @@ registerLimiters((mk: MkFn) => ({
   resetProgress: mk("rl:api:acct:reset", Ratelimit.slidingWindow(3, "1 h")),
   otpEmail:   mk("rl:api:otp:email",   Ratelimit.slidingWindow(3,   "10 m")),
   otpIp:      mk("rl:api:otp:ip",      Ratelimit.slidingWindow(15,  "10 m")),   // fail-CLOSED
+  payCheckout: mk("rl:api:pay:ip",     Ratelimit.slidingWindow(10,  "10 m")),   // fail-CLOSED, per-IP
 }));
 
 /** Typed wrapper über den generischen enforce() (LimiterName-Sicherheit für Web-Routen). */

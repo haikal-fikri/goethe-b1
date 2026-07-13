@@ -5,6 +5,7 @@ import {
   MAX_USD,
   toCents,
 } from "@/lib/stripe";
+import { enforce, getClientIp } from "@/lib/ratelimit";
 
 // Erstellt eine Stripe-Checkout-Session für eine Pay-what-you-want-Zahlung und
 // gibt die gehostete Bezahl-URL zurück. Kein Webhook nötig — es gibt nichts zu
@@ -14,6 +15,16 @@ export async function POST(request: Request) {
     return Response.json(
       { error: "STRIPE_SECRET_KEY ist nicht gesetzt." },
       { status: 500 }
+    );
+  }
+
+  // Öffentliche Route: per-IP-Drossel (fail-CLOSED), damit niemand unbegrenzt
+  // Stripe-Checkout-Sessions erzeugt (API-Rauschen / Missbrauch).
+  const rl = await enforce("payCheckout", getClientIp(request), /* failClosed */ true);
+  if (!rl.ok) {
+    return Response.json(
+      { error: "Zu viele Anfragen. Bitte kurz warten." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } }
     );
   }
 

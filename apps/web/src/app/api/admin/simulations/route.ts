@@ -16,8 +16,14 @@ export async function POST(request: Request) {
 
   const parsed = createSimulationSchema.safeParse(body);
   if (!parsed.success) {
+    // Interne Feldnamen/Validierungsstruktur nur außerhalb der Produktion preisgeben.
     return Response.json(
-      { error: "Validierung fehlgeschlagen.", issues: parsed.error.flatten() },
+      {
+        error: "Validierung fehlgeschlagen.",
+        ...(process.env.NODE_ENV !== "production"
+          ? { issues: parsed.error.flatten() }
+          : {}),
+      },
       { status: 400 }
     );
   }

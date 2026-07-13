@@ -3,7 +3,7 @@ import { authenticate, parseJson, ok } from "@/lib/guard";
 import { supabaseService } from "@/lib/supabaseServer";
 import { enforce } from "@/lib/ratelimit";
 import { newRequestId, log } from "@/lib/log";
-import { presignPut } from "@/lib/r2";
+import { presignPut, deleteObject } from "@/lib/r2";
 
 // POST /api/speaking/submit — Schüler:in startet eine Sprechaufnahme. Der Server
 // erzeugt Zeile + audio_key + Presign; der Client PUTet danach die Audio zu R2.
@@ -99,10 +99,10 @@ export async function POST(req: Request) {
   //    Bereits benotet ⇒ 409 (kein Redo-Overwrite der Note).
   const { data: existing } = await svc
     .from("speaking_submissions")
-    .select("id, status")
+    .select("id, status, audio_key")
     .eq("assignment_id", assignmentId)
     .eq("student_id", studentId)
-    .maybeSingle<{ id: string; status: string }>();
+    .maybeSingle<{ id: string; status: string; audio_key: string | null }>();
   if (existing?.status === "graded") {
     return apiError(409, "conflict", "Diese Aufnahme wurde bereits bewertet.", { requestId });
   }
@@ -123,6 +123,17 @@ export async function POST(req: Request) {
   if (persist.error) {
     log("speaking/submit.persist", { requestId, ok: false, err: persist.error.message });
     return apiError(500, "internal_error", "Aufnahme konnte nicht angelegt werden.", { requestId });
+  }
+
+  // Beim Wiederaufnehmen wird der audio_key rotiert; das ALTE R2-Objekt ist danach
+  // von keiner Zeile mehr referenziert und würde vom key-basierten purge-Cron nie
+  // gefunden (permanenter Storage-Leak / DSGVO-Aufbewahrung). Deshalb best-effort löschen.
+  if (existing?.audio_key && existing.audio_key !== audioKey) {
+    try {
+      await deleteObject(existing.audio_key);
+    } catch (e) {
+      log("speaking/submit.orphan_delete", { requestId, submissionId, ok: false, err: String(e) });
+    }
   }
 
   // 7) Kurzlebiges (≤300 s) R2-PUT-Presign — nur Content-Type wird signiert/gepinnt

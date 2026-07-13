@@ -50,9 +50,12 @@ export async function parseJson<T>(
   }
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
+    // Interne Feldnamen/Validierungsstruktur nur außerhalb der Produktion preisgeben.
     return apiError(422, "validation_failed", "Ungültige Eingabe.", {
       requestId,
-      details: parsed.error.flatten(),
+      ...(process.env.NODE_ENV !== "production"
+        ? { details: parsed.error.flatten() }
+        : {}),
     });
   }
   return parsed.data;

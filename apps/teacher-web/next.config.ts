@@ -14,6 +14,10 @@ const nextConfig: NextConfig = {
       { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
       { key: "X-Content-Type-Options", value: "nosniff" },
       { key: "Referrer-Policy", value: "no-referrer" },
+      // Clickjacking-Schutz: Einbettung in fremde Frames verbieten.
+      // frame-ancestors ist der moderne Superset; X-Frame-Options für Altbrowser.
+      { key: "X-Frame-Options", value: "DENY" },
+      { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
     ];
     return [
       { source: "/:path*", headers: base },

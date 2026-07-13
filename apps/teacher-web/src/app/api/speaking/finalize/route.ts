@@ -124,12 +124,13 @@ export async function POST(req: Request) {
     if (!res.ok) throw new Error(`r2 get ${res.status}`);
     // Größendeckel VOR dem Puffern: presigned PUT kann keine Content-Length-Range
     // erzwingen, ein Client könnte also ein überdimensioniertes Objekt hochgeladen
-    // haben. R2 liefert Content-Length beim GET → zu groß ⇒ 422 (Claim zurück),
-    // OHNE das Objekt in den Speicher zu ziehen (OOM-/Egress-Schutz).
+    // haben. R2 liefert Content-Length beim GET → zu groß ODER fehlend ⇒ 422 (Claim
+    // zurück), OHNE das Objekt in den Speicher zu ziehen (OOM-/Egress-Schutz).
+    // Fail-CLOSED: ein fehlender/ungültiger Content-Length darf die Grenze nicht umgehen.
     const declaredBytes = Number(res.headers.get("content-length"));
-    if (Number.isFinite(declaredBytes) && declaredBytes > MAX_AUDIO_BYTES) {
+    if (!Number.isFinite(declaredBytes) || declaredBytes > MAX_AUDIO_BYTES) {
       await revertClaim();
-      return apiError(422, "validation_failed", "Die Aufnahme ist zu groß (max. 20 MB).", { requestId });
+      return apiError(422, "validation_failed", "Die Aufnahme ist zu groß oder ungültig (max. 20 MB).", { requestId });
     }
     const audio = await res.arrayBuffer();
     const { text, durationSec, model } = await transcriber.transcribe(audio, { languageDe: true });
