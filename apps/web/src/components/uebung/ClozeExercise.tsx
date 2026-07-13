@@ -111,22 +111,20 @@ export function ClozeExercise({
       >
         {/* Hinweis (englische Bedeutung) */}
         <div className="animate-fade-in px-1">
-          <div className="mb-1 flex items-center gap-2">
-            <span className="text-xs font-medium uppercase tracking-wide text-[var(--fg-dim)]">
+          <div className="mb-1.5 flex items-center gap-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">
               Ergänze die Lücken
             </span>
             <LevelBadge level={item.level} />
-            <span className="text-xs text-[var(--fg-dim)]">· {item.function.nameDe}</span>
+            <span className="text-xs text-faint">· {item.function.nameDe}</span>
           </div>
-          <p className="text-base italic text-[var(--fg-muted)]">
-            {item.translation}
-          </p>
+          <p className="text-base italic text-muted">{item.translation}</p>
         </div>
 
         {/* Deutscher Satz mit Lücken (natürlicher Textfluss) */}
         <div
           aria-label="Satz mit Lücken"
-          className="mt-6 text-lg leading-[2.4] text-[var(--fg)]"
+          className="mt-6 text-lg leading-[2.4] text-ink"
         >
           {parts.map((part, i) =>
             part.kind === "text" ? (
@@ -163,7 +161,7 @@ export function ClozeExercise({
             />
           ))}
           {trayPills.length === 0 && phase === "input" && (
-            <span className="px-1 text-sm text-[var(--fg-dim)]">
+            <span className="px-1 text-sm text-faint">
               Alle Pillen gesetzt — prüfe deine Lösung.
             </span>
           )}
@@ -171,7 +169,7 @@ export function ClozeExercise({
 
         <DragOverlay>
           {activeId ? (
-            <Pill label={pillById(activeId)?.label ?? ""} className="cursor-grabbing shadow-lg" />
+            <Pill label={pillById(activeId)?.label ?? ""} className="cursor-grabbing shadow-island" />
           ) : null}
         </DragOverlay>
       </DndContext>
@@ -230,19 +228,21 @@ function BlankSlot({
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: `blank-${index}`, disabled });
   const empty = !children;
+  // Rand/Füllung bleiben INLINE: sie hängen vom Laufzeit-Akzent und vom
+  // isOver-Zustand ab — das lässt sich nicht als Utility-Klasse ausdrücken.
   return (
     <span
       ref={setNodeRef}
-      className="mx-1 inline-flex min-h-[44px] min-w-[3.5rem] items-center justify-center rounded-[var(--radius)] align-middle"
+      className="mx-1 inline-flex min-h-[44px] min-w-[3.5rem] items-center justify-center rounded-tile align-middle"
       style={{
         border: empty ? "1.5px dashed" : "1.5px solid transparent",
         borderColor: isOver
           ? accent
           : empty
-            ? "var(--border-base)"
+            ? "var(--border-strong)"
             : "transparent",
         backgroundColor: isOver
-          ? `color-mix(in srgb, ${accent} 12%, transparent)`
+          ? `color-mix(in oklab, ${accent} 12%, transparent)`
           : "transparent",
       }}
     >
@@ -262,12 +262,10 @@ function Tray({
   return (
     <div
       ref={setNodeRef}
-      className="mt-6 flex min-h-[60px] flex-wrap content-start gap-2 rounded-[var(--radius)] border border-dashed p-2"
+      className="mt-6 flex min-h-[60px] flex-wrap content-start gap-2 rounded-card border border-dashed p-2"
       style={{
-        borderColor: isOver ? "var(--border-base)" : "var(--border-soft)",
-        backgroundColor: isOver
-          ? "color-mix(in srgb, var(--bg-elev) 60%, transparent)"
-          : "color-mix(in srgb, var(--bg-elev) 30%, transparent)",
+        borderColor: isOver ? "var(--gruen)" : "var(--border-strong)",
+        backgroundColor: isOver ? "var(--surface-alt)" : "var(--surface-sunken)",
       }}
     >
       {children}

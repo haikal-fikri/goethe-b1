@@ -6,6 +6,9 @@ import { LEVEL_RANK } from "@/types";
 import { functionRank } from "@repo/core";
 import { LevelBadge } from "@/components/LevelBadge";
 import { SKILL_ACCENT, SKILL_LABEL } from "@/lib/ui";
+import { Chip, TextInput } from "@/components/ui/controls";
+import { Card, Eyebrow } from "@/components/ui/primitives";
+import { IconChevronRight, IconSearch } from "@/components/icons";
 
 const MIN_FILTERS: { label: string; min: CEFRLevel }[] = [
   { label: "Alle", min: "B1" },
@@ -153,141 +156,127 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
   }, [items, activeSkill, minLevel, activeTask, query]);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-20 pt-6">
+    <div>
       <div role="tablist" className="flex gap-2 overflow-x-auto pb-1">
-        {skills.map((s) => {
-          const isActive = s === activeSkill;
-          return (
-            <button
-              key={s}
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => pickSkill(s)}
-              className="shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors"
-              style={{
-                borderColor: isActive ? "var(--fg)" : "var(--border-soft)",
-                color: isActive ? "var(--bg)" : "var(--fg-muted)",
-                backgroundColor: isActive ? "var(--fg)" : "transparent",
-              }}
-            >
-              {SKILL_LABEL[s]}
-            </button>
-          );
-        })}
+        {skills.map((s) => (
+          <Chip
+            key={s}
+            role="tab"
+            aria-selected={s === activeSkill}
+            active={s === activeSkill}
+            onClick={() => pickSkill(s)}
+          >
+            {SKILL_LABEL[s]}
+          </Chip>
+        ))}
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        {MIN_FILTERS.map((f) => {
-          const isActive = f.min === minLevel;
-          return (
-            <button
-              key={f.min}
-              onClick={() => setMinLevel(f.min)}
-              className="rounded-full border px-3 py-1 text-xs transition-colors"
-              style={{
-                borderColor: isActive ? "var(--fg)" : "var(--border-soft)",
-                color: isActive ? "var(--bg)" : "var(--fg-muted)",
-                backgroundColor: isActive ? "var(--fg)" : "transparent",
-              }}
-            >
-              {f.label}
-            </button>
-          );
-        })}
-        <input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Suchen …"
-          className="ml-auto min-w-[140px] flex-1 rounded-full border border-[var(--border-soft)] bg-[var(--bg-elev)] px-3 py-1.5 text-sm text-[var(--fg)] outline-none focus:border-[var(--border)] sm:flex-none"
-        />
+        {MIN_FILTERS.map((f) => (
+          <Chip
+            key={f.min}
+            size="sm"
+            active={f.min === minLevel}
+            onClick={() => setMinLevel(f.min)}
+          >
+            {f.label}
+          </Chip>
+        ))}
+        <div className="relative ml-auto flex min-w-[160px] flex-1 items-center sm:max-w-[260px] sm:flex-none">
+          <IconSearch
+            size={16}
+            style={{ position: "absolute", left: 12, color: "var(--text-3)" }}
+          />
+          <TextInput
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Suchen …"
+            style={{ height: 38, paddingLeft: 34, fontSize: 13.5 }}
+          />
+        </div>
       </div>
 
       {/* Aufgabe / Prüfungsteil — nur wenn die Fertigkeit mehrere Teile hat
           (also nicht bei Konnektoren mit nur einem Teil). */}
       {taskTabs.length > 1 && (
-      <div role="tablist" className="mt-3 flex gap-2 overflow-x-auto pb-1">
-        {taskTabs.map((t) => {
-          const isActive = t.code === activeTask;
-          const label = shortTaskLabel(t.label);
-          return (
-            <button
+        <div role="tablist" className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          {taskTabs.map((t) => (
+            <Chip
               key={t.code}
+              size="sm"
               role="tab"
-              aria-selected={isActive}
+              aria-selected={t.code === activeTask}
+              active={t.code === activeTask}
               onClick={() => setActiveTask(t.code)}
-              className="shrink-0 rounded-full border px-3 py-1.5 text-xs transition-colors"
-              style={{
-                borderColor: isActive ? "var(--fg)" : "var(--border-soft)",
-                color: isActive ? "var(--bg)" : "var(--fg-muted)",
-                backgroundColor: isActive ? "var(--fg)" : "transparent",
-              }}
             >
-              {label}
-            </button>
-          );
-        })}
-      </div>
+              {shortTaskLabel(t.label)}
+            </Chip>
+          ))}
+        </div>
       )}
 
       {groups.length === 0 && (
-        <p className="mt-10 text-center text-sm text-[var(--fg-dim)]">
-          Keine Treffer.
-        </p>
+        <p className="mt-10 text-center text-sm text-faint">Keine Treffer.</p>
       )}
 
       <div key={`${activeSkill}-${activeTask}`} className="animate-fade-in">
         {groups.map((g) => (
           <section key={g.taskCode} className="mt-7">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--fg-dim)]">
-              {g.taskLabel}
-            </h2>
+            <Eyebrow style={{ marginBottom: 12 }}>{g.taskLabel}</Eyebrow>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {g.functions.map((fn) => (
-                <div
-                  key={fn.code}
-                  className="rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4"
-                >
-                  <h3 className="mb-2 font-serif text-base font-medium text-[var(--fg)]">
+                <Card key={fn.code} radius={18} style={{ padding: "16px 18px" }}>
+                  <h3
+                    className="mb-2 font-serif"
+                    style={{
+                      margin: "0 0 10px",
+                      fontSize: 17,
+                      fontWeight: 600,
+                      color: "var(--text-hi)",
+                    }}
+                  >
                     {fn.name}
                   </h3>
                   <ul className="flex flex-col gap-1">
                     {groupByLabel(fn.items).map((entry) => (
                       <li key={entry.label}>
                         <details className="group/item">
-                          <summary className="flex cursor-pointer list-none items-start gap-2 rounded-[calc(var(--radius)-4px)] py-1 outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">
+                          <summary className="flex cursor-pointer list-none items-start gap-2 rounded-tile py-1 outline-none focus-visible:ring-2 focus-visible:ring-line-strong">
                             <span
-                              className="mt-0.5 shrink-0 text-[var(--fg-dim)] transition-transform group-open/item:rotate-90"
+                              className="mt-0.5 shrink-0 transition-transform group-open/item:rotate-90"
                               style={{ color: accent }}
                               aria-hidden
                             >
-                              ›
+                              <IconChevronRight size={15} />
                             </span>
-                            <span className="flex-1 text-[var(--fg)]">
+                            <span className="flex-1 text-sm text-body">
                               {entry.label}
                             </span>
                             <LevelBadge level={entry.items[0].level} />
                           </summary>
-                          <div className="mt-1 flex flex-col gap-2 border-l-2 pl-3 pt-0.5"
-                            style={{ borderColor: `color-mix(in srgb, ${accent} 35%, transparent)`, marginLeft: "0.3rem" }}
+                          <div
+                            className="mt-1 flex flex-col gap-2 border-l-2 pl-3 pt-0.5"
+                            style={{
+                              borderColor: `color-mix(in oklab, ${accent} 35%, transparent)`,
+                              marginLeft: "0.3rem",
+                            }}
                           >
                             {entry.items.map((it) => (
                               <div key={it.id} className="flex flex-col gap-0.5">
-                                <span className="text-sm text-[var(--fg)]">
-                                  {it.phrase}
-                                </span>
-                                <span className="text-xs italic text-[var(--fg-dim)]">
+                                <span className="text-sm text-ink">{it.phrase}</span>
+                                <span className="text-xs italic text-faint">
                                   {it.translation}
                                 </span>
                                 {it.notes && (
-                                  <span className="text-xs text-[var(--fg-muted)]">
-                                    {it.notes}
-                                  </span>
+                                  <span className="text-xs text-muted">{it.notes}</span>
                                 )}
                                 {(it.examples ?? []).slice(0, 2).map((ex, i) => (
-                                  <span key={i} className="text-xs text-[var(--fg-muted)]">
-                                    <span className="text-[var(--fg)]">{ex.de}</span>
-                                    {ex.en && <span className="text-[var(--fg-dim)]"> — {ex.en}</span>}
+                                  <span key={i} className="text-xs text-muted">
+                                    <span className="text-ink">{ex.de}</span>
+                                    {ex.en && (
+                                      <span className="text-faint"> — {ex.en}</span>
+                                    )}
                                   </span>
                                 ))}
                               </div>
@@ -297,7 +286,7 @@ export function ReferenceBrowser({ items }: { items: RedemittelItem[] }) {
                       </li>
                     ))}
                   </ul>
-                </div>
+                </Card>
               ))}
             </div>
           </section>

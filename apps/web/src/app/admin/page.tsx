@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { AppHeader } from "@/components/AppHeader";
+import { AdminHeader } from "@/components/admin/AdminHeader";
 import { SimulationForm } from "@/components/admin/SimulationForm";
 import { clearAdminCookie, requireAdmin } from "@/lib/adminAuth";
 
@@ -17,7 +17,7 @@ export default async function AdminPage() {
 
   return (
     <>
-      <AppHeader />
+      <AdminHeader />
       <main className="flex-1">
         <div className="mx-auto max-w-5xl px-4 pt-6">
           <div className="flex items-start justify-between gap-3">

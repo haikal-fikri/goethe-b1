@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "lint:tokens": "bash scripts/lint-tokens.sh",
     "seed:export": "node scripts/export-seed.mjs",
     "seed:class-dev": "node scripts/seed-class-dev.mjs"
   },

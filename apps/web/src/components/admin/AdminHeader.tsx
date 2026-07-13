@@ -1,5 +1,11 @@
 "use client";
 
+// Kopfzeile NUR für /admin. Das Admin-Panel wurde bewusst nicht auf das neue
+// Designsystem migriert; es rendert weiterhin über die Legacy-Token-Aliase in
+// globals.css (--fg, --bg-elev, --outline …) und bleibt dadurch stimmig, ohne
+// angefasst zu werden. Die Lernenden-Routen nutzen stattdessen PublicShell.
+// Beim Migrieren von /admin: diese Datei UND die Alias-Schicht entfernen.
+
 import { useState } from "react";
 import Link from "next/link";
 import { SneakerMove, HandCoins } from "@phosphor-icons/react";
@@ -11,7 +17,7 @@ const LINKS = [
   { href: "/pruefen", label: "Prüfen" },
 ];
 
-export function AppHeader() {
+export function AdminHeader() {
   const [open, setOpen] = useState(false);
 
   return (

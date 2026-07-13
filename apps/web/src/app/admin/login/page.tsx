@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { AppHeader } from "@/components/AppHeader";
+import { AdminHeader } from "@/components/admin/AdminHeader";
 import { checkPassword, setAdminCookie } from "@/lib/adminAuth";
 
 export const metadata = { title: "Admin · Login · B1+Trainer" };
@@ -22,7 +22,7 @@ export default async function AdminLoginPage({
 
   return (
     <>
-      <AppHeader />
+      <AdminHeader />
       <main className="flex-1">
         <div className="mx-auto max-w-sm px-4 pt-12">
           <h1 className="text-2xl font-semibold tracking-tight text-[var(--fg)]">

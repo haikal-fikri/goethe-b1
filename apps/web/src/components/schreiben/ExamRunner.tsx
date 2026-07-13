@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type {
-  CriterionBand,
   ExamGrade,
   ExaminerResult,
   ExamSimulation,
@@ -13,28 +12,12 @@ import {
   turnstileEnabledClient,
   type TurnstileGateHandle,
 } from "./TurnstileGate";
-
-const ACCENT = "var(--accent-write)";
-
-type Status = "idle" | "loading" | "done" | "error";
-
-const BAND_COLOR: Record<CriterionBand, string> = {
-  A: "var(--ok)",
-  B: "var(--ok)",
-  C: "var(--accent-write)",
-  D: "var(--bad)",
-  E: "var(--bad)",
-};
-
-function wordCount(text: string): number {
-  const t = text.trim();
-  return t === "" ? 0 : t.split(/\s+/).length;
-}
-
-/** Punkte mit deutschem Dezimalkomma, z.B. 7.5 → "7,5". */
-function fmtPunkte(n: number): string {
-  return n.toLocaleString("de-DE", { maximumFractionDigits: 1 });
-}
+import { Card, Num, Pill } from "@/components/ui/primitives";
+import { Button, Chip, FieldLabel, INPUT } from "@/components/ui/controls";
+import { IconChevronRight } from "@/components/icons";
+import { ACCENT, wordCount, type Status } from "./examUi";
+import { GradingProgress } from "./GradingProgress";
+import { GradeResult } from "./GradeResult";
 
 export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
   const [simId, setSimId] = useState(simulations[0]?.id ?? 1);
@@ -188,22 +171,22 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
   const words = wordCount(text);
   const underTarget = task ? words > 0 && words < task.minWords : false;
   const tooShort = text.trim().length < 20;
+  const submitDisabled =
+    status === "loading" || tooShort || (turnstileEnabledClient && !token);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-20 pt-6">
+    <div>
       {/* Simulation (Dropdown) */}
-      <div className="flex flex-col gap-1">
-        <label
-          htmlFor="sim-select"
-          className="text-xs font-medium text-[var(--fg-dim)]"
-        >
-          Simulation
+      <div className="max-w-xs">
+        <label htmlFor="sim-select">
+          <FieldLabel>Simulation</FieldLabel>
         </label>
         <select
           id="sim-select"
           value={simId}
           onChange={(e) => selectSim(Number(e.target.value))}
-          className="w-full max-w-xs rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] px-3 py-2 text-sm text-[var(--fg)] outline-none focus:border-[var(--border)]"
+          className="focus-ring"
+          style={{ ...INPUT, height: 42, fontSize: 13.5 }}
         >
           {simulations.map((s) => (
             <option key={s.id} value={s.id}>
@@ -216,8 +199,13 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
       {/* Aufgaben der Simulation */}
       <div className="mt-4 flex flex-wrap gap-2">
         {sim?.tasks.map((t) => (
-          <Chip key={t.id} active={t.id === taskId} onClick={() => selectTask(t.id)}>
-            Aufgabe {t.aufgabe}
+          <Chip
+            key={t.id}
+            size="sm"
+            active={t.id === taskId}
+            onClick={() => selectTask(t.id)}
+          >
+            Aufgabe <Num>{t.aufgabe}</Num>
           </Chip>
         ))}
       </div>
@@ -227,37 +215,32 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
         <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-5">
           {/* Aufgabenstellung (links) */}
           <div className="lg:col-span-2">
-            <div className="rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4 lg:h-full lg:min-h-[60vh]">
-              <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                <span
-                  className="whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-medium"
-                  style={{
-                    color: ACCENT,
-                    backgroundColor: `color-mix(in srgb, ${ACCENT} 16%, transparent)`,
-                  }}
-                >
-                  {task.taskType}
-                </span>
-                <span className="text-xs text-[var(--fg-dim)]">
-                  ca. {task.minWords} Wörter
-                  {task.recommendedMinutes
-                    ? ` · ${task.recommendedMinutes} Min.`
-                    : ""}
+            <Card radius={18} style={{ height: "100%" }} className="lg:min-h-[60vh]">
+              <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+                <Pill tone="gruen">{task.taskType}</Pill>
+                <span className="text-xs text-faint">
+                  ca. <Num>{task.minWords}</Num> Wörter
+                  {task.recommendedMinutes ? (
+                    <>
+                      {" "}
+                      · <Num>{task.recommendedMinutes}</Num> Min.
+                    </>
+                  ) : null}
                 </span>
               </div>
-              <h2 className="text-sm font-semibold text-[var(--fg)]">
+              <h2
+                className="font-serif"
+                style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "var(--text-hi)" }}
+              >
                 {task.titleDe}
               </h2>
-              <p className="mt-1 whitespace-pre-line text-sm text-[var(--fg-muted)]">
+              <p className="mt-1.5 whitespace-pre-line text-sm leading-relaxed text-muted">
                 {task.promptDe}
               </p>
               {task.bulletPointsDe && (
-                <ul className="mt-2 flex flex-col gap-1">
+                <ul className="mt-3 flex flex-col gap-1.5">
                   {task.bulletPointsDe.map((b, i) => (
-                    <li
-                      key={i}
-                      className="flex items-start gap-2 text-sm text-[var(--fg-muted)]"
-                    >
+                    <li key={i} className="flex items-start gap-2 text-sm text-muted">
                       <span style={{ color: ACCENT }}>•</span>
                       <span>{b}</span>
                     </li>
@@ -265,25 +248,26 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
                 </ul>
               )}
               {task.sampleAnswerDe && (
-                <details className="group/sample mt-3 border-t border-[var(--border-soft)] pt-3">
+                <details className="group/sample mt-4 border-t border-line pt-3">
                   <summary
-                    className="flex cursor-pointer list-none items-center gap-2 text-xs font-medium outline-none"
+                    className="flex cursor-pointer list-none items-center gap-1.5 text-xs font-semibold outline-none"
                     style={{ color: ACCENT }}
                   >
                     <span className="transition-transform group-open/sample:rotate-90">
-                      ›
+                      <IconChevronRight size={14} />
                     </span>
                     Beispieltext anzeigen
                   </summary>
-                  <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-[var(--fg-muted)]">
+                  <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted">
                     {task.sampleAnswerDe}
                   </p>
                 </details>
               )}
-            </div>
+            </Card>
           </div>
 
-          {/* Schreibfeld (rechts) — Monospace wie im echten CBT */}
+          {/* Schreibfeld (rechts) — Monospace wie im echten CBT.
+              Mono ist hier die EINZIGE sanktionierte Rolle: getippter Prüfungstext. */}
           <div className="flex flex-col lg:col-span-3">
             <textarea
               value={text}
@@ -291,32 +275,35 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
               disabled={status === "loading" || status === "done"}
               placeholder="Schreibe hier deine Antwort …"
               spellCheck={false}
-              className="min-h-[260px] w-full resize-y rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] p-4 font-mono text-[15px] leading-relaxed text-[var(--fg)] outline-none focus:border-[var(--border)] disabled:opacity-60 lg:min-h-[60vh]"
+              className="focus-ring min-h-[260px] w-full resize-y rounded-input border border-line bg-surface p-4 font-mono text-[15px] leading-relaxed text-ink outline-none disabled:opacity-60 lg:min-h-[60vh]"
             />
             <TurnstileGate ref={turnstileRef} onToken={setToken} />
-            <div className="mt-2 flex items-center justify-between text-xs">
-              <span
-                style={{ color: underTarget ? "var(--bad)" : "var(--fg-dim)" }}
-              >
-                {words} Wörter
-                {underTarget ? ` · Ziel: ca. ${task.minWords}` : ""}
+            <div className="mt-2.5 flex items-center justify-between gap-3 text-xs">
+              <span style={{ color: underTarget ? "var(--rot-text)" : "var(--text-2)" }}>
+                <Num>{words}</Num> Wörter
+                {underTarget ? (
+                  <>
+                    {" "}
+                    · Ziel: ca. <Num>{task.minWords}</Num>
+                  </>
+                ) : null}
               </span>
-              <button
+              <Button
+                variant="accent"
                 onClick={submit}
-                disabled={
-                  status === "loading" ||
-                  tooShort ||
-                  (turnstileEnabledClient && !token)
-                }
-                className="rounded-full px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40"
-                style={{ color: "var(--bg)", backgroundColor: ACCENT }}
+                disabled={submitDisabled}
+                style={{
+                  height: 40,
+                  opacity: submitDisabled ? 0.4 : 1,
+                  cursor: submitDisabled ? "not-allowed" : "pointer",
+                }}
               >
                 {status === "loading"
                   ? "Wird bewertet …"
                   : !tooShort && turnstileEnabledClient && !token
                     ? "Sicherheitsprüfung …"
                     : "Bewerten lassen"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -324,49 +311,24 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
 
       {/* Ladezustand — Fortschritt (Vier-Augen-Prinzip) */}
       {status === "loading" && (
-        <div
-          aria-busy="true"
-          className="mt-5 animate-fade-in rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4"
-        >
-          <div className="text-sm font-medium text-[var(--fg)]">
-            Vier-Augen-Prinzip — Bewertung läuft
-          </div>
-          <ul className="mt-3 flex flex-col gap-2">
-            <StepRow state="done" label="Antwort gesendet" />
-            <StepRow
-              state={doneExaminers.includes("mild") ? "done" : "active"}
-              label="Prüfer A · mild bewertet"
-            />
-            <StepRow
-              state={doneExaminers.includes("streng") ? "done" : "active"}
-              label="Prüfer B · streng bewertet"
-            />
-            {thirdActive && (
-              <StepRow state="active" label="Drittprüfer entscheidet" />
-            )}
-            <StepRow
-              state={doneExaminers.length >= 2 ? "active" : "pending"}
-              label="Ergebnis wird zusammengeführt"
-            />
-          </ul>
-        </div>
+        <GradingProgress doneExaminers={doneExaminers} thirdActive={thirdActive} />
       )}
 
       {/* Fehler */}
       {status === "error" && (
         <div
-          className="mt-5 animate-fade-in rounded-[var(--radius)] border p-4 text-sm"
+          className="mt-5 animate-fade-in rounded-card p-4 text-sm"
           style={{
-            borderColor: "color-mix(in srgb, var(--bad) 50%, transparent)",
-            backgroundColor: "color-mix(in srgb, var(--bad) 12%, transparent)",
-            color: "var(--fg)",
+            border: "1px solid color-mix(in oklab, var(--rot) 45%, transparent)",
+            background: "var(--rot-tint)",
+            color: "var(--text-1)",
           }}
         >
           {errorMsg}
           <button
             onClick={submit}
             className="ml-2 underline underline-offset-2"
-            style={{ color: "var(--bad)" }}
+            style={{ color: "var(--rot-text)" }}
           >
             erneut versuchen
           </button>
@@ -387,514 +349,5 @@ export function ExamRunner({ simulations }: { simulations: ExamSimulation[] }) {
         </div>
       )}
     </div>
-  );
-}
-
-function BandChip({ band }: { band: CriterionBand }) {
-  return (
-    <span
-      className="grid h-6 w-6 place-items-center rounded-full text-xs font-semibold"
-      style={{
-        color: BAND_COLOR[band],
-        backgroundColor: `color-mix(in srgb, ${BAND_COLOR[band]} 16%, transparent)`,
-        border: `1px solid color-mix(in srgb, ${BAND_COLOR[band]} 45%, transparent)`,
-      }}
-    >
-      {band}
-    </span>
-  );
-}
-
-function GradeResult({
-  grade,
-  examiners,
-  thirdUsed,
-  task,
-  essay,
-  onReset,
-}: {
-  grade: ExamGrade;
-  examiners: ExaminerResult[];
-  thirdUsed: boolean;
-  task: ExamTask;
-  essay: string;
-  onReset: () => void;
-}) {
-  const bandOf = (label: string, key: string): CriterionBand | undefined =>
-    examiners
-      .find((e) => e.label === label)
-      ?.grade.criteria.find((c) => c.key === key)?.band;
-
-  return (
-    <div className="mt-6 animate-fade-in">
-      {/* Kopf: Gesamtpunkte + bestanden */}
-      <div className="flex items-center justify-between rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4">
-        <div>
-          <div className="text-xs text-[var(--fg-dim)]">
-            Gesamtergebnis · Vier-Augen-Prinzip
-          </div>
-          <div className="text-2xl font-semibold text-[var(--fg)]">
-            {fmtPunkte(grade.gesamtpunkte)}
-            <span className="text-base font-normal text-[var(--fg-dim)]">
-              {" "}
-              / {fmtPunkte(grade.maxPunkte)}
-            </span>
-          </div>
-        </div>
-        <span
-          className="rounded-full px-3 py-1 text-sm font-medium"
-          style={{
-            color: grade.bestanden ? "var(--ok)" : "var(--bad)",
-            backgroundColor: grade.bestanden
-              ? "color-mix(in srgb, var(--ok) 16%, transparent)"
-              : "color-mix(in srgb, var(--bad) 16%, transparent)",
-          }}
-        >
-          {grade.bestanden ? "bestanden" : "nicht bestanden"}
-        </span>
-      </div>
-
-      {/* Kriterien (zusammengeführt) */}
-      <ul className="mt-3 flex flex-col gap-3">
-        {grade.criteria.map((c) => (
-          <li
-            key={c.key}
-            className="rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <BandChip band={c.band} />
-                <span className="text-sm font-semibold text-[var(--fg)]">
-                  {c.labelDe}
-                </span>
-              </div>
-              <span className="text-xs text-[var(--fg-dim)]">
-                {fmtPunkte(c.punkte)} / {fmtPunkte(c.maxPunkte)} Punkte
-              </span>
-            </div>
-            <p className="mt-2 text-sm text-[var(--fg-muted)]">
-              {c.begruendungDe}
-            </p>
-          </li>
-        ))}
-      </ul>
-
-      {/* Vier-Augen-Aufschlüsselung */}
-      {examiners.length >= 2 && (
-        <details className="group/aug mt-3 rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4">
-          <summary
-            className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-[var(--fg)] outline-none"
-          >
-            <span
-              className="transition-transform group-open/aug:rotate-90"
-              style={{ color: ACCENT }}
-            >
-              ›
-            </span>
-            4-Augen-Prinzip — die zwei Prüfer im Vergleich
-          </summary>
-
-          <div className="mt-3 overflow-x-auto">
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="text-left text-xs text-[var(--fg-dim)]">
-                  <th className="py-1 pr-3 font-medium">Kriterium</th>
-                  <th className="px-2 py-1 text-center font-medium">A · mild</th>
-                  <th className="px-2 py-1 text-center font-medium">B · streng</th>
-                  {thirdUsed && (
-                    <th className="px-2 py-1 text-center font-medium">Konsens</th>
-                  )}
-                  <th className="px-2 py-1 text-center font-medium">Ø Punkte</th>
-                </tr>
-              </thead>
-              <tbody>
-                {grade.criteria.map((c) => {
-                  const a = bandOf("mild", c.key);
-                  const b = bandOf("streng", c.key);
-                  const k = bandOf("konsens", c.key);
-                  return (
-                    <tr
-                      key={c.key}
-                      className="border-t border-[var(--border-soft)]"
-                    >
-                      <td className="py-2 pr-3 text-[var(--fg-muted)]">
-                        {c.labelDe}
-                      </td>
-                      <td className="px-2 py-2 text-center">
-                        {a && (
-                          <span className="inline-grid place-items-center">
-                            <BandChip band={a} />
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-2 py-2 text-center">
-                        {b && (
-                          <span className="inline-grid place-items-center">
-                            <BandChip band={b} />
-                          </span>
-                        )}
-                      </td>
-                      {thirdUsed && (
-                        <td className="px-2 py-2 text-center">
-                          {k && (
-                            <span className="inline-grid place-items-center">
-                              <BandChip band={k} />
-                            </span>
-                          )}
-                        </td>
-                      )}
-                      <td className="px-2 py-2 text-center text-[var(--fg-muted)]">
-                        {fmtPunkte(c.punkte)}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          <p className="mt-3 text-xs leading-relaxed text-[var(--fg-dim)]">
-            Wie in der echten Prüfung bewerten zwei Prüfer unabhängig; das
-            Endergebnis ist das arithmetische Mittel beider Bewertungen.
-            {thirdUsed
-              ? " Da sich die beiden über das Bestehen uneinig waren, gab eine Drittbewertung (Prüfer C) den Ausschlag."
-              : ""}
-          </p>
-        </details>
-      )}
-
-      {/* Gesamtrückmeldung */}
-      <div className="mt-3 rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4">
-        <h3 className="text-sm font-semibold text-[var(--fg)]">Rückmeldung</h3>
-        <p className="mt-1 text-sm text-[var(--fg-muted)]">{grade.summaryDe}</p>
-        {grade.korrekturen && grade.korrekturen.length > 0 && (
-          <>
-            <h4 className="mt-3 text-xs font-semibold uppercase tracking-wide text-[var(--fg-dim)]">
-              Verbesserungsvorschläge
-            </h4>
-            <ul className="mt-1 flex flex-col gap-1">
-              {grade.korrekturen.map((k, i) => (
-                <li
-                  key={i}
-                  className="flex items-start gap-2 text-sm text-[var(--fg-muted)]"
-                >
-                  <span style={{ color: ACCENT }}>→</span>
-                  <span>{k}</span>
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-      </div>
-
-      {/* Ergebnis per E-Mail teilen */}
-      <SendResultByEmail
-        task={task}
-        essay={essay}
-        grade={grade}
-        examiners={examiners}
-        thirdUsed={thirdUsed}
-      />
-
-      <button
-        onClick={onReset}
-        className="mt-4 rounded-full border px-4 py-2 text-sm transition-colors"
-        style={{ borderColor: "var(--border-soft)", color: "var(--fg-muted)" }}
-      >
-        Neue Antwort schreiben
-      </button>
-    </div>
-  );
-}
-
-const emailInputCls =
-  "rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev)] px-3 py-2 text-sm text-[var(--fg)] outline-none focus:border-[var(--border)]";
-
-function isEmail(v: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
-}
-
-/**
- * Sendet Aufgabe + Aufsatz + Bewertung per E-Mail an Lernende:n und Lehrkraft.
- * Die Bewertungsdaten liegen bereits im Client (MVP, siehe Plan).
- */
-function SendResultByEmail({
-  task,
-  essay,
-  grade,
-  examiners,
-  thirdUsed,
-}: {
-  task: ExamTask;
-  essay: string;
-  grade: ExamGrade;
-  examiners: ExaminerResult[];
-  thirdUsed: boolean;
-}) {
-  const [open, setOpen] = useState(false);
-  const [studentEmail, setStudentEmail] = useState("");
-  const [teacherEmail, setTeacherEmail] = useState("");
-  const [studentName, setStudentName] = useState("");
-  const [teacherName, setTeacherName] = useState("");
-  const [status, setStatus] = useState<Status>("idle");
-  const [errorMsg, setErrorMsg] = useState("");
-  // Eigenes Turnstile-Token für den E-Mail-Versand — getrennt vom Bewertungs-Flow,
-  // dessen Token bereits verbraucht/zurückgesetzt wurde. Ohne Site-Key inert.
-  const [token, setToken] = useState<string | null>(null);
-  const turnstileRef = useRef<TurnstileGateHandle>(null);
-
-  const canSend =
-    isEmail(studentEmail) &&
-    isEmail(teacherEmail) &&
-    status !== "loading" &&
-    (!turnstileEnabledClient || !!token);
-
-  async function send() {
-    if (!isEmail(studentEmail) || !isEmail(teacherEmail)) {
-      setStatus("error");
-      setErrorMsg("Bitte gib zwei gültige E-Mail-Adressen ein.");
-      return;
-    }
-    setStatus("loading");
-    setErrorMsg("");
-
-    const payload = {
-      recipients: {
-        studentEmail: studentEmail.trim(),
-        teacherEmail: teacherEmail.trim(),
-        ...(studentName.trim() ? { studentName: studentName.trim() } : {}),
-        ...(teacherName.trim() ? { teacherName: teacherName.trim() } : {}),
-      },
-      task: {
-        titleDe: task.titleDe,
-        taskType: task.taskType,
-        aufgabe: task.aufgabe,
-        promptDe: task.promptDe,
-        ...(task.bulletPointsDe ? { bulletPointsDe: task.bulletPointsDe } : {}),
-        minWords: task.minWords,
-      },
-      essay,
-      grade,
-      examiners,
-      thirdUsed,
-      turnstileToken: token ?? undefined,
-    };
-
-    try {
-      const res = await fetch("/api/exam/email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        let msg = "Die E-Mail konnte nicht versendet werden.";
-        try {
-          const d = await res.json();
-          msg = d?.error ?? msg;
-        } catch {
-          /* leer */
-        }
-        setStatus("error");
-        setErrorMsg(msg);
-        return;
-      }
-      setStatus("done");
-    } catch {
-      setStatus("error");
-      setErrorMsg("Verbindung fehlgeschlagen. Bitte versuche es erneut.");
-    } finally {
-      // Turnstile-Tokens sind Einweg — nach jedem Versuch ein frisches holen.
-      turnstileRef.current?.reset();
-    }
-  }
-
-  if (status === "done") {
-    const sameRecipient =
-      studentEmail.trim().toLowerCase() === teacherEmail.trim().toLowerCase();
-    return (
-      <div
-        className="mt-4 animate-fade-in rounded-[var(--radius)] border p-4 text-sm"
-        style={{
-          borderColor: "color-mix(in srgb, var(--ok) 45%, transparent)",
-          backgroundColor: "color-mix(in srgb, var(--ok) 12%, transparent)",
-          color: "var(--fg)",
-        }}
-      >
-        <span style={{ color: "var(--ok)", fontWeight: 600 }}>
-          Ergebnis versendet.
-        </span>{" "}
-        An {teacherEmail.trim()}
-        {sameRecipient ? "" : ` (Kopie an ${studentEmail.trim()})`}.
-        <button
-          onClick={() => setStatus("idle")}
-          className="ml-2 underline underline-offset-2"
-          style={{ color: "var(--fg-muted)" }}
-        >
-          An andere Adresse senden
-        </button>
-      </div>
-    );
-  }
-
-  if (!open) {
-    return (
-      <button
-        onClick={() => setOpen(true)}
-        className="mt-4 ml-0 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors sm:ml-3"
-        style={{ borderColor: ACCENT, color: ACCENT }}
-      >
-        Ergebnis per E-Mail senden
-      </button>
-    );
-  }
-
-  return (
-    <div className="mt-4 animate-fade-in rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4">
-      <h3 className="text-sm font-semibold text-[var(--fg)]">
-        Ergebnis per E-Mail senden
-      </h3>
-      <p className="mt-1 text-xs text-[var(--fg-dim)]">
-        Aufgabe, dein Text und die Bewertung gehen an dich und deine Lehrkraft.
-      </p>
-
-      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <label className="flex flex-col gap-1">
-          <span className="text-xs text-[var(--fg-dim)]">Deine E-Mail</span>
-          <input
-            type="email"
-            value={studentEmail}
-            onChange={(e) => setStudentEmail(e.target.value)}
-            placeholder="du@beispiel.de"
-            autoComplete="email"
-            className={emailInputCls}
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-xs text-[var(--fg-dim)]">
-            E-Mail der Lehrkraft
-          </span>
-          <input
-            type="email"
-            value={teacherEmail}
-            onChange={(e) => setTeacherEmail(e.target.value)}
-            placeholder="lehrkraft@schule.de"
-            className={emailInputCls}
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-xs text-[var(--fg-dim)]">Dein Name (optional)</span>
-          <input
-            value={studentName}
-            onChange={(e) => setStudentName(e.target.value)}
-            className={emailInputCls}
-          />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-xs text-[var(--fg-dim)]">
-            Name der Lehrkraft (optional)
-          </span>
-          <input
-            value={teacherName}
-            onChange={(e) => setTeacherName(e.target.value)}
-            className={emailInputCls}
-          />
-        </label>
-      </div>
-
-      {status === "error" && (
-        <p className="mt-3 text-sm" style={{ color: "var(--bad)" }} role="alert">
-          {errorMsg}
-        </p>
-      )}
-
-      <TurnstileGate ref={turnstileRef} onToken={setToken} />
-
-      <div className="mt-4 flex items-center gap-3">
-        <button
-          onClick={send}
-          disabled={!canSend}
-          className="rounded-full px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40"
-          style={{ color: "var(--bg)", backgroundColor: ACCENT }}
-        >
-          {status === "loading" ? "Wird gesendet …" : "Senden"}
-        </button>
-        <button
-          onClick={() => {
-            setOpen(false);
-            setStatus("idle");
-            setErrorMsg("");
-          }}
-          className="text-sm text-[var(--fg-muted)] underline-offset-2 hover:underline"
-        >
-          Abbrechen
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function Spinner() {
-  return (
-    <span
-      className="h-4 w-4 animate-spin rounded-full border-2"
-      style={{ borderColor: "var(--border-soft)", borderTopColor: ACCENT }}
-      aria-hidden
-    />
-  );
-}
-
-function StepRow({
-  state,
-  label,
-}: {
-  state: "pending" | "active" | "done";
-  label: string;
-}) {
-  return (
-    <li className="flex items-center gap-2.5 text-sm">
-      {state === "done" ? (
-        <span
-          className="grid h-4 w-4 place-items-center rounded-full text-[10px] font-bold"
-          style={{ color: "var(--bg)", backgroundColor: "var(--ok)" }}
-        >
-          ✓
-        </span>
-      ) : state === "active" ? (
-        <Spinner />
-      ) : (
-        <span className="h-4 w-4 rounded-full border border-[var(--border-soft)]" />
-      )}
-      <span
-        style={{
-          color: state === "pending" ? "var(--fg-dim)" : "var(--fg-muted)",
-        }}
-      >
-        {label}
-      </span>
-    </li>
-  );
-}
-
-function Chip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="rounded-full border px-3 py-1.5 text-xs transition-colors"
-      style={{
-        borderColor: active ? "var(--fg)" : "var(--border-soft)",
-        color: active ? "var(--bg)" : "var(--fg-muted)",
-        backgroundColor: active ? "var(--fg)" : "transparent",
-      }}
-    >
-      {children}
-    </button>
   );
 }

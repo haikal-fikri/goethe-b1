@@ -28,9 +28,11 @@ export const Pill = forwardRef<HTMLButtonElement, PillProps>(function Pill(
       ref={ref}
       type="button"
       className={
-        "relative min-h-[44px] touch-manipulation select-none rounded-[var(--radius)] border border-[var(--border-soft)] bg-[var(--bg-elev-2)] px-3.5 py-2 text-[15px] text-[var(--fg)] transition-colors enabled:hover:border-[var(--border-base)] disabled:opacity-60" +
+        "press relative min-h-[44px] touch-manipulation select-none rounded-tile border border-line bg-surface-alt px-3.5 py-2 text-[15px] font-medium text-ink transition-colors enabled:hover:border-line-strong disabled:opacity-60" +
         (className ? ` ${className}` : "")
       }
+      // `...style` MUSS zuletzt stehen: dnd-kit liefert hierüber das transform
+      // während des Ziehens — es darf von nichts überschrieben werden.
       style={{
         opacity: dragging ? 0.4 : undefined,
         touchAction: draggable ? "none" : undefined,
@@ -41,7 +43,7 @@ export const Pill = forwardRef<HTMLButtonElement, PillProps>(function Pill(
     >
       {label}
       {variant === "bank" && index && (
-        <span className="ml-1.5 hidden font-mono text-[10px] text-[var(--fg-dim)] sm:inline">
+        <span className="ml-1.5 hidden font-serif text-[11px] tabular-nums text-faint sm:inline">
           {index}
         </span>
       )}

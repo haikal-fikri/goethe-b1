@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { PRESET_AMOUNTS, MIN_USD, MAX_USD } from "@/lib/stripe";
+import { Button, FieldLabel } from "@/components/ui/controls";
+import { Card, Num } from "@/components/ui/primitives";
 
 export function PayForm({ canceled }: { canceled?: boolean }) {
   // Ausgewählter Preset-Betrag (Zahl) oder "custom" für die Freieingabe.
@@ -39,9 +41,12 @@ export function PayForm({ canceled }: { canceled?: boolean }) {
   }
 
   return (
-    <div className="rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-5">
+    <Card radius={20} style={{ padding: "20px 22px" }}>
       {canceled && (
-        <p className="mb-4 rounded-xl border border-[var(--border-soft)] bg-[var(--bg-elev)] px-4 py-3 text-sm text-[var(--fg-muted)]">
+        <p
+          className="mb-4 rounded-tile px-4 py-3 text-sm"
+          style={{ background: "var(--surface-alt)", color: "var(--text-2)" }}
+        >
           Zahlung abgebrochen — kein Problem. Du kannst es jederzeit erneut
           versuchen.
         </p>
@@ -55,11 +60,13 @@ export function PayForm({ canceled }: { canceled?: boolean }) {
               key={amt}
               type="button"
               onClick={() => setSelected(amt)}
-              className={`rounded-xl border px-3 py-3 text-center text-sm font-medium transition-colors ${
-                active
-                  ? "border-[var(--accent-write)] bg-[color-mix(in_srgb,var(--accent-write)_18%,transparent)] text-[var(--fg)]"
-                  : "border-[var(--border-soft)] text-[var(--fg-muted)] hover:bg-[var(--bg-elev)] hover:text-[var(--fg)]"
-              }`}
+              className={`press rounded-tile border px-3 py-3 text-center font-serif text-[15px] font-semibold tabular-nums ${active ? "" : "hover-strong"}`}
+              style={{
+                borderColor: active ? "var(--gruen)" : "var(--border-1)",
+                background: active ? "var(--gruen-tint)" : "var(--surface-1)",
+                color: active ? "var(--gruen)" : "var(--text-2)",
+                cursor: "pointer",
+              }}
             >
               ${amt}
             </button>
@@ -67,18 +74,18 @@ export function PayForm({ canceled }: { canceled?: boolean }) {
         })}
       </div>
 
-      <label className="mt-3 block">
-        <span className="text-xs uppercase tracking-wide text-[var(--fg-dim)]">
-          Eigener Betrag
-        </span>
+      <label className="mt-4 block">
+        <FieldLabel>Eigener Betrag</FieldLabel>
         <div
-          className={`mt-1 flex items-center gap-1 rounded-xl border px-3 py-2.5 transition-colors ${
-            selected === "custom"
-              ? "border-[var(--accent-write)]"
-              : "border-[var(--border-soft)]"
-          }`}
+          className="focus-within:shadow-none flex items-center gap-1 rounded-input border px-3"
+          style={{
+            height: 44,
+            borderColor:
+              selected === "custom" ? "var(--gruen)" : "var(--border-1)",
+            background: "var(--surface-1)",
+          }}
         >
-          <span className="text-[var(--fg-muted)]">$</span>
+          <span className="font-serif text-muted">$</span>
           <input
             type="number"
             inputMode="decimal"
@@ -92,38 +99,52 @@ export function PayForm({ canceled }: { canceled?: boolean }) {
               setCustom(e.target.value);
               setSelected("custom");
             }}
-            className="w-full bg-transparent text-[var(--fg)] outline-none placeholder:text-[var(--fg-dim)]"
+            className="w-full bg-transparent font-serif text-[15px] tabular-nums text-ink outline-none"
           />
         </div>
-        <span className="mt-1 block text-xs text-[var(--fg-dim)]">
-          Mindestbetrag ${MIN_USD.toFixed(2)}
+        <span className="mt-1.5 block text-xs text-faint">
+          Mindestbetrag <Num>${MIN_USD.toFixed(2)}</Num>
         </span>
       </label>
 
       {error && (
-        <p className="mt-3 text-sm text-red-500" role="alert">
+        <p
+          className="mt-3 rounded-tile px-3 py-2.5 text-sm"
+          role="alert"
+          style={{ background: "var(--rot-tint)", color: "var(--rot-text)" }}
+        >
           {error}
         </p>
       )}
 
-      <button
-        type="button"
+      <Button
+        variant="accent"
         onClick={handleSubmit}
         disabled={!valid || loading}
-        className="mt-4 w-full rounded-xl bg-[var(--accent-write)] px-4 py-3 text-sm font-semibold text-[var(--bg)] transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+        style={{
+          width: "100%",
+          height: 48,
+          marginTop: 16,
+          opacity: !valid || loading ? 0.4 : 1,
+          cursor: !valid || loading ? "not-allowed" : "pointer",
+        }}
       >
-        {loading
-          ? "Weiterleitung …"
-          : valid
-            ? `Pay $${amount.toFixed(2)}`
-            : "Preis wählen"}
-      </button>
+        {loading ? (
+          "Weiterleitung …"
+        ) : valid ? (
+          <>
+            Pay <Num>${amount.toFixed(2)}</Num>
+          </>
+        ) : (
+          "Preis wählen"
+        )}
+      </Button>
 
-      <p className="mt-3 text-xs text-[var(--fg-dim)]">
+      <p className="mt-3 text-xs leading-relaxed text-faint">
         Sichere Bezahlung über Stripe. Du wirst zur Bezahlseite weitergeleitet.
         Freiwillige Zahlung für die Nutzung von B1+Trainer — keine Spende im
         steuerlichen Sinne.
       </p>
-    </div>
+    </Card>
   );
 }

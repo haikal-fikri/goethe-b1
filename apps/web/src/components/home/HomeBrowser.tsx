@@ -4,15 +4,24 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { SkillGroup } from "@repo/core";
 import type { CEFRLevel, SkillCode } from "@/types";
-import { LEVEL_RANK, LEVELS } from "@/types";
+import { LEVEL_RANK } from "@/types";
 import { LevelBadge } from "@/components/LevelBadge";
-import { SKILL_ACCENT, SKILL_LABEL } from "@/lib/ui";
+import { SKILL_ACCENT, SKILL_LABEL, SKILL_TONE } from "@/lib/ui";
+import { Chip } from "@/components/ui/controls";
+import { Card, Eyebrow, Num, SkillTile } from "@/components/ui/primitives";
+import { IconArrowRight, IconPencil, IconMic, IconSparkles } from "@/components/icons";
 
 const MIN_FILTERS: { label: string; min: CEFRLevel }[] = [
   { label: "Alle", min: "B1" },
   { label: "ab B2", min: "B2" },
   { label: "ab C1", min: "C1" },
 ];
+
+const SKILL_ICON: Record<SkillCode, typeof IconPencil> = {
+  schreiben: IconPencil,
+  sprechen: IconMic,
+  shared: IconSparkles,
+};
 
 export function HomeBrowser({ groups }: { groups: SkillGroup[] }) {
   const skills = groups.map((g) => g.skill);
@@ -25,54 +34,39 @@ export function HomeBrowser({ groups }: { groups: SkillGroup[] }) {
   const accent = SKILL_ACCENT[activeSkill];
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-20 pt-6">
+    <div>
       {/* Skill-Tabs */}
       <div
         role="tablist"
         aria-label="Prüfungsteil"
         className="flex gap-2 overflow-x-auto pb-1"
       >
-        {groups.map((g) => {
-          const isActive = g.skill === activeSkill;
-          return (
-            <button
-              key={g.skill}
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => setActiveSkill(g.skill)}
-              className="shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-colors"
-              style={{
-                borderColor: isActive ? "var(--fg)" : "var(--border-soft)",
-                color: isActive ? "var(--bg)" : "var(--fg-muted)",
-                backgroundColor: isActive ? "var(--fg)" : "transparent",
-              }}
-            >
-              {SKILL_LABEL[g.skill]}
-            </button>
-          );
-        })}
+        {groups.map((g) => (
+          <Chip
+            key={g.skill}
+            role="tab"
+            aria-selected={g.skill === activeSkill}
+            active={g.skill === activeSkill}
+            onClick={() => setActiveSkill(g.skill)}
+          >
+            {SKILL_LABEL[g.skill]}
+          </Chip>
+        ))}
       </div>
 
       {/* Niveau-Filter */}
-      <div className="mt-4 flex items-center gap-2">
-        <span className="text-xs text-[var(--fg-dim)]">Niveau:</span>
-        {MIN_FILTERS.map((f) => {
-          const isActive = f.min === minLevel;
-          return (
-            <button
-              key={f.min}
-              onClick={() => setMinLevel(f.min)}
-              className="rounded-full border px-3 py-1 text-xs transition-colors"
-              style={{
-                borderColor: isActive ? "var(--fg)" : "var(--border-soft)",
-                color: isActive ? "var(--bg)" : "var(--fg-muted)",
-                backgroundColor: isActive ? "var(--fg)" : "transparent",
-              }}
-            >
-              {f.label}
-            </button>
-          );
-        })}
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <span className="text-xs text-faint">Niveau:</span>
+        {MIN_FILTERS.map((f) => (
+          <Chip
+            key={f.min}
+            size="sm"
+            active={f.min === minLevel}
+            onClick={() => setMinLevel(f.min)}
+          >
+            {f.label}
+          </Chip>
+        ))}
       </div>
 
       {active && (
@@ -83,6 +77,7 @@ export function HomeBrowser({ groups }: { groups: SkillGroup[] }) {
               taskLabel={task.taskLabel}
               functions={task.functions}
               minLevel={minLevel}
+              skill={active.skill}
               accent={accent}
             />
           ))}
@@ -96,11 +91,13 @@ function TaskSection({
   taskLabel,
   functions,
   minLevel,
+  skill,
   accent,
 }: {
   taskLabel: string;
   functions: SkillGroup["tasks"][number]["functions"];
   minLevel: CEFRLevel;
+  skill: SkillCode;
   accent: string;
 }) {
   const min = LEVEL_RANK[minLevel];
@@ -121,38 +118,51 @@ function TaskSection({
 
   if (visible.length === 0) return null;
 
+  const Icon = SKILL_ICON[skill];
+
   return (
     <section className="mt-7">
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--fg-dim)]">
-        {taskLabel}
-      </h2>
+      <Eyebrow style={{ marginBottom: 12 }}>{taskLabel}</Eyebrow>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {visible.map((f) => (
           <Link
             key={f.lessonId}
             href={`/uebung/${f.lessonId}?min=${minLevel}`}
-            className="group flex flex-col gap-2 rounded-[var(--radius)] border border-[var(--outline)] bg-[var(--bg)] p-4 transition-colors hover:bg-[var(--bg-elev)]"
+            className="group hover-card"
+            style={{ textDecoration: "none" }}
           >
-            <div className="flex items-start justify-between gap-2">
-              <span className="font-medium text-[var(--fg)]">
-                {f.functionName}
-              </span>
-              <span
-                className="mt-0.5 shrink-0 text-[18px] leading-none transition-transform group-hover:translate-x-0.5"
-                style={{ color: accent }}
-                aria-hidden
-              >
-                ›
-              </span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              {f.visibleLevels.map((l) => (
-                <LevelBadge key={l} level={l} />
-              ))}
-              <span className="ml-auto text-xs text-[var(--fg-dim)]">
-                {f.visibleCount} Wendungen
-              </span>
-            </div>
+            <Card
+              radius={18}
+              style={{ padding: "16px 18px", height: "100%" }}
+              className="flex flex-col gap-3"
+            >
+              <div className="flex items-start gap-3">
+                <SkillTile tone={SKILL_TONE[skill]} size={34} radius={10}>
+                  <Icon size={17} />
+                </SkillTile>
+                <span
+                  className="min-w-0 flex-1"
+                  style={{ fontSize: 14.5, fontWeight: 600, color: "var(--text-hi)" }}
+                >
+                  {f.functionName}
+                </span>
+                <span
+                  className="mt-1 shrink-0 transition-transform group-hover:translate-x-0.5"
+                  style={{ color: accent }}
+                  aria-hidden
+                >
+                  <IconArrowRight size={16} />
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                {f.visibleLevels.map((l) => (
+                  <LevelBadge key={l} level={l} />
+                ))}
+                <span className="ml-auto text-xs text-muted">
+                  <Num>{f.visibleCount}</Num> Wendungen
+                </span>
+              </div>
+            </Card>
           </Link>
         ))}
       </div>

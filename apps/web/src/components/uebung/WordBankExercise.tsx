@@ -114,14 +114,14 @@ export function WordBankExercise({
     <div className="flex h-full flex-col">
       {/* Prompt */}
       <div className="animate-fade-in px-1">
-        <div className="mb-1 flex items-center gap-2">
-          <span className="text-xs font-medium uppercase tracking-wide text-[var(--fg-dim)]">
+        <div className="mb-1.5 flex items-center gap-2">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">
             Übersetze
           </span>
           <LevelBadge level={item.level} />
-          <span className="text-xs text-[var(--fg-dim)]">· {item.function.nameDe}</span>
+          <span className="text-xs text-faint">· {item.function.nameDe}</span>
         </div>
-        <p className="text-xl font-medium leading-snug text-[var(--fg)]">
+        <p className="text-xl font-medium leading-snug text-ink">
           {item.translation}
         </p>
       </div>
@@ -131,10 +131,10 @@ export function WordBankExercise({
         <div
           aria-live="polite"
           aria-label="Dein Satz"
-          className="mt-6 flex min-h-[64px] flex-wrap content-start gap-2 rounded-[var(--radius)] border border-dashed border-[var(--border-base)] bg-[color-mix(in_srgb,var(--bg-elev)_50%,transparent)] p-3"
+          className="mt-6 flex min-h-[64px] flex-wrap content-start gap-2 rounded-card border border-dashed border-line-strong bg-sunken p-3"
         >
           {selected.length === 0 && (
-            <span className="self-center text-sm text-[var(--fg-dim)]">
+            <span className="self-center text-sm text-faint">
               Tippe die Wörter in der richtigen Reihenfolge an …
             </span>
           )}
@@ -168,7 +168,7 @@ export function WordBankExercise({
           />
         ))}
         {bank.length === 0 && phase === "input" && (
-          <span className="text-sm text-[var(--fg-dim)]">
+          <span className="text-sm text-faint">
             Alle Wörter gesetzt — prüfe deine Lösung.
           </span>
         )}
