@@ -267,3 +267,21 @@ export const IconPause = ({ size = 20, className, style }: IconProps) => (
     <rect x="14" y="5" width="4" height="14" rx="1" />
   </svg>
 );
+
+/* ── Store-Marken ────────────────────────────────────────────────────
+   Markenzeichen sind FLÄCHIG (fill), nicht strichbasiert — bewusste Ausnahme
+   von der Linien-Ikonografie oben, weil Apple/Google ihre Logos so vorgeben.
+   Sie erben `currentColor`, folgen also dem Text des Buttons. */
+export const IconApple = ({ size = 18, className, style }: IconProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className} style={style} aria-hidden>
+    <path d="M16.36 12.78c.02-2.03 1.66-3.01 1.74-3.05-0.95-1.39-2.42-1.58-2.95-1.6-1.26-.13-2.45.74-3.09.74-.63 0-1.61-.72-2.65-.7-1.37.02-2.63.79-3.33 2.01-1.42 2.46-.36 6.11 1.02 8.11.67.98 1.48 2.08 2.53 2.04 1.02-.04 1.4-.66 2.63-.66 1.23 0 1.57.66 2.65.64 1.09-.02 1.79-1 2.46-1.98.77-1.13 1.09-2.23 1.11-2.29-.02-.01-2.13-.82-2.15-3.26zM14.4 6.79c.56-.68.94-1.62.83-2.56-.81.03-1.79.54-2.37 1.21-.52.6-.97 1.56-.85 2.48.9.07 1.83-.46 2.39-1.13z" />
+  </svg>
+);
+export const IconGooglePlay = ({ size = 18, className, style }: IconProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className} style={style} aria-hidden>
+    <path d="M3.9 2.3c-.24.26-.38.66-.38 1.18v17.04c0 .52.14.92.38 1.18l.06.06 9.54-9.54v-.22L3.96 2.24l-.06.06z" opacity=".7" />
+    <path d="M16.68 15.42l-3.18-3.18v-.24l3.18-3.18.07.04 3.77 2.14c1.08.61 1.08 1.62 0 2.24l-3.77 2.14-.07.04z" />
+    <path d="M16.75 15.38L13.5 12.12 3.9 21.7c.36.38.94.42 1.6.05l11.25-6.37z" opacity=".85" />
+    <path d="M16.75 8.86L5.5 2.49c-.66-.38-1.24-.33-1.6.05l9.6 9.58 3.25-3.26z" opacity=".55" />
+  </svg>
+);

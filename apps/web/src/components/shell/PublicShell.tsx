@@ -10,12 +10,14 @@ import {
   IconCard,
   IconChevronLeft,
   IconChevronRight,
-  IconArrowRight,
+  IconApple,
+  IconGooglePlay,
   type IconProps,
 } from "@/components/icons";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AppFooter } from "@/components/AppFooter";
 import { buttonClass, buttonStyle } from "@/components/ui/controls";
+import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/site";
 
 // Öffentliche Hülle: ab `lg` die Seitenleiste des Lehrkraft-Portals (fixe
 // Höhe, scrollende Content-Spalte), darunter die schwebende Kopf-Insel und
@@ -226,8 +228,8 @@ function Sidebar({
       </nav>
 
       {/* Ersetzt die Tarif-/Auslastungskarte des Lehrkraft-Portals: die
-          öffentliche App kennt weder Konto noch Kontingente — das Einzige, was
-          Lernende hier tun können, ist die App unterstützen. */}
+          öffentliche App kennt weder Konto noch Kontingente. Stattdessen der
+          Weg in die mobile App (apps/mobile) — Store-Links in lib/site.ts. */}
       <div className="sb-hide" style={{ padding: 12, borderTop: "1px solid var(--border-1)" }}>
         <div
           style={{
@@ -236,7 +238,7 @@ function Sidebar({
             padding: "12px 13px",
             display: "flex",
             flexDirection: "column",
-            gap: 9,
+            gap: 10,
           }}
         >
           <span
@@ -248,7 +250,7 @@ function Sidebar({
               color: "var(--text-2)",
             }}
           >
-            Kostenlos &amp; werbefrei
+            App für unterwegs
           </span>
           <p
             style={{
@@ -258,19 +260,61 @@ function Sidebar({
               color: "var(--text-2)",
             }}
           >
-            B1+Trainer bleibt frei zugänglich. Zahle, was es dir wert ist.
+            Hol dir B1+Trainer für iPhone und Android — üben, wo du willst, auch
+            offline.
           </p>
-          <Link
-            href="/pay"
-            className={buttonClass("accent")}
-            style={{ ...buttonStyle("accent"), height: 36, fontSize: 13 }}
-          >
-            Unterstützen
-            <IconArrowRight size={15} />
-          </Link>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <StoreButton
+              href={APP_STORE_URL}
+              Icon={IconApple}
+              label="App Store"
+            />
+            <StoreButton
+              href={PLAY_STORE_URL}
+              Icon={IconGooglePlay}
+              label="Google Play"
+            />
+          </div>
         </div>
       </div>
     </aside>
+  );
+}
+
+/** Store-Button — externer Link, öffnet in neuem Tab. */
+function StoreButton({
+  href,
+  Icon,
+  label,
+}: {
+  href: string;
+  Icon: (p: IconProps) => ReactNode;
+  label: string;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="btn-primary press"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        height: 36,
+        padding: "0 12px",
+        borderRadius: 10,
+        background: "var(--primary-btn-bg)",
+        color: "var(--primary-btn-fg)",
+        fontSize: 12.5,
+        fontWeight: 600,
+        textDecoration: "none",
+        whiteSpace: "nowrap",
+      }}
+    >
+      <Icon size={16} />
+      {label}
+    </a>
   );
 }
 
