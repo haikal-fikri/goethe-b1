@@ -17,7 +17,7 @@ import {
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AppFooter } from "@/components/AppFooter";
 import { buttonClass, buttonStyle } from "@/components/ui/controls";
-import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/site";
+import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/stores";
 
 // Öffentliche Hülle: ab `lg` die Seitenleiste des Lehrkraft-Portals (fixe
 // Höhe, scrollende Content-Spalte), darunter die schwebende Kopf-Insel und
