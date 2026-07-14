@@ -250,7 +250,7 @@ function Sidebar({
               color: "var(--text-2)",
             }}
           >
-            App für unterwegs
+            Mehr in der App
           </span>
           <p
             style={{
@@ -260,8 +260,8 @@ function Sidebar({
               color: "var(--text-2)",
             }}
           >
-            Hol dir B1+Trainer für iPhone und Android — üben, wo du willst, auch
-            offline.
+            Verfolge deinen Fortschritt, tritt einer Klasse bei und schalte
+            weitere Prüfungssimulationen frei.
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             <StoreButton

@@ -1,5 +1,5 @@
 import { ExamRunner } from "@/components/schreiben/ExamRunner";
-import { getSimulations } from "@/lib/exam";
+import { getPublicSimulations } from "@/lib/exam";
 import { Page, PageHeader } from "@/components/ui/Page";
 import { Card } from "@/components/ui/primitives";
 
@@ -11,7 +11,8 @@ export const metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function SchreibenPage() {
-  const simulations = await getSimulations();
+  // Nur die öffentlichen Simulationen (Kostprobe) — weitere gibt es in der App.
+  const simulations = await getPublicSimulations();
 
   return (
     <Page>

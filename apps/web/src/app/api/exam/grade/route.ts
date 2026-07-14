@@ -3,7 +3,7 @@ import { generateText, Output, NoObjectGeneratedError } from "ai";
 import { examGradeModelSchema, examGradeRequestSchema, MODEL_ID } from "@repo/core";
 import { buildExamMessages, type ExaminerPersona } from "@repo/core";
 import { buildGrade, reconcileGrades, PASS_RATIO } from "@repo/core";
-import { getExamTask } from "@/lib/exam";
+import { getExamTask, getPublicSimulationIds } from "@/lib/exam";
 import { getClientIp, checkRateLimit, enforce, enforceAll, gradeBudgetHit } from "@/lib/ratelimit";
 import { verifyTurnstile } from "@/lib/turnstile";
 import {
@@ -73,6 +73,19 @@ export async function POST(request: Request) {
   // 3) Autoritative Aufgabe (Client liefert nie Punkte/Task).
   const task = await getExamTask(taskId);
   if (!task) return err(404, "Unbekannte Aufgabe.");
+
+  // 3b) Simulations-Grenze der öffentlichen Web-App durchsetzen.
+  // Nur auf dem ANONYMEN Pfad: die mobile (bezahlte) App ist authentifiziert und
+  // darf alle Simulationen bewerten — genau das ist das „Freischalten". Ohne
+  // diese Prüfung wäre die Grenze rein kosmetisch: die Aufgaben-IDs sind rat-
+  // bzw. erratbar, und der Handler würde sie anstandslos bewerten.
+  // 404 (nicht 403), damit die Existenz nicht-öffentlicher Aufgaben nicht leakt.
+  if (!auth) {
+    const publicSims = await getPublicSimulationIds();
+    if (!publicSims.includes(task.simulation)) {
+      return err(404, "Unbekannte Aufgabe.");
+    }
+  }
 
   const ip = getClientIp(request);
 
