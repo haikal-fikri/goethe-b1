@@ -60,7 +60,7 @@ export function PublicShell({ children }: { children: ReactNode }) {
   // SSR-stabil: startet auf Server UND Client mit `false` → kein Mismatch.
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
-  const title = TITLES[pathname] ?? "B1+Trainer";
+  const title = TITLES[pathname] ?? "Satzwerk";
 
   return (
     <div className="lg:flex lg:h-screen lg:w-screen lg:overflow-hidden">
@@ -172,19 +172,20 @@ function Sidebar({
           className="sb-hide"
           style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}
         >
-          <span style={{ fontSize: 14.5, fontWeight: 600, color: "var(--text-hi)" }}>
-            B1+Trainer
+          <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text-hi)" }}>
+            Satzwerk
           </span>
           <span
             style={{
-              fontSize: 10.5,
+              fontSize: 10,
               fontWeight: 600,
-              letterSpacing: ".1em",
+              letterSpacing: ".08em",
               textTransform: "uppercase",
               color: "var(--text-2)",
+              whiteSpace: "nowrap",
             }}
           >
-            Lernende
+            Digital Sprache Institut
           </span>
         </div>
       </div>
@@ -397,7 +398,7 @@ function MobileHeader() {
           <span
             style={{ fontSize: 15, fontWeight: 600, color: "var(--text-hi)" }}
           >
-            B1+Trainer
+            Satzwerk
           </span>
         </Link>
 
@@ -470,12 +471,12 @@ function BrandTile({ size = 34 }: { size?: number }) {
         style={{
           fontFamily: "var(--font-serif)",
           fontWeight: 600,
-          fontSize: Math.round(size * 0.5),
+          fontSize: Math.round(size * 0.56),
           color: "#fff",
           lineHeight: 1,
         }}
       >
-        B1
+        S
       </span>
     </span>
   );

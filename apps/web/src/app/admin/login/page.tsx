@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { checkPassword, setAdminCookie } from "@/lib/adminAuth";
 
-export const metadata = { title: "Admin · Login · B1+Trainer" };
+export const metadata = { title: "Admin · Login · Satzwerk" };
 export const dynamic = "force-dynamic";
 
 async function loginAction(formData: FormData) {

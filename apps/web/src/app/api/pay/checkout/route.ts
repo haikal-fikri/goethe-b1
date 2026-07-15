@@ -62,7 +62,7 @@ export async function POST(request: Request) {
           price_data: {
             currency: CURRENCY,
             unit_amount: toCents(amount),
-            product_data: { name: "B1+Trainer — Pay what you want" },
+            product_data: { name: "Satzwerk — Pay what you want" },
           },
         },
       ],

@@ -4,7 +4,7 @@ import { Page, PageHeader } from "@/components/ui/Page";
 import { Card } from "@/components/ui/primitives";
 
 export const metadata = {
-  title: "Schreiben · KI-Prüfer · B1+Trainer",
+  title: "Schreiben · KI-Prüfer · Satzwerk",
 };
 
 // Aufgaben werden zur Laufzeit aus der Datenbank gelesen.

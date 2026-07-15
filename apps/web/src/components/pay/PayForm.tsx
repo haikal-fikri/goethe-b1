@@ -142,7 +142,7 @@ export function PayForm({ canceled }: { canceled?: boolean }) {
 
       <p className="mt-3 text-xs leading-relaxed text-faint">
         Sichere Bezahlung über Stripe. Du wirst zur Bezahlseite weitergeleitet.
-        Freiwillige Zahlung für die Nutzung von B1+Trainer — keine Spende im
+        Freiwillige Zahlung für die Nutzung von Satzwerk — keine Spende im
         steuerlichen Sinne.
       </p>
     </Card>

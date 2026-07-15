@@ -15,14 +15,14 @@ const SKILL_ORDER: SkillCode[] = ["schreiben", "sprechen", "shared"];
 
 function build(base: string, items: RedemittelItem[]): string {
   const lines: string[] = [];
-  lines.push("# B1+Trainer — Full Redemittel content");
+  lines.push("# Satzwerk — Full Redemittel content");
   lines.push("");
   lines.push(
     `> The complete corpus of ${items.length} Redemittel (functional set-phrases) ` +
       `for the German Goethe-Zertifikat B1 exam, German → English, with CEFR level, ` +
       `sentence frame and example sentences. This is the source of truth behind the ` +
-      `/lernen reference. The product UI is in German. Curated by Digi.S — Digital ` +
-      `Sprache Stiftung. Canonical site: ${base}`
+      `/lernen reference. The product UI is in German. Curated by Digital Sprache ` +
+      `Institut. Canonical site: ${base}`
   );
   lines.push("");
   lines.push(
@@ -97,7 +97,7 @@ export async function GET() {
   } catch {
     // DB nicht erreichbar → kurzer Fallback statt 500.
     return new Response(
-      `# B1+Trainer — Full Redemittel content\n\n> Content is temporarily unavailable. ` +
+      `# Satzwerk — Full Redemittel content\n\n> Content is temporarily unavailable. ` +
         `See ${base}/llms.txt for the site overview and ${base}/lernen for the reference.\n`,
       {
         status: 200,

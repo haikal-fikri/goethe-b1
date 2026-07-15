@@ -30,8 +30,8 @@ export const RESEND_FROM = sanitizeHeader(
   process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev"
 );
 export const RESEND_FROM_NAME = sanitizeHeader(
-  process.env.RESEND_FROM_NAME ?? "B1+Trainer"
+  process.env.RESEND_FROM_NAME ?? "Satzwerk"
 );
 
-/** Absender im Format `"B1+Trainer <onboarding@resend.dev>"`. */
+/** Absender im Format `"Satzwerk <onboarding@resend.dev>"`. */
 export const RESEND_FROM_HEADER = `${RESEND_FROM_NAME} <${RESEND_FROM}>`;

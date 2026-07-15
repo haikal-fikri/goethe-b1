@@ -3,7 +3,7 @@ import { AdminHeader } from "@/components/admin/AdminHeader";
 import { SimulationForm } from "@/components/admin/SimulationForm";
 import { clearAdminCookie, requireAdmin } from "@/lib/adminAuth";
 
-export const metadata = { title: "Admin · Simulationen · B1+Trainer" };
+export const metadata = { title: "Admin · Simulationen · Satzwerk" };
 export const dynamic = "force-dynamic";
 
 async function logoutAction() {

@@ -3,7 +3,7 @@ import { Page, PageHeader } from "@/components/ui/Page";
 import { Eyebrow, Num } from "@/components/ui/primitives";
 
 export const metadata = {
-  title: "Pay what you want · B1+Trainer",
+  title: "Pay what you want · Satzwerk",
 };
 
 export default async function PayPage({
@@ -17,9 +17,9 @@ export default async function PayPage({
   return (
     <Page>
       <PageHeader
-        eyebrow="Digi.S — Digital Sprache Stiftung"
+        eyebrow="Satzwerk von Digital Sprache Institut"
         title="Pay what you want"
-        subtitle="B1+Trainer ist frei nutzbar — ohne Werbung. Du zahlst, was es dir wert ist. Dein Beitrag ist eine freiwillige Zahlung für die Nutzung (keine Spende im steuerlichen Sinne) und deckt die laufenden Kosten, die mit der Zahl der Lernenden mitwachsen: Hosting, Datenbank und vor allem die KI-gestützte Prüfungsbewertung."
+        subtitle="Satzwerk ist frei nutzbar — ohne Werbung. Du zahlst, was es dir wert ist. Dein Beitrag ist eine freiwillige Zahlung für die Nutzung (keine Spende im steuerlichen Sinne) und deckt die laufenden Kosten, die mit der Zahl der Lernenden mitwachsen: Hosting, Datenbank und vor allem die KI-gestützte Prüfungsbewertung."
       />
 
       <div className="grid gap-6 md:grid-cols-2 md:items-start">

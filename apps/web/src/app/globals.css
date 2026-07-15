@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ============================================================
-   B1+Trainer — Design-Tokens (aus dem Lehrkraft-Portal portiert).
+   Satzwerk — Design-Tokens (aus dem Lehrkraft-Portal portiert).
    Zwei Stufen: rohe Neutraltöne → SEMANTISCHE Aliase. Komponenten lesen
    ausschließlich die semantischen Aliase (--bg, --surface-1, --text-hi,
    Akzente …), nie rohe Hex-Werte — dadurch folgt alles automatisch dem Theme.

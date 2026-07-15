@@ -3,7 +3,7 @@ import { getAllItems } from "@/lib/redemittel";
 import { Page, PageHeader } from "@/components/ui/Page";
 
 export const metadata = {
-  title: "Nachschlagen · B1+Trainer",
+  title: "Nachschlagen · Satzwerk",
 };
 
 export const dynamic = "force-dynamic";

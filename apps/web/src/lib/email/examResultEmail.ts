@@ -128,7 +128,7 @@ const EXAMINER_HEAD: Record<string, string> = {
 export function buildSubject(p: ExamEmailPayload): string {
   const status = p.grade.bestanden ? "bestanden" : "nicht bestanden";
   const punkte = `${fmtPunkte(p.grade.gesamtpunkte)}/${fmtPunkte(p.grade.maxPunkte)}`;
-  return `B1+Trainer — Schreibergebnis: ${p.task.titleDe} (${status}, ${punkte})`;
+  return `Satzwerk — Schreibergebnis: ${p.task.titleDe} (${status}, ${punkte})`;
 }
 
 /** Vollständige HTML-E-Mail mit Aufgabe, Aufsatz und KI-Bewertung. */
@@ -281,8 +281,8 @@ export function renderExamResultEmail(p: ExamEmailPayload, siteUrl: string): str
     <tr><td align="center" style="padding:24px 12px;">
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
         <tr><td style="padding-bottom:4px;">
-          <div style="font-size:18px;font-weight:700;color:${C.text};">B1+Trainer</div>
-          <div style="font-size:13px;color:${C.dim};margin-top:2px;">Schreibergebnis · KI-Prüfer</div>
+          <div style="font-size:18px;font-weight:700;color:${C.text};">Satzwerk</div>
+          <div style="font-size:13px;color:${C.dim};margin-top:2px;">Schreibergebnis · KI-Prüfer · von Digital Sprache Institut</div>
         </td></tr>
         <tr><td>
           ${card(`<div style="font-size:15px;color:${C.text};">${greeting}</div>

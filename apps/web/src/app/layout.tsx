@@ -30,9 +30,9 @@ const plexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "B1+Trainer · Goethe B1",
+  title: "Satzwerk · Deutsch für die Prüfung üben",
   description:
-    "Übe Redemittel für die Goethe-B1-Prüfung (Schreiben & Sprechen) — baue deutsche Sätze aus einer Wortbank.",
+    "Übe Redemittel für die Goethe-Prüfung (Schreiben & Sprechen) — baue deutsche Sätze aus einer Wortbank. Satzwerk von Digital Sprache Institut.",
 };
 
 export const viewport = {
