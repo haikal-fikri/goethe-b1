@@ -61,6 +61,26 @@ export function oversightList(
   return query;
 }
 
+/**
+ * Zeilenzahl einer Oversight-Tabelle (HEAD-Request, überträgt keine Zeilen).
+ *
+ * Gibt bei einem Fehler bewusst `null` zurück, NICHT 0: ein RLS-Deny oder ein
+ * Netzwerkfehler darf im Dashboard nicht als „0 Konten" erscheinen. Die UI
+ * rendert null als „—".
+ */
+export async function oversightCount(
+  sb: SupabaseClient,
+  table: OversightTable,
+  eq?: Record<string, string | number | boolean>
+): Promise<number | null> {
+  let query = sb.from(table).select("*", { count: "exact", head: true });
+  if (eq) {
+    for (const [col, val] of Object.entries(eq)) query = query.eq(col, val);
+  }
+  const { count, error } = await query;
+  return error ? null : count ?? null;
+}
+
 // ── Bequeme Reader für die häufigsten Dashboards ────────────────────────────
 
 /** Jüngste Audit-Log-Einträge (grant-role, term.close, corpus edits …). */
