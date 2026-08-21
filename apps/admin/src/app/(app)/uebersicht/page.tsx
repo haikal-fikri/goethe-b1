@@ -4,6 +4,7 @@ import { getUebersichtData, auditLabel, auditTone } from "@/lib/uebersicht";
 import { PageShell, PageHeader, StatCard, SectionCard, NotAvailable, EmptyRow } from "@/components/ui/page";
 import { IconShieldCheck, IconChevronRight } from "@/components/icons";
 import { relativeDe } from "@/lib/format";
+import { RollenKarte } from "@/components/uebersicht/RollenKarte";
 
 export const dynamic = "force-dynamic";
 
@@ -81,7 +82,20 @@ export default async function UebersichtPage() {
           />
         </SectionCard>
 
-        <SectionCard title="Letzte Aktivität" right={<Link href="/dsgvo" style={{ fontSize: 12.5, fontWeight: 600 }}>Protokoll</Link>}>
+        <SectionCard title="Rollen verwalten">
+          <p style={{ margin: "0 0 16px", fontSize: 12.5, lineHeight: 1.6, color: "var(--text-2)" }}>
+            Vergibt <code style={{ fontFamily: "var(--font-mono)" }}>teacher</code> oder{" "}
+            <code style={{ fontFamily: "var(--font-mono)" }}>admin</code>. Höchstens fünf Vergaben
+            pro Tag, jede wird protokolliert.
+          </p>
+          <RollenKarte />
+        </SectionCard>
+
+        <SectionCard
+          title="Letzte Aktivität"
+          style={{ gridColumn: "1 / -1" }}
+          right={<Link href="/dsgvo" style={{ fontSize: 12.5, fontWeight: 600 }}>Protokoll</Link>}
+        >
           {d.aktivitaet.length === 0 ? (
             <EmptyRow>Noch keine protokollierten Vorgänge.</EmptyRow>
           ) : (
