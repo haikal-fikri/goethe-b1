@@ -30,21 +30,50 @@ export async function POST(req: Request) {
   const { targetUserId, role } = parsed;
 
   const svc = supabaseService();
+
+  // Die bisherige Rolle vorher lesen: `updateUserById` ERSETZT app_metadata.role,
+  // vergibt also nicht additiv. „teacher" an ein Admin-Konto ist damit eine
+  // Herabstufung — das gehört ins Protokoll und in die Antwort.
+  const { data: ziel } = await svc.auth.admin.getUserById(targetUserId);
+  const vorher = (ziel?.user?.app_metadata?.role as string | undefined) ?? "student";
+
+  // Protokoll VOR der Mutation. Die Rollenvergabe ist ein GoTrue-Aufruf und
+  // lässt sich nicht mit dem Insert in eine Transaktion legen; schlägt das
+  // Protokollieren hinterher fehl, wäre die Eskalation bereits passiert und
+  // nicht mehr zuzuordnen. Fail-closed in dieser Reihenfolge heißt: keine
+  // Rollenänderung ohne Protokolleintrag. Scheitert danach die Mutation, steht
+  // ein Eintrag zu einem Vorgang im Log, der nicht stattgefunden hat — die
+  // deutlich harmlosere der beiden Abweichungen, und sie wird unten vermerkt.
+  const protokolliert = await audit(svc, {
+    actor: ctx.user.id,
+    action: "role.grant",
+    target: `user:${targetUserId}`,
+    meta: { role, vorher, herabstufung: vorher === "admin" && role !== "admin", via: "admin" },
+  });
+  if (!protokolliert) {
+    log("admin/grant-role", { requestId, ok: false, err: "audit_failed" });
+    return apiError(
+      500,
+      "internal_error",
+      "Die Änderung konnte nicht protokolliert werden und wurde deshalb nicht ausgeführt.",
+      { requestId }
+    );
+  }
+
   const { error } = await svc.auth.admin.updateUserById(targetUserId, {
     app_metadata: { role },
   });
   if (error) {
     log("admin/grant-role", { requestId, ok: false, err: error.message });
+    await audit(svc, {
+      actor: ctx.user.id,
+      action: "role.grant.failed",
+      target: `user:${targetUserId}`,
+      meta: { role, via: "admin" },
+    });
     return apiError(500, "internal_error", "Rolle konnte nicht gesetzt werden.", { requestId });
   }
 
-  await audit(svc, {
-    actor: ctx.user.id,
-    action: "role.grant",
-    target: `user:${targetUserId}`,
-    meta: { role, via: "admin" },
-  });
-
-  log("admin/grant-role", { requestId, role, ok: true });
-  return ok({ ok: true }, requestId);
+  log("admin/grant-role", { requestId, role, vorher, ok: true });
+  return ok({ ok: true, vorher }, requestId);
 }

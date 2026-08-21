@@ -28,7 +28,8 @@ export const COMPLIANCE_ACTIONS = [
 
 export interface AvvVersionRow {
   version: string;
-  zustimmungen: number;
+  /** null = die Grundmenge der aktiven Lehrkräfte war nicht lesbar. */
+  zustimmungen: number | null;
   istAktuell: boolean;
   letzteZustimmung: string | null;
 }
@@ -81,8 +82,11 @@ export async function getDsgvoData(sb: SupabaseClient): Promise<DsgvoData> {
     perVersion.set(v, entry);
   }
 
-  const nurAktive = (ids: Set<string>): number => {
-    if (aktive === null) return ids.size;
+  // Ohne die aktive Grundmenge lässt sich nicht sagen, wie viele der
+  // Zustimmungen noch zählen — dann „—" statt einer ungefilterten Zahl, die
+  // längst abgelaufene Lehrkräfte mitschleppt (gleiche Regel wie beim Zähler).
+  const nurAktive = (ids: Set<string>): number | null => {
+    if (aktive === null) return null;
     let n = 0;
     for (const id of ids) if (aktive.has(id)) n++;
     return n;

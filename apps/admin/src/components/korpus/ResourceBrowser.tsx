@@ -27,14 +27,22 @@ function leereWerte(fields: ResourceField[]): Werte {
   return w;
 }
 
-/** Nur gefüllte Felder senden — leere Optionale würden Spalten überschreiben. */
-function payload(fields: ResourceField[], werte: Werte, nurPk = false): Record<string, unknown> {
+/**
+ * Nur gefüllte Felder senden — leere Optionale würden sonst Spalten
+ * überschreiben.
+ *
+ * AUSNAHME beim Ändern: Listenfelder gehen IMMER mit, auch leer. Sie sind aus
+ * der Zeile vorbefüllt, ein unverändertes Feld ist also ein No-op — und ohne
+ * sie bricht die Kopplung von phraseDe und tokens: eine Beispiel-Kindzeile hat
+ * `tokens: []`, ihr Notiz-Update schickte sonst die Wendung ohne tokens und
+ * liefe in „müssen zusammen geändert werden".
+ */
+function payload(fields: ResourceField[], werte: Werte, bearbeiten = false): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const f of fields) {
     const v = werte[f.name];
-    if (nurPk && !f.pk) continue;
     if (Array.isArray(v)) {
-      if (v.length > 0 || f.required) out[f.name] = v;
+      if (v.length > 0 || f.required || bearbeiten) out[f.name] = v;
     } else if (typeof v === "number") {
       if (v !== 0 || f.required) out[f.name] = v;
     } else if (typeof v === "string" && v.trim() !== "") {
@@ -88,7 +96,7 @@ export function ResourceBrowser({
     setBusy(true);
     setFehler(null);
     try {
-      const body = payload(cfg.fields, werte);
+      const body = payload(cfg.fields, werte, modus === "bearbeiten");
       const res = await authedFetch(`/api/admin/corpus/${cfg.slug}`, {
         method: modus === "neu" ? "POST" : "PATCH",
         headers: { "Content-Type": "application/json" },

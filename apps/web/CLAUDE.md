@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-**apps/web** is the public learner-facing app (Vercel Project A, default port 3000): the Redemittel practice trainer, the `/pruefen` writing-exam simulator, the legacy content-admin panel, and — increasingly — the **trusted backend API** that `apps/mobile` calls (Supabase-JWT-authenticated `/api` routes for exam grading, profile, account management, email).
+**apps/web** is the public learner-facing app (Vercel Project A, default port 3000): the Redemittel practice trainer, the `/pruefen` writing-exam simulator, and — increasingly — the **trusted backend API** that `apps/mobile` calls (Supabase-JWT-authenticated `/api` routes for exam grading, profile, account management, email).
 
 ## Commands
 

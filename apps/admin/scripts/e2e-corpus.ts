@@ -81,8 +81,11 @@ async function main() {
   let abgelehnt = false;
   await updateCorpus("redemittel", { id: R, phraseDe: "Ich bin dagegen" }, ACTOR).catch(() => { abgelehnt = true; });
   check("Phrase ohne tokens abgelehnt", abgelehnt);
+  // OHNE clozeTemplate — genau das, was die Oberfläche schickt. Die Zeile hat
+  // keine Vorlage, also darf das durchgehen (die alte Fassung schickte hier
+  // clozeTemplate:"" und prüfte damit einen Weg, den es gar nicht gibt).
   await updateCorpus("redemittel",
-    { id: R, phraseDe: "Ich bin dagegen", tokens: ["Ich", "bin", "dagegen"], clozeTemplate: "" }, ACTOR);
+    { id: R, phraseDe: "Ich bin dagegen", tokens: ["Ich", "bin", "dagegen"] }, ACTOR);
   const row2 = (await raw`select phrase_de, tokens from redemittel where id = ${R}`)[0];
   check("gemeinsames Ändern greift", row2.tokens.join(" ") === row2.phrase_de, JSON.stringify(row2));
 
@@ -95,22 +98,50 @@ async function main() {
     .catch((e) => { sperre = e instanceof CorpusError && e.status === 409; });
   check("kanonische Zeile nicht löschbar (409)", sperre);
 
-  console.log("\n--- Beispiel-Kindzeile: anlegen und löschen ---");
+  console.log("\n--- Lückentext-Vorlage: Wendung nicht ohne sie ändern ---");
+  await updateCorpus("redemittel", { id: R, clozeTemplate: "Ich bin {{dagegen}}" }, ACTOR);
+  let vorlageSchutz = false;
+  await updateCorpus("redemittel",
+    { id: R, phraseDe: "Ich bin dafür", tokens: ["Ich", "bin", "dafür"] }, ACTOR)
+    .catch((e) => { vorlageSchutz = e instanceof CorpusError && e.status === 400; });
+  check("Wendung ohne Vorlagen-Update abgelehnt (nur wenn Vorlage existiert)", vorlageSchutz);
+  await updateCorpus("redemittel",
+    { id: R, phraseDe: "Ich bin dafür", tokens: ["Ich", "bin", "dafür"], clozeTemplate: "Ich bin {{dafür}}" }, ACTOR);
+  check("mit mitgeschickter Vorlage erlaubt",
+    (await raw`select phrase_de from redemittel where id=${R}`)[0].phrase_de === "Ich bin dafür");
+
+  console.log("\n--- Beispiel-Kindzeile: anlegen OHNE tokens (wie im Formular) ---");
   const KID = `${R}#ex1`;
   await createCorpus("redemittel", {
-    id: KID, parentId: R, phraseDe: "Ich bin dagegen, weil es zu teuer ist.",
-    translationEn: "I am against it because it is too expensive.",
-    level: "B1", skillCode: "schreiben", taskCode: "t_e2e", functionCode: "f_e2e", tokens: [],
+    id: KID, parentId: R, phraseDe: "Ich bin dafür, weil es günstig ist.",
+    translationEn: "I am in favour because it is cheap.",
+    level: "B1", skillCode: "schreiben", taskCode: "t_e2e", functionCode: "f_e2e",
   }, ACTOR);
   check("Kindzeile mit leeren tokens angelegt",
     (await raw`select parent_id from redemittel where id = ${KID}`)[0]?.parent_id === R);
+  // Nur die Notiz einer Kindzeile ändern — vorher unmöglich (tokens/phrase
+  // waren zwangsgekoppelt und leere tokens verboten).
+  await updateCorpus("redemittel", { id: KID, notes: "Kontextsatz" }, ACTOR);
+  check("Kindzeile teil-änderbar",
+    (await raw`select notes from redemittel where id=${KID}`)[0].notes === "Kontextsatz");
+  let kanonischLeer = false;
+  await updateCorpus("redemittel", { id: R, phraseDe: "X", tokens: [], clozeTemplate: "" }, ACTOR)
+    .catch((e) => { kanonischLeer = e instanceof CorpusError && e.status === 400; });
+  check("leere tokens für kanonische Zeile abgelehnt", kanonischLeer);
+
   await deleteCorpus("redemittel", { id: KID }, ACTOR);
   check("Kindzeile löschbar",
     Number((await raw`select count(*)::int as n from redemittel where id = ${KID}`)[0].n) === 0);
 
-  console.log("\n--- Übersetzung: Upsert darf translator nicht nullen ---");
+  console.log("\n--- Übersetzung: POST legt nur an, PATCH ändert ---");
   await createCorpus("redemittel-translation",
     { rowId: R, lang: "en", translation: "I am against it", translator: "Haikal", status: "draft" }, ACTOR);
+  let doppelt = false;
+  await createCorpus("redemittel-translation", { rowId: R, lang: "en", translation: "Zweitversuch" }, ACTOR)
+    .catch((e) => { doppelt = e instanceof CorpusError && e.status === 409; });
+  check("zweites POST -> 409 statt stiller Überschreibung", doppelt);
+  check("draft NICHT durch das zweite POST befördert",
+    (await raw`select status from redemittel_translation where row_id=${R} and lang='en'`)[0].status === "draft");
   await updateCorpus("redemittel-translation", { rowId: R, lang: "en", translation: "I disagree" }, ACTOR);
   const tr = (await raw`select * from redemittel_translation where row_id=${R} and lang='en'`)[0];
   check("translator erhalten", tr.translator === "Haikal", String(tr.translator));

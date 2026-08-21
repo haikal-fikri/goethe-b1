@@ -1,51 +1,58 @@
 # CLAUDE.md — B1+Trainer build conventions
 
+> Part of the goethe-b1 monorepo — see the root [CLAUDE.md](../../CLAUDE.md) for workspace layout, shared packages, and monorepo-wide commands. This file covers `apps/mobile` specifically.
+
 Guidance for implementing the B1+Trainer designs (`README.md` + `STATE_AND_INTERACTIONS.md`) as a **React Native** app for iOS (App Store) and Android (Play Store).
 
-> The `.dc.html` / `.jsx` / `support.js` files in this bundle are **design references**, not app code. Recreate the screens natively; do not embed the HTML or port its inline styles verbatim. Map every HTML value to the theme tokens below.
+> The `.dc.html` / `.jsx` / `support.js` files in the `design/` folder are **design references**, not app code. Recreate the screens natively; do not embed the HTML or port its inline styles verbatim. Map every HTML value to the theme tokens below.
 
-## Recommended stack
-- **Expo (managed)** unless there's a reason to go bare — it covers fonts, audio, notifications, secure store, and both stores cleanly. (Bare RN is fine; keep the same libraries.)
+## Commands
+
+```bash
+npm run start        # expo start
+npm run ios          # expo run:ios
+npm run android       # expo run:android
+npm run web           # expo start --web
+npm run typecheck     # tsc --noEmit (strict mode) — this is the correctness gate; no lint script, no test runner
+```
+
+`AGENTS.md` in this folder flags that this is Expo SDK 56, versioned docs differ from training data — read `https://docs.expo.dev/versions/v56.0.0/` before writing framework code. Native `ios/`/`android/` prebuild projects exist (Xcode project `B1Trainer`) — see [Entitlements: restore before store] in project memory for why Apple Sign-In / Push entitlements are currently commented out in `ios/B1Trainer/B1Trainer.entitlements` (free/personal Apple dev team can't sign them; restore + a paid account before TestFlight/App Store).
+
+## Source layout (`src/`)
+
+`components/` (shared widgets), `features/` (screens by domain), `navigation/`, `lib/`, `theme/`.
+
+State/data: React Query (`@tanstack/react-query`) for server data; a custom `SessionProvider` context (`lib/session.tsx`) for auth/session state — no Redux/Zustand.
+
+## Backend integration
+
+Two separate backend API bases, both Supabase-JWT authenticated:
+- **`EXPO_PUBLIC_API_BASE`** → `apps/web`'s Next.js `/api` routes (Vercel Project A) — exam grading/email, profile, account management. Called via `authedFetch()` in `lib/api.ts` (attaches a Bearer JWT, retries once on 401 after a silent session refresh). Writing-exam grading streams NDJSON from `POST /api/exam/grade` using `expo/fetch` (RN's built-in `fetch` can't read streams).
+- **`EXPO_PUBLIC_LMS_API_BASE`** → `apps/teacher-web`'s `/api` routes (Vercel Project B) — used for `/api/speaking/*` (class/teacher features). Called via `authedLmsFetch()`. Same Supabase project as web, so the student JWT is valid there too.
+- Speaking submission is a 3-step flow: `speakingSubmit` (get presigned URL) → `uploadSpeakingAudio` (direct PUT to Cloudflare R2, no bearer, must be `Content-Type: audio/m4a`) → `speakingFinalize` (trigger transcription/scoring).
+
+**Auth = Supabase Auth**, sole identity provider. `lib/supabase.ts` builds the client with PKCE flow, `persistSession`/`autoRefreshToken` on, and a **custom chunked `expo-secure-store` adapter** (SecureStore has a 2048-byte limit, so sessions are base64-encoded and split into `${key}.0..n` chunks; corrupt/partial reads are treated as signed-out). An `AppState` listener starts/stops Supabase's `autoRefresh` on foreground/background. `lib/auth.ts`: primary sign-in is email magic-link/OTP fallback (8-digit code via the hardened `/api/auth/otp` proxy in `apps/web`, Turnstile-gated) + Apple idToken sign-in (nonce-bound). **Google sign-in is stubbed/throws** — no OAuth client configured yet, the native module is intentionally not linked to avoid pulling in AppCheckCore/GoogleUtilities pods. Role/authorization lives in Supabase `app_metadata` (never `user_metadata`).
+
+**TTS / audio session** ([lib/tts.ts](src/lib/tts.ts)): iOS's default `soloAmbient` audio session respects the silent switch, so `expo-speech` TTS would be silent unless reconfigured. `ensureSpeechAudioMode()` calls `expo-audio`'s `setAudioModeAsync` once and caches the in-flight promise so concurrent callers await the same session switch instead of racing into the default silent session; `resetSpeechAudioMode()` clears that cache and must be called after speech-recognition runs (`expo-speech-recognition` leaves the session in a quieter `.playAndRecord`/`"measurement"` mode and doesn't restore it). Use `speakDe()`, never call `Speech.speak` directly.
+
+**Metro** ([metro.config.js](metro.config.js)) watches the whole monorepo root so it can transpile the raw-TS workspace packages (`@repo/core`, `@repo/types`) directly — no build step, mirroring how `apps/web` handles the same packages via Next's `transpilePackages`.
+
+## Environment (`.env.local`, see `.env.example`)
+
+Two non-obvious entries: the `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`/`_GOOGLE_IOS_CLIENT_ID` pair is unused while Google sign-in is stubbed, and `EXPO_PUBLIC_CLASS_ENABLED` is a dev-only override for the remote `class_enabled` feature flag.
+
+## Product rules the library choices must serve
+*(Libraries in use are in `package.json`; what follows is the non-obvious part.)*
 - **Navigation**: React Navigation — native-stack for the auth/onboarding pre-app flow and for pushed screens; a **custom bottom tab bar** for the tabs (see the "island" spec — do not use the default tab bar chrome). **v1 renders 4 tabs** — the **Klasse** tab is hidden behind the `class_enabled` remote feature flag (off) and appears (5-tab bar) only when the flag is flipped on as the concurrent teacher app ships. **Lernen** is not a tab and gets no nav icon — it is reached only from the Home screen and pushes onto the Heute stack.
-- **Icons**: `react-native-svg` + a set like `lucide-react-native`, or hand-port the exact SVG paths from the reference (24×24 viewBox, stroke 1.6–1.9). Brand marks (Google/Apple) as their official SVGs.
+- **Icons**: hand-ported SVG paths from the reference (24×24 viewBox, stroke 1.6–1.9). Brand marks (Google/Apple) as their official SVGs.
 - **Fonts**: `expo-font` / `@expo-google-fonts` — **Source Serif 4** (display/headings/**all numerals**), **IBM Plex Mono** (typed exam text), **Jost** (UI face). **Ship Jost** (SIL OFL, what the mocks were built with); **Futura is not licensed/embedded** (decision 2026-07-02).
-- **Audio**: `expo-av` (or `react-native-audio-recorder-player`) for Sprechen recording/playback; on-device speech feedback for Aussprache/Nachsprechen ("wird nicht bewertet"). Recording max **300s** with a countdown; upload for teacher grading; client-side, treat the recording as **ephemeral (server deletes 24h after grading)**.
-- **Storage**: `expo-secure-store` for tokens; `AsyncStorage`/MMKV for drafts (exam per-aufgabe text), settings, onboarding flag.
-- **State/data**: React Query (or similar) for server data (Redemittel, exercises, class, grading); lightweight context/store for session, theme, onboarding.
-- **Notifications**: `expo-notifications` for the daily reminder + class-assignment alerts (opt-in on screen 07).
+- **Audio**: on-device speech feedback for Aussprache/Nachsprechen is labelled "wird nicht bewertet". Recording max **300s** with a countdown; upload for teacher grading; client-side, treat the recording as **ephemeral (server deletes 24h after grading)**.
+- **Notifications**: opt-in on screen 07 — daily reminder + class-assignment alerts.
 - **In-app browser**: open the "Kurse auf unserer Website" link in the **external browser** (`Linking.openURL`), per spec — not an in-app webview.
 
 ## Theme (map the tokens → one theme object)
-Provide `light` and `dark` theme objects and a `ThemeProvider` that follows the OS (`useColorScheme`) with a manual override (Settings: System/Hell/Dunkel). Never hardcode hex in components — read from theme. Example shape:
+Provide `light` and `dark` theme objects and a `ThemeProvider` that follows the OS (`useColorScheme`) with a manual override (Settings: System/Hell/Dunkel). Never hardcode hex in components — read from theme. The token values (palettes, `accent`, `cefr`, `radius`, `font`) live in [src/theme/tokens.ts](src/theme/tokens.ts).
 
-```ts
-export const theme = {
-  light: {
-    bg:'#FDFBF6', surface:'#FFFFFF', surfaceSunken:'#FCFAF5', surfaceAlt:'#F4F0E7',
-    textHi:'#211C17', textBody:'#4F463C', textMuted:'#75695C', textFaint:'#BCAE9C',
-    border:'rgba(33,28,23,0.09)', track:'#EFEAE1',
-    primaryBtnBg:'#1C1815', primaryBtnFg:'#FFFFFF',
-    cardShadow:{ /* 0 1 2 .045 + 0 5 16 .035 */ },
-  },
-  dark: {
-    bg:'#15120E', surface:'#221D18', surfaceSunken:'#2E2925', surfaceAlt:'#2A241D',
-    textHi:'#F3EEE6', textBody:'#C4BBAD', textMuted:'#928777', textFaint:'#6B6052',
-    border:'rgba(255,255,255,0.08)', track:'#332C23',
-    primaryBtnBg:'#F3EEE6', primaryBtnFg:'#1C1815',
-  },
-  // shared (both themes):
-  accent: {
-    gruen:'#1C8A5B', gruenAlt:'#2E9E6B', gruenDarkText:'#34B97E',
-    blau:'#2B7FD4', blauDarkText:'#5B9BE0',
-    lila:'#7A52D9', lilaDark:'#9D78E6',
-    gold:'#DD8A22', goldText:'#B96F12', goldHi:'#FFC95C',
-    rot:'#D6463C', rotText:'#C0392E', rotDark:'#E8776C',
-  },
-  cefr: { B1:'#2E9E6B', B2:'#2B7FD4', C1:'#7A52D9', C2:'#BE8226' },
-  radius: { input:15, card:18, cardLg:24, tile:12, chip:11, badge:6, pill:999 },
-  font: { serif:'SourceSerif4', ui:'Jost', mono:'IBMPlexMono' },
-};
-```
 Accents, CEFR colors, and radii are **shared** across themes. The primary button **inverts** (ink on light, paper on dark); accent buttons (green "Weiter"/"Zum Start") keep their accent in both themes.
 
 ## Component conventions

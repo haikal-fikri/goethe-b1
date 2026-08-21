@@ -109,6 +109,11 @@ const redemittelCore = z.object({
 
 /** Nur fürs Anlegen — beim PATCH dürfen diese Defaults NICHT einspringen. */
 const redemittelBase = redemittelCore.extend({
+  // Beispiel-Kindzeilen werden ohne tokens angelegt (0011). Ohne Default
+  // scheitert so ein POST an „expected array, received undefined"; die
+  // superRefine unten verlangt für KANONISCHE Zeilen weiterhin nicht-leere
+  // tokens — mit einer verständlichen Meldung.
+  tokens: z.array(z.string().min(1).max(60)).max(40).default([]),
   distractors: z.array(z.string().max(60)).max(20).default([]),
   tags: z.array(z.string().max(40)).max(20).default([]),
   difficulty: z.number().int().min(1).max(5).default(1),
@@ -162,35 +167,12 @@ export const redemittelPatchSchema = redemittelCore
       });
       return;
     }
-    if (hatPhrase && hatTokens) {
-      // Leere tokens sind NUR beim Anlegen einer Beispielzeile zulässig. Im
-      // PATCH ist die Elternzuordnung unbekannt (parentId ist hier gesperrt),
-      // also wäre `tokens: []` zusammen mit einer Wendung ein stiller Bruch
-      // der Wortbank-Lösung — deshalb hier immer nicht-leer verlangen.
-      if (d.tokens!.length === 0) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["tokens"],
-          message:
-            "tokens darf beim Ändern nicht leer sein. Beispielzeilen ohne tokens bitte per SQL-Migration behandeln.",
-        });
-        return;
-      }
-      if (d.tokens!.join(" ") !== d.phraseDe) {
-        ctx.addIssue({ code: "custom", path: ["tokens"], message: TOKEN_MISMATCH });
-      }
-    }
-    // Die Lückentext-Vorlage ist die zweite Hälfte derselben Invariante
-    // (CLAUDE.md: „Editing a phrase requires re-syncing tokens AND
-    // cloze_template"). Sie darf leer bleiben, aber wenn die Wendung sich
-    // ändert und eine Vorlage mitkommt, muss sie zur neuen Wendung passen.
-    if (hatPhrase && d.clozeTemplate === undefined) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["clozeTemplate"],
-        message:
-          "Beim Ändern der Wendung muss cloze_template mitgeschickt werden (leerer String löscht die Vorlage) — sonst drillt der Lückentext weiter den alten Satz.",
-      });
+    // Nicht-leere tokens müssen die Wendung ergeben. Ob LEERE tokens zulässig
+    // sind, hängt daran, ob die Zeile eine Beispiel-Kindzeile ist — das weiß
+    // nur die Datenbank (parentId ist im PATCH gesperrt), also prüft es der
+    // Schreibpfad, nicht dieses Schema.
+    if (hatPhrase && hatTokens && d.tokens!.length > 0 && d.tokens!.join(" ") !== d.phraseDe) {
+      ctx.addIssue({ code: "custom", path: ["tokens"], message: TOKEN_MISMATCH });
     }
   });
 export type RedemittelPatchInput = z.infer<typeof redemittelPatchSchema>;

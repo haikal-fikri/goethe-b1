@@ -256,10 +256,8 @@ export async function updateCorpus(
       const d = functionPatchSchema.parse(body);
       return simpleUpdate("functions", "code", d.code, pick(d, FUNCTION_UPDATE_COLS), actor, "functions");
     }
-    case "redemittel": {
-      const d = redemittelPatchSchema.parse(body);
-      return simpleUpdate("redemittel", "id", d.id, pick(d, REDEMITTEL_UPDATE_COLS), actor, "redemittel");
-    }
+    case "redemittel":
+      return updateRedemittel(redemittelPatchSchema.parse(body), actor);
     case "redemittel-translation":
       return updateTranslation(redemittelTranslationPatchSchema.parse(body), actor);
     case "exam-simulations": {
@@ -356,6 +354,62 @@ async function simpleUpdate(
 
 /* ── redemittel ───────────────────────────────────────────────────────────── */
 
+/**
+ * Zwei Regeln lassen sich erst hier prüfen, weil sie die GESPEICHERTE Zeile
+ * brauchen — im Schema wären sie entweder blind oder unerfüllbar:
+ *
+ *  1. Leere tokens sind nur für Beispiel-Kindzeilen zulässig. Ob die Zeile
+ *     eine ist, sagt `parent_id`, und das ist im PATCH gesperrt.
+ *  2. Ändert sich die Wendung, während eine Lückentext-Vorlage gespeichert
+ *     ist, drillt die Vorlage weiter den alten Satz (CLAUDE.md: tokens UND
+ *     cloze_template gemeinsam nachziehen). Die Meldung greift deshalb nur,
+ *     wenn wirklich eine Vorlage existiert — Zeilen ohne Vorlage bleiben
+ *     ohne Zusatzaufwand änderbar.
+ */
+async function updateRedemittel(d: Row, actor: string): Promise<CorpusResult> {
+  const row = pick(d, REDEMITTEL_UPDATE_COLS);
+  requireFields(row, "redemittel");
+  const keys = Object.keys(row);
+  const id = String(d.id);
+
+  await sql.begin(async (tx) => {
+    const vorhanden = await tx<{ parent_id: string | null; cloze_template: string | null }[]>`
+      select parent_id, cloze_template from redemittel where id = ${id}
+    `;
+    if (vorhanden.length === 0) {
+      throw new CorpusError(404, "not_found", `redemittel: ${id} existiert nicht.`);
+    }
+    const { parent_id, cloze_template } = vorhanden[0];
+
+    const tokens = d.tokens as string[] | undefined;
+    if (tokens !== undefined && tokens.length === 0 && parent_id === null) {
+      throw new CorpusError(
+        400,
+        "bad_request",
+        "Kanonische Wendungen brauchen tokens — ohne sie ist die Wortbank-Übung unlösbar."
+      );
+    }
+
+    if (d.phraseDe !== undefined && d.clozeTemplate === undefined && cloze_template) {
+      throw new CorpusError(
+        400,
+        "bad_request",
+        "Diese Wendung hat eine Lückentext-Vorlage. Bitte cloze_template mitschicken (leerer Text entfernt die Vorlage) — sonst übt der Lückentext weiter den alten Satz."
+      );
+    }
+
+    const res = await tx`update redemittel set ${tx(row, ...keys)} where id = ${id}`;
+    if (res.count === 0) throw new CorpusError(404, "not_found", `redemittel: ${id} existiert nicht.`);
+    await auditTx(tx, {
+      actor,
+      action: "corpus.update",
+      target: `redemittel:${id}`,
+      meta: { felder: keys, via: "admin" },
+    });
+  });
+  return { id, action: "update" };
+}
+
 async function createRedemittel(d: Row, actor: string): Promise<CorpusResult> {
   const row = pick(d, REDEMITTEL_COLS);
   const id = String(d.id);
@@ -412,22 +466,26 @@ async function createTranslation(d: Row, actor: string): Promise<CorpusResult> {
     if (parent.count === 0) {
       throw new CorpusError(400, "bad_request", `Wendung ${String(d.rowId)} existiert nicht.`);
     }
-    // `coalesce(excluded.x, tabelle.x)` statt `excluded.x`: hat der Aufrufer
-    // ein optionales Feld weggelassen, steht es nicht in der INSERT-Liste, und
-    // `excluded.translator` wäre der Spalten-Default (NULL) — der Upsert würde
-    // also den gespeicherten Übersetzer löschen und einen geprüften Eintrag
-    // auf „reviewed" zurückstellen. So bleibt Ausgelassenes erhalten.
-    await tx`
-      insert into redemittel_translation ${tx(row)}
-      on conflict (row_id, lang) do update set
-        translation = excluded.translation,
-        status      = coalesce(excluded.status, redemittel_translation.status),
-        translator  = coalesce(excluded.translator, redemittel_translation.translator),
-        updated_at  = now()
+    // BEWUSST kein Upsert. `excluded.<spalte>` trägt bei ausgelassenen Feldern
+    // den Spalten-Default, nicht NULL — ein Upsert könnte „Feld weggelassen"
+    // also nicht von „Feld ausdrücklich gesetzt" unterscheiden und würde einen
+    // `draft` still auf `reviewed` heben und den Übersetzer löschen. POST legt
+    // deshalb nur an; Ändern läuft über PATCH (wie bei allen anderen
+    // Ressourcen auch).
+    const schonDa = await tx`
+      select 1 from redemittel_translation where row_id = ${String(d.rowId)} and lang = ${String(d.lang)}
     `;
+    if (schonDa.count > 0) {
+      throw new CorpusError(
+        409,
+        "conflict",
+        `Für ${String(d.rowId)} existiert bereits eine Übersetzung (${String(d.lang)}). Zum Ändern bitte PATCH verwenden.`
+      );
+    }
+    await tx`insert into redemittel_translation ${tx(row)}`;
     await auditTx(tx, {
       actor,
-      action: "corpus.update",
+      action: "corpus.create",
       target: `redemittel_translation:${key}`,
       meta: { felder: Object.keys(row), via: "admin" },
     });

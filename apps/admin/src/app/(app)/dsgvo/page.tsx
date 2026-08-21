@@ -44,7 +44,10 @@ export default async function DsgvoPage() {
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
               {d.versionen.map((v) => {
-                const pct = nenner && nenner > 0 ? Math.min(100, (v.zustimmungen / nenner) * 100) : 0;
+                const pct =
+                  v.zustimmungen !== null && nenner && nenner > 0
+                    ? Math.min(100, (v.zustimmungen / nenner) * 100)
+                    : 0;
                 return (
                   <div key={v.version}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
@@ -52,7 +55,7 @@ export default async function DsgvoPage() {
                       {v.istAktuell ? <Pill tone="gruen">aktuell</Pill> : <Pill tone="neutral">abgelöst</Pill>}
                       <span style={{ flex: 1 }} />
                       <span style={{ fontFamily: "var(--font-serif)", fontSize: 13.5, color: "var(--text-hi)" }}>
-                        {v.zustimmungen}
+                        {v.zustimmungen === null ? "—" : v.zustimmungen}
                         {nenner !== null ? <span style={{ color: "var(--text-2)", fontSize: 12 }}>/{nenner}</span> : null}
                       </span>
                     </div>

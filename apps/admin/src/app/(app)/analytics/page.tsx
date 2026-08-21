@@ -16,9 +16,13 @@ export default async function AnalyticsPage() {
   const max = Math.max(1, ...d.balken.map((b) => b.gesamt));
   const letzte = d.balken[d.balken.length - 1];
   const vorletzte = d.balken[d.balken.length - 2];
+  // Die letzte Woche ist die LAUFENDE und damit angebrochen. Ein Vergleich mit
+  // der vollen Vorwoche ergibt am Montagmorgen zuverlässig „−98 %" — deshalb
+  // wird die abgeschlossene Vorwoche mit der davor verglichen und beschriftet.
+  const vorvor = d.balken[d.balken.length - 3];
   const delta =
-    letzte && vorletzte && vorletzte.gesamt > 0
-      ? Math.round(((letzte.gesamt - vorletzte.gesamt) / vorletzte.gesamt) * 100)
+    vorletzte && vorvor && vorvor.gesamt > 0
+      ? Math.round(((vorletzte.gesamt - vorvor.gesamt) / vorvor.gesamt) * 100)
       : null;
 
   return (
@@ -26,12 +30,22 @@ export default async function AnalyticsPage() {
       <PageHeader eyebrow="Analytics" title="Plattform-Analytics" />
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 20 }}>
-        <StatCard label="Bewertungen (8 Wochen)" value={d.lesbar ? d.gesamt : "—"} />
-        <StatCard label="Diese Woche" value={d.lesbar && letzte ? letzte.gesamt : "—"} />
         <StatCard
-          label="Gegenüber Vorwoche"
-          value={delta === null ? "—" : `${delta > 0 ? "+" : ""}${delta}%`}
-          subColor={delta !== null && delta < 0 ? "var(--rot-text)" : "var(--gruen)"}
+          label="Bewertungen (8 Wochen)"
+          value={d.lesbar ? d.gesamt : "—"}
+          sub={d.lesbar ? (d.abgeschnitten ? "mindestens — Ergebnis gedeckelt" : undefined) : "unvollständig"}
+          subColor={d.abgeschnitten ? "var(--gold-text)" : "var(--text-2)"}
+        />
+        <StatCard
+          label="Diese Woche"
+          value={d.lesbar && letzte ? letzte.gesamt : "—"}
+          sub="laufend, noch nicht abgeschlossen"
+        />
+        <StatCard
+          label={vorletzte ? `${vorletzte.label} ggü. Vorwoche` : "Vorwoche"}
+          value={delta === null || !d.lesbar ? "—" : `${delta > 0 ? "+" : ""}${delta}%`}
+          sub="letzte abgeschlossene Woche"
+          subColor={delta !== null && delta < 0 ? "var(--rot-text)" : "var(--text-2)"}
         />
       </div>
 
@@ -49,12 +63,16 @@ export default async function AnalyticsPage() {
         }
       >
         {!d.lesbar ? (
-          <EmptyRow>Bewertungsdaten konnten nicht gelesen werden.</EmptyRow>
+          <EmptyRow>
+            Unvollständig — nicht lesbar: {d.fehlend.join(", ")}. Ein Diagramm ohne diese Quellen
+            wäre irreführend.
+          </EmptyRow>
         ) : (
           <>
-            {d.fehlend.length > 0 ? (
+            {d.abgeschnitten ? (
               <div style={{ fontSize: 12, color: "var(--gold-text)", marginBottom: 12 }}>
-                Ohne {d.fehlend.join(" und ")} — nicht lesbar.
+                Die Datenbank hat die Zeilen gedeckelt — die Balken sind eine Untergrenze, keine
+                Zählung.
               </div>
             ) : null}
             <div style={{ display: "flex", alignItems: "flex-end", gap: 12, height: 190, paddingTop: 8 }}>

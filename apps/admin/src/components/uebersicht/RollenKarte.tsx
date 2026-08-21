@@ -40,13 +40,19 @@ export function RollenKarte() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ targetUserId: targetUserId.trim(), role }),
       });
-      const data = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
+      const data = (await res.json().catch(() => null)) as
+        | { vorher?: string; error?: { message?: string } }
+        | null;
       if (!res.ok) {
         setFehler(data?.error?.message ?? "Rolle konnte nicht gesetzt werden.");
         return;
       }
       setBestaetigen(false);
-      setErfolg(`Rolle „${role}" vergeben. Die Person muss sich neu anmelden.`);
+      setErfolg(
+        data?.vorher && data.vorher !== role
+          ? `Rolle „${data.vorher}" → „${role}". Die Person muss sich neu anmelden.`
+          : `Rolle „${role}" vergeben. Die Person muss sich neu anmelden.`
+      );
       setTargetUserId("");
       setRole("");
     } catch {
@@ -89,7 +95,14 @@ export function RollenKarte() {
       </div>
 
       {bestaetigen ? (
-        <ModalShell onClose={() => setBestaetigen(false)} busy={busy} width={480}>
+        <ModalShell
+          onClose={() => {
+            setBestaetigen(false);
+            setFehler(null);
+          }}
+          busy={busy}
+          width={480}
+        >
           <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 14 }}>
             <span
               style={{
@@ -142,14 +155,23 @@ export function RollenKarte() {
           </div>
 
           <p style={{ margin: "0 0 16px", fontSize: 12.5, lineHeight: 1.55, color: "var(--text-2)" }}>
-            Der Vorgang wird protokolliert. Die Rolle steckt im JWT und wird erst beim nächsten
+            Die Rolle wird <strong>ersetzt</strong>, nicht ergänzt — hat das Konto bereits eine
+            andere Rolle, ist es danach nur noch „{role}". Prüfen Sie die ID vor dem Bestätigen.
+            Der Vorgang wird protokolliert; die Rolle steckt im JWT und wird erst beim nächsten
             Anmelden wirksam.
           </p>
 
           {fehler ? <ModalError message={fehler} /> : null}
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
-            <Button variant="ghost" onClick={() => setBestaetigen(false)} disabled={busy}>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setBestaetigen(false);
+                setFehler(null); // sonst steht die alte Meldung beim nächsten Öffnen noch da
+              }}
+              disabled={busy}
+            >
               Abbrechen
             </Button>
             <Button variant={role === "admin" ? "danger" : "accent"} onClick={vergeben} disabled={busy}>

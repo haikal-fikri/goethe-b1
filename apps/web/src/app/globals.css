@@ -21,8 +21,8 @@
   --text-body: #4f463c;
   --text-muted: #75695c;
   --text-faint: #bcae9c;
-  /* Im LMS heißt dieser Rohton --border; hier --line, damit der Name
-     --border für die Legacy-Kompatibilitätsschicht (unten) frei bleibt. */
+  /* Im LMS heißt dieser Rohton --border; hier --line (historisch — die
+     Legacy-Alias-Schicht, die --border belegte, ist entfallen). */
   --line: rgba(33, 28, 23, 0.09);
   --line-strong: rgba(33, 28, 23, 0.12);
   --track: #efeae1;
@@ -44,7 +44,6 @@
   /* Akzente — themeübergreifend geteilt */
   --gruen: #1c8a5b;
   --gruen-alt: #2e9e6b;
-  --gruen-dark-text: #34b97e;
   --gruen-tint: #e9f1ea;
   --blau: #2b7fd4;
   --blau-dark-text: #5aa0e8;
@@ -56,7 +55,6 @@
   --gold-tint: #fbf0dd;
   --rot: #d6463c;
   --rot-text: #c0392e;
-  --rot-dark: #e8776c;
   --rot-tint: #fbe9e7;
 
   /* GER-Niveaus (weiße Schrift sitzt auf jedem) */
@@ -209,8 +207,7 @@ textarea::placeholder {
   color: var(--text-3);
 }
 
-/* Überschriften in der Serife (Source Serif 4) — global, damit auch nicht
-   migrierte Seiten (/admin) automatisch stimmen. */
+/* Überschriften in der Serife (Source Serif 4) — global. */
 h1,
 h2 {
   font-family: var(--font-serif);

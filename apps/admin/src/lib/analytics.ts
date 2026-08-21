@@ -24,10 +24,21 @@ export interface WochenBalken {
 export interface AnalyticsData {
   balken: WochenBalken[];
   gesamt: number;
+  /** true nur, wenn ALLE Quellen gelesen wurden — sonst sind die Summen unvollständig. */
   lesbar: boolean;
   /** Tabellen, die nicht gelesen werden konnten (RLS/Fehler) — ehrlich benennen. */
   fehlend: string[];
+  /** true, wenn PostgREST die Zeilen abgeschnitten hat: die Zahlen sind dann zu klein. */
+  abgeschnitten: boolean;
 }
+
+/**
+ * PostgREST deckelt Ergebnismengen serverseitig (`db-max-rows`, gehostet
+ * standardmäßig 1000) — ohne Fehler und ohne Hinweis. Wird der Deckel erreicht,
+ * ist das Diagramm zu niedrig und sieht trotzdem plausibel aus. Deshalb wird
+ * die Grenze erfragt und der Fall gemeldet statt still unterschlagen.
+ */
+const ZEILEN_DECKEL = 1000;
 
 /** Montag (UTC) der Woche, in der `d` liegt. */
 function wochenStart(d: Date): Date {
@@ -65,6 +76,10 @@ export async function getAnalyticsData(sb: SupabaseClient, jetzt = new Date()): 
   if (sprechen.error) fehlend.push("Sprechen-Bewertungen");
   if (pruefung.error) fehlend.push("Prüfungssimulationen");
 
+  const abgeschnitten = [schreiben.data, sprechen.data, pruefung.data].some(
+    (d) => rows(d).length >= ZEILEN_DECKEL
+  );
+
   // Leere Wochen müssen als 0 im Diagramm stehen, nicht fehlen.
   const eimer = new Map<string, WochenBalken>();
   for (let i = WOCHEN - 1; i >= 0; i--) {
@@ -101,7 +116,10 @@ export async function getAnalyticsData(sb: SupabaseClient, jetzt = new Date()): 
   return {
     balken,
     gesamt: balken.reduce((s, b) => s + b.gesamt, 0),
-    lesbar: fehlend.length < 3,
+    // Streng: schon EINE fehlende Quelle macht die Summen falsch. Eine Zahl,
+    // der 30 % fehlen, ist schlimmer als ein „—".
+    lesbar: fehlend.length === 0,
     fehlend,
+    abgeschnitten,
   };
 }
