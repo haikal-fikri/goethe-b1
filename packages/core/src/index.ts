@@ -6,6 +6,7 @@ export * from "./examScoring";
 export * from "./examSchema";
 export * from "./examPrompt";
 export * from "./adminSchema";
+export * from "./corpusSchema";
 export * from "./content";
 export * from "./requestSchemas";
 export * from "./teacherSchemas";

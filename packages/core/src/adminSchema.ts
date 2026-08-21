@@ -19,3 +19,12 @@ export const createSimulationSchema = z.object({
 });
 
 export type CreateSimulationInput = z.infer<typeof createSimulationSchema>;
+
+/**
+ * Dieselbe Aufgaben-Form, benannt exportiert für den Korpus-Editor
+ * (/api/admin/corpus/exam-tasks). Heißt bewusst examTaskSchema und nicht
+ * taskSchema: die DB hat zusätzlich eine Korpus-Tabelle `tasks`
+ * (→ corpusTaskSchema in ./corpusSchema).
+ */
+export const examTaskSchema = taskSchema;
+export type ExamTaskInput = z.infer<typeof examTaskSchema>;
