@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 
 // Formular-Bausteine der Konsole. Bewusst „controlled" mit einem simplen
@@ -78,17 +79,23 @@ export function TextArea({
   rows = 3,
   placeholder,
   mono,
+  onFocus,
+  onBlur,
 }: {
   value: string;
   onChange: (v: string) => void;
   rows?: number;
   placeholder?: string;
   mono?: boolean;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }) {
   return (
     <textarea
       value={value}
       onChange={(e) => onChange(e.target.value)}
+      onFocus={onFocus}
+      onBlur={onBlur}
       rows={rows}
       placeholder={placeholder}
       className="focus-ring"
@@ -163,8 +170,13 @@ export function Select({
 
 /**
  * Listenfeld: eine Zeile = ein Eintrag. Deckt tokens/distractors/tags ab.
- * Leere Zeilen fallen raus — bei `tokens` ist das wichtig, weil ein leeres
- * Token die Wortbank-Invariante (join(" ") === phrase_de) sonst bricht.
+ *
+ * Der Rohtext lebt lokal. Würde man bei jedem Tastendruck über
+ * split/filter(Boolean)/join zurückrechnen, verschwände die gerade getippte
+ * Leerzeile sofort wieder — die Eingabetaste wäre wirkungslos und die Liste
+ * ließe sich gar nicht erweitern. Erst beim Verlassen des Feldes wird
+ * normalisiert; nach außen gehen immer nur nicht-leere, getrimmte Einträge
+ * (bei `tokens` entscheidend: ein leeres Token bricht join(" ") === phrase_de).
  */
 export function ListInput({
   value,
@@ -177,17 +189,36 @@ export function ListInput({
   rows?: number;
   placeholder?: string;
 }) {
+  const [text, setText] = useState(() => value.join("\n"));
+  const [fokus, setFokus] = useState(false);
+
+  // Von außen gesetzte Werte (anderer Datensatz im Formular) übernehmen —
+  // aber nicht, während getippt wird.
+  const extern = value.join("\n");
+  useEffect(() => {
+    if (!fokus) setText(extern);
+  }, [extern, fokus]);
+
+  const zerlegen = (v: string) =>
+    v
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
   return (
     <TextArea
-      value={value.join("\n")}
-      onChange={(v) =>
-        onChange(
-          v
-            .split("\n")
-            .map((s) => s.trim())
-            .filter(Boolean)
-        )
-      }
+      value={text}
+      onChange={(v) => {
+        setText(v);
+        onChange(zerlegen(v));
+      }}
+      onFocus={() => setFokus(true)}
+      onBlur={() => {
+        setFokus(false);
+        const sauber = zerlegen(text);
+        setText(sauber.join("\n"));
+        onChange(sauber);
+      }}
       rows={rows}
       placeholder={placeholder}
       mono

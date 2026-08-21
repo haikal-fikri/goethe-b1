@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { CURRENT_DPA_VERSION } from "@/lib/compliance";
+import { aktiveLehrkraftIds } from "@/lib/uebersicht";
 
 // Datenschutz-Zentrale. Real gestützt sind zwei Dinge:
 //  · AVV-Zustimmungen  → teacher_agreements (0024), je (teacher, dpa_version)
@@ -10,14 +11,19 @@ import { CURRENT_DPA_VERSION } from "@/lib/compliance";
 // nicht gibt — hier steht deshalb die PROTOKOLL-Sicht (was ist passiert), nicht
 // eine Warteschlange (was steht an).
 
-/** audit_log-Aktionen, die als Compliance-Vorgang gelten. */
+/**
+ * audit_log-Aktionen, die als Compliance-Vorgang gelten.
+ *
+ * Nur Strings, die IRGENDWO im Monorepo wirklich geschrieben werden — geprüft
+ * mit `grep -rhoE 'action: "[a-z_]+\.[a-z_]+"' apps/*​/src packages/*​/src`.
+ * Erfundene Namen (dsar.*, consent.withdraw) filtern still auf null Treffer
+ * und lassen die Seite leer aussehen, obwohl Vorgänge protokolliert sind.
+ */
 export const COMPLIANCE_ACTIONS = [
-  "dsar.delete",
-  "dsar.export",
   "audio.purge",
   "retention.sweep",
-  "consent.withdraw",
-  "consent.grant",
+  "consent.record",
+  "dpa.accept",
 ] as const;
 
 export interface AvvVersionRow {
@@ -51,9 +57,9 @@ const rows = (d: unknown): Row[] => (Array.isArray(d) ? (d as Row[]) : []);
 const str = (v: unknown): string => (typeof v === "string" ? v : "");
 
 export async function getDsgvoData(sb: SupabaseClient): Promise<DsgvoData> {
-  const [agreements, ents, events] = await Promise.all([
+  const [agreements, aktive, events] = await Promise.all([
     sb.from("teacher_agreements").select("teacher_id, dpa_version, accepted_at"),
-    sb.from("entitlements").select("user_id").eq("status", "active"),
+    aktiveLehrkraftIds(sb),
     sb
       .from("audit_log")
       .select("id, action, target, created_at")
@@ -75,10 +81,17 @@ export async function getDsgvoData(sb: SupabaseClient): Promise<DsgvoData> {
     perVersion.set(v, entry);
   }
 
+  const nurAktive = (ids: Set<string>): number => {
+    if (aktive === null) return ids.size;
+    let n = 0;
+    for (const id of ids) if (aktive.has(id)) n++;
+    return n;
+  };
+
   const versionen: AvvVersionRow[] = [...perVersion.entries()]
     .map(([version, e]) => ({
       version,
-      zustimmungen: e.teachers.size,
+      zustimmungen: nurAktive(e.teachers),
       istAktuell: version === CURRENT_DPA_VERSION,
       letzteZustimmung: e.last,
     }))
@@ -94,14 +107,23 @@ export async function getDsgvoData(sb: SupabaseClient): Promise<DsgvoData> {
     });
   }
 
+  // Zähler und Nenner MÜSSEN dieselbe Grundmenge haben. teacher_agreements
+  // wird nie aufgeräumt, enthält also auch längst abgelaufene Lehrkräfte —
+  // ungefiltert gegen die aktiven Abos gerechnet ergäbe das Quoten über 100 %.
+  const zaehleZugestimmt = (version: string): number | null => {
+    if (agreements.error) return null;
+    const zugestimmt = perVersion.get(version)?.teachers;
+    if (!zugestimmt) return 0;
+    if (aktive === null) return null;
+    let n = 0;
+    for (const id of zugestimmt) if (aktive.has(id)) n++;
+    return n;
+  };
+
   return {
     aktuelleVersion: CURRENT_DPA_VERSION,
-    aktiveLehrkraefte: ents.error
-      ? null
-      : new Set(rows(ents.data).map((e) => str(e.user_id))).size,
-    aktuellZugestimmt: agreements.error
-      ? null
-      : perVersion.get(CURRENT_DPA_VERSION)?.teachers.size ?? 0,
+    aktiveLehrkraefte: aktive === null ? null : aktive.size,
+    aktuellZugestimmt: zaehleZugestimmt(CURRENT_DPA_VERSION),
     versionen: agreements.error ? [] : versionen,
     vorgaenge: rows(events.data).map((e) => ({
       id: str(e.id),
@@ -114,10 +136,8 @@ export async function getDsgvoData(sb: SupabaseClient): Promise<DsgvoData> {
 }
 
 export const COMPLIANCE_LABEL: Record<string, string> = {
-  "dsar.delete": "Löschung (Betroffenenanfrage)",
-  "dsar.export": "Auskunft (Betroffenenanfrage)",
   "audio.purge": "Audio-Aufbewahrung: gelöscht",
   "retention.sweep": "Aufbewahrungslauf",
-  "consent.withdraw": "Einwilligung widerrufen",
-  "consent.grant": "Einwilligung erteilt",
+  "consent.record": "Einwilligung erfasst",
+  "dpa.accept": "AVV angenommen",
 };

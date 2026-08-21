@@ -240,7 +240,10 @@ export const RESOURCES: ResourceConfig[] = [
         col: "tokens",
         label: "Tokens (Wortbank)",
         type: "list",
-        required: true,
+        // NICHT required: Beispiel-Kindzeilen (parent_id gesetzt, Migration
+        // 0011) haben tokens='{}' — mit required ließen sie sich nie
+        // speichern. Die Regel ist ohnehin serverseitig schärfer, als ein
+        // Pflichtfeld sie ausdrücken kann.
         hint: "Ein Token pro Zeile. Zusammengefügt mit Leerzeichen muss die Wendung herauskommen.",
       },
       { name: "translationEn", col: "translation_en", label: "Übersetzung (EN)", type: "text", required: true },

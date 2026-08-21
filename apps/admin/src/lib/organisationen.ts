@@ -108,7 +108,16 @@ export async function listOrgs(sb: SupabaseClient): Promise<OrgRow[]> {
   // Embeds können unter RLS stillschweigend Zeilen verlieren.
   const [{ data: memberData }, { data: inviteData }, names, ents] = await Promise.all([
     sb.from("org_members").select("org_id, status").in("org_id", orgIds),
-    sb.from("org_invites").select("org_id, status").in("org_id", orgIds).eq("status", "pending"),
+    // Nichts setzt org_invites.status je auf 'expired' — claim_org_invite
+    // weist abgelaufene Token nur zurück und lässt die Zeile auf 'pending'
+    // stehen. Ohne expires_at-Prüfung würden ewig alte Einladungen als offen
+    // gezählt.
+    sb
+      .from("org_invites")
+      .select("org_id, status, expires_at")
+      .in("org_id", orgIds)
+      .eq("status", "pending")
+      .gt("expires_at", new Date().toISOString()),
     nameMap(sb, ownerIds),
     entitlementMap(sb, ownerIds),
   ]);

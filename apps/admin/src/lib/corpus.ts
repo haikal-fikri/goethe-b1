@@ -105,7 +105,16 @@ function requireFields(row: Row, resource: string): void {
 
 /* ── Spalten-Abbildungen (literal, nie aus Eingaben abgeleitet) ────────────── */
 
+// Zwei Karten je Ressource:
+//   *_COLS        — Anlegen (enthält den Primärschlüssel)
+//   *_UPDATE_COLS — Ändern (OHNE Primärschlüssel; der steht in der WHERE-Klausel)
+// Der PK gehört nicht in ein SET: er erzeugte eine sinnlose Selbstzuweisung und
+// machte vor allem requireFields() wirkungslos — ein PATCH ganz ohne Änderung
+// wäre als „Erfolg" durchgelaufen und hätte eine Audit-Zeile ohne Vorgang
+// hinterlassen.
 const SKILL_COLS = { code: "code", nameDe: "name_de", sortOrder: "sort_order" };
+const SKILL_UPDATE_COLS = { nameDe: "name_de", sortOrder: "sort_order" };
+
 const TASK_COLS = {
   code: "code",
   skillCode: "skill_code",
@@ -113,7 +122,15 @@ const TASK_COLS = {
   labelEn: "label_en",
   sortOrder: "sort_order",
 };
+const TASK_UPDATE_COLS = {
+  skillCode: "skill_code",
+  labelDe: "label_de",
+  labelEn: "label_en",
+  sortOrder: "sort_order",
+};
+
 const FUNCTION_COLS = { code: "code", nameDe: "name_de", nameEn: "name_en" };
+const FUNCTION_UPDATE_COLS = { nameDe: "name_de", nameEn: "name_en" };
 const REDEMITTEL_COLS = {
   id: "id",
   phraseDe: "phrase_de",
@@ -133,6 +150,31 @@ const REDEMITTEL_COLS = {
   difficulty: "difficulty",
   parentId: "parent_id",
 };
+/**
+ * Ändern lässt sich alles AUSSER `id` (stabiler Surrogatschlüssel) und
+ * `parent_id`. Letzteres ist der eigentliche Zahn: wer parent_id nachträglich
+ * setzen kann, macht aus einer geschützten kanonischen Wendung eine löschbare
+ * Beispielzeile — und entfernt sie zugleich aus redemittel_item, also aus der
+ * Lern-App. Die Eltern-Zuordnung fällt beim Anlegen, danach nur per Migration.
+ */
+const REDEMITTEL_UPDATE_COLS = {
+  phraseDe: "phrase_de",
+  frameDe: "frame_de",
+  translationEn: "translation_en",
+  level: "level",
+  skillCode: "skill_code",
+  taskCode: "task_code",
+  functionCode: "function_code",
+  registerGroup: "register_group",
+  notes: "notes",
+  clozeTemplate: "cloze_template",
+  audioUrl: "audio_url",
+  tokens: "tokens",
+  distractors: "distractors",
+  tags: "tags",
+  difficulty: "difficulty",
+};
+
 const TRANSLATION_COLS = {
   rowId: "row_id",
   lang: "lang",
@@ -145,9 +187,21 @@ const TRANSLATION_COLS = {
 const examTaskCreateSchema = examTaskSchema.extend({
   simulationId: z.number().int().positive(),
 });
-const examTaskPatchSchema = examTaskSchema
-  .partial()
-  .extend({ id: z.string().trim().min(1).max(120) });
+// NICHT von examTaskSchema ableiten: dessen `bulletPointsDe` trägt ein
+// `.default([])`, das `.partial()` in Zod v4 NICHT entfernt — jeder Patch
+// hätte die Leitpunkte der Aufgabe gelöscht, auch wenn der Aufrufer sie gar
+// nicht erwähnt. Diese Ressource hat keine Oberfläche, der rohe API-Aufruf ist
+// der einzige Weg; ein stiller Datenverlust wäre hier unbemerkt geblieben.
+const examTaskPatchSchema = z.object({
+  id: z.string().trim().min(1).max(120),
+  taskType: z.string().min(1).max(120).optional(),
+  titleDe: z.string().min(1).max(300).optional(),
+  promptDe: z.string().min(1).max(8000).optional(),
+  bulletPointsDe: z.array(z.string().max(500)).max(20).optional(),
+  minWords: z.number().int().positive().max(10000).optional(),
+  recommendedMinutes: z.number().int().positive().max(600).optional(),
+  sampleAnswerDe: z.string().max(12000).optional(),
+});
 const examSimulationPatchSchema = z.object({
   id: z.number().int().positive(),
   titleDe: z.string().trim().min(1).max(300).optional(),
@@ -187,19 +241,19 @@ export async function updateCorpus(
   switch (resource) {
     case "skills": {
       const d = skillPatchSchema.parse(body);
-      return simpleUpdate("skills", "code", d.code, pick(d, SKILL_COLS), actor, "skills");
+      return simpleUpdate("skills", "code", d.code, pick(d, SKILL_UPDATE_COLS), actor, "skills");
     }
     case "tasks": {
       const d = corpusTaskPatchSchema.parse(body);
-      return simpleUpdate("tasks", "code", d.code, pick(d, TASK_COLS), actor, "tasks");
+      return simpleUpdate("tasks", "code", d.code, pick(d, TASK_UPDATE_COLS), actor, "tasks");
     }
     case "functions": {
       const d = functionPatchSchema.parse(body);
-      return simpleUpdate("functions", "code", d.code, pick(d, FUNCTION_COLS), actor, "functions");
+      return simpleUpdate("functions", "code", d.code, pick(d, FUNCTION_UPDATE_COLS), actor, "functions");
     }
     case "redemittel": {
       const d = redemittelPatchSchema.parse(body);
-      return simpleUpdate("redemittel", "id", d.id, pick(d, REDEMITTEL_COLS), actor, "redemittel");
+      return simpleUpdate("redemittel", "id", d.id, pick(d, REDEMITTEL_UPDATE_COLS), actor, "redemittel");
     }
     case "redemittel-translation":
       return updateTranslation(redemittelTranslationPatchSchema.parse(body), actor);
@@ -353,12 +407,17 @@ async function createTranslation(d: Row, actor: string): Promise<CorpusResult> {
     if (parent.count === 0) {
       throw new CorpusError(400, "bad_request", `Wendung ${String(d.rowId)} existiert nicht.`);
     }
+    // `coalesce(excluded.x, tabelle.x)` statt `excluded.x`: hat der Aufrufer
+    // ein optionales Feld weggelassen, steht es nicht in der INSERT-Liste, und
+    // `excluded.translator` wäre der Spalten-Default (NULL) — der Upsert würde
+    // also den gespeicherten Übersetzer löschen und einen geprüften Eintrag
+    // auf „reviewed" zurückstellen. So bleibt Ausgelassenes erhalten.
     await tx`
       insert into redemittel_translation ${tx(row)}
       on conflict (row_id, lang) do update set
         translation = excluded.translation,
-        status      = excluded.status,
-        translator  = excluded.translator,
+        status      = coalesce(excluded.status, redemittel_translation.status),
+        translator  = coalesce(excluded.translator, redemittel_translation.translator),
         updated_at  = now()
     `;
     await auditTx(tx, {
@@ -432,6 +491,12 @@ interface SimulationTask {
  * bekam einen generischen 500). `pg_advisory_xact_lock` serialisiert Lesen und
  * Schreiben über Sessions hinweg; die Sperre fällt beim Commit/Rollback
  * automatisch. Zero-Migration-Fix — die Inhaltstabellen bleiben unangetastet.
+ *
+ * ⚠️ Eine Sperre wirkt nur zwischen Beteiligten, die sie AUCH nehmen. Solange
+ * apps/web `/api/admin/simulations` lebt und dieselbe Berechnung ungesichert
+ * ausführt, ist das Rennen zwischen den beiden Apps offen — geschlossen ist es
+ * erst mit der Abschaltung des Legacy-Panels (§5.1). Die beiden Schritte
+ * gehören zusammen; §5.1 fordert sie ausdrücklich im selben Release.
  */
 async function createSimulation(
   d: { titleDe: string; tasks: SimulationTask[] },

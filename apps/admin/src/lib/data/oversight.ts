@@ -64,9 +64,17 @@ export function oversightList(
 /**
  * Zeilenzahl einer Oversight-Tabelle (HEAD-Request, überträgt keine Zeilen).
  *
- * Gibt bei einem Fehler bewusst `null` zurück, NICHT 0: ein RLS-Deny oder ein
- * Netzwerkfehler darf im Dashboard nicht als „0 Konten" erscheinen. Die UI
- * rendert null als „—".
+ * `null` = die Abfrage ist FEHLGESCHLAGEN (Netzwerk, unbekannte Spalte,
+ * abgelaufene Session). Die UI rendert das als „—" statt als 0.
+ *
+ * ⚠️ Was das NICHT abfängt: fehlt einer Tabelle die is_admin()-Lesepolicy,
+ * antwortet PostgREST mit HTTP 200 und count 0 — kein Fehler. Ein solcher
+ * Deny ist von „wirklich null Zeilen" nicht zu unterscheiden, weder hier noch
+ * sonstwo im Client. Die Absicherung dagegen ist nicht dieser Rückgabewert,
+ * sondern der rls_matrix-Test in apps/web/supabase/tests: er prüft für jede
+ * Tabelle aus OVERSIGHT_TABLES, dass ein admin-JWT sie lesen darf. Wer eine
+ * Tabelle zu dieser Liste hinzufügt, muss dort einen Fall ergänzen —
+ * andernfalls zeigt das Dashboard stillschweigend Nullen.
  */
 export async function oversightCount(
   sb: SupabaseClient,

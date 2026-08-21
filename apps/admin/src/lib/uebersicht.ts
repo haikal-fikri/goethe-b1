@@ -34,7 +34,7 @@ export async function getUebersichtData(sb: SupabaseClient): Promise<UebersichtD
   const [konten, aktiveAbos, organisationen, klassen, einschreibungen, avvOffen, aktivitaet] =
     await Promise.all([
       oversightCount(sb, "profiles"),
-      oversightCount(sb, "entitlements", { status: "active" }),
+      countAktiveAbos(sb),
       oversightCount(sb, "organizations"),
       oversightCount(sb, "classes"),
       oversightCount(sb, "class_enrollments", { status: "active" }),
@@ -46,19 +46,46 @@ export async function getUebersichtData(sb: SupabaseClient): Promise<UebersichtD
 }
 
 /**
+ * Aktive Abos — nach der Definition, die auch die DB benutzt
+ * (`has_active_sub`, 0026): status='active' UND Periode nicht abgelaufen.
+ * Nur auf `status` zu zählen überzeichnet: ein Abo bleibt nach dem Auslaufen
+ * auf 'active' stehen, bis der Webhook es umschreibt.
+ */
+async function countAktiveAbos(sb: SupabaseClient): Promise<number | null> {
+  const ids = await aktiveLehrkraftIds(sb);
+  return ids === null ? null : ids.size;
+}
+
+/** IDs der Lehrkräfte mit wirksamem Abo — geteilte Grundmenge. */
+export async function aktiveLehrkraftIds(sb: SupabaseClient): Promise<Set<string> | null> {
+  const { data, error } = await sb
+    .from("entitlements")
+    .select("user_id, current_period_end")
+    .eq("kind", "teacher_subscription")
+    .eq("status", "active");
+  if (error || !data) return null;
+  const jetzt = Date.now();
+  const ids = new Set<string>();
+  for (const r of data as Array<{ user_id: string; current_period_end: string | null }>) {
+    const ende = r.current_period_end ? new Date(r.current_period_end).getTime() : null;
+    if (ende === null || Number.isNaN(ende) || ende > jetzt) ids.add(r.user_id);
+  }
+  return ids;
+}
+
+/**
  * Lehrkräfte mit aktivem Abo ohne Zustimmung zur aktuellen AVV-Version.
  * Mengendifferenz in JS statt „not in (subquery)" — postgrest kann das nicht,
  * und beide Mengen sind klein (eine Zeile je Lehrkraft).
  */
 async function countAvvOffen(sb: SupabaseClient): Promise<number | null> {
-  const [{ data: ents, error: entErr }, { data: dpas, error: dpaErr }] = await Promise.all([
-    sb.from("entitlements").select("user_id").eq("status", "active"),
+  const [lehrkraefte, { data: dpas, error: dpaErr }] = await Promise.all([
+    aktiveLehrkraftIds(sb),
     sb.from("teacher_agreements").select("teacher_id").eq("dpa_version", CURRENT_DPA_VERSION),
   ]);
-  if (entErr || dpaErr || !ents || !dpas) return null;
+  if (lehrkraefte === null || dpaErr || !dpas) return null;
 
   const akzeptiert = new Set((dpas as Array<{ teacher_id: string }>).map((d) => d.teacher_id));
-  const lehrkraefte = new Set((ents as Array<{ user_id: string }>).map((e) => e.user_id));
   let offen = 0;
   for (const id of lehrkraefte) if (!akzeptiert.has(id)) offen++;
   return offen;
@@ -86,16 +113,22 @@ async function listAktivitaet(sb: SupabaseClient): Promise<AuditEntry[]> {
 
 /** Deutsche Beschriftung für die bekannten audit_log-Aktionen. */
 export function auditLabel(action: string): string {
+  // Schlüssel = die Strings, die im Code TATSÄCHLICH geschrieben werden
+  // (`grep -rhoE 'action: "[a-z_]+\.[a-z_]+"' apps/*/src packages/*/src`).
+  // Erfundene Schlüssel greifen nie und lassen die Aktion roh erscheinen.
   const known: Record<string, string> = {
     "role.grant": "Rolle vergeben",
-    "corpus.update": "Korpus bearbeitet",
+    "corpus.create": "Korpus: angelegt",
+    "corpus.update": "Korpus: geändert",
+    "corpus.delete": "Korpus: gelöscht",
     "entitlement.write": "Abo geändert",
+    "billing.orphan": "Zahlung ohne Zuordnung",
     "audio.purge": "Audio gelöscht",
-    "dsar.delete": "Betroffenenanfrage: Löschung",
-    "dsar.export": "Betroffenenanfrage: Auskunft",
     "retention.sweep": "Aufbewahrungslauf",
+    "consent.record": "Einwilligung erfasst",
+    "dpa.accept": "AVV angenommen",
     "term.close": "Kurs abgeschlossen",
-    "fair_use.alert": "Faire Nutzung: Hinweis",
+    "fairuse.flag": "Faire Nutzung: markiert",
   };
   return known[action] ?? action;
 }
@@ -104,8 +137,14 @@ export function auditLabel(action: string): string {
 export function auditTone(action: string): string {
   if (action.startsWith("role.")) return "var(--lila)";
   if (action.startsWith("corpus.")) return "var(--blau)";
-  if (action.startsWith("dsar.") || action.startsWith("audio.") || action.startsWith("retention."))
+  if (
+    action.startsWith("audio.") ||
+    action.startsWith("retention.") ||
+    action.startsWith("consent.") ||
+    action.startsWith("dpa.")
+  )
     return "var(--gold)";
-  if (action.startsWith("entitlement.")) return "var(--gruen)";
+  if (action.startsWith("entitlement.") || action.startsWith("billing.")) return "var(--gruen)";
+  if (action.startsWith("fairuse.")) return "var(--rot)";
   return "var(--text-3)";
 }

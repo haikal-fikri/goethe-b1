@@ -319,7 +319,11 @@ export function AdminShell({ user, env, children }: Props) {
       </div>
 
       {accountMenu ? (
-        <div onClick={() => setAccountMenu(false)} style={{ position: "fixed", inset: 0, zIndex: 3 }} />
+        // zIndex MUSS über der Seitenleiste (5) und dem Topbar (4) liegen,
+        // sonst erreichen Klicks auf die Navigation die Fläche nie und das
+        // Menü bleibt beim Seitenwechsel offen stehen (AdminShell wird vom
+        // Client-Routing nicht neu gemountet). Das Menü selbst liegt auf 20.
+        <div onClick={() => setAccountMenu(false)} style={{ position: "fixed", inset: 0, zIndex: 10 }} />
       ) : null}
     </div>
   );

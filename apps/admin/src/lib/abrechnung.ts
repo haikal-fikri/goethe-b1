@@ -42,7 +42,18 @@ export async function getAbrechnungData(sb: SupabaseClient): Promise<AbrechnungD
 
   const ents = rows(data);
   const gesamt = ents.length;
-  const aktiv = ents.filter((e) => str(e.status) === "active").length;
+  // „Aktiv" wie in der DB (has_active_sub, 0026): status='active' UND Periode
+  // nicht abgelaufen. Ein ausgelaufenes Abo bleibt auf 'active' stehen, bis
+  // der Webhook es umschreibt — nur auf status zu zählen überzeichnet.
+  const jetztMs = Date.now();
+  const istAktiv = (e: Row): boolean => {
+    if (str(e.status) !== "active") return false;
+    const ende = str(e.current_period_end);
+    if (!ende) return true;
+    const t = new Date(ende).getTime();
+    return Number.isNaN(t) || t > jetztMs;
+  };
+  const aktiv = ents.filter(istAktiv).length;
 
   const planCount = new Map<string, number>();
   const statusCount = new Map<string, number>();
@@ -54,10 +65,10 @@ export async function getAbrechnungData(sb: SupabaseClient): Promise<AbrechnungD
   }
 
   // Auslaufende Abos: aktiv, aber mit Periodenende in den nächsten 30 Tagen.
-  const jetzt = Date.now();
+  const jetzt = jetztMs;
   const grenze = jetzt + 30 * 24 * 60 * 60 * 1000;
   const auslaufend = ents.filter((e) => {
-    if (str(e.status) !== "active") return false;
+    if (!istAktiv(e)) return false;
     const end = str(e.current_period_end);
     if (!end) return false;
     const t = new Date(end).getTime();
