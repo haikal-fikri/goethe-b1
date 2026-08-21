@@ -3,11 +3,12 @@ import { Suspense, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { supabaseBrowser } from "@/lib/supabase/browser";
+import { IconShield } from "@/components/icons";
+import { Button } from "@/components/ui/controls";
 
-// Minimale, FUNKTIONALE Superadmin-Anmeldung (Phase 4). Phase 5 gestaltet neu.
-// E-Mail → POST /api/auth/otp → 8-stelliger Code → client-seitiges verifyOtp.
-// Ohne admin-Claim (nur via grant-role/Bootstrap vergeben) greifen alle
-// C-Routen 403 — der Login mintet nur die Session.
+// Superadmin-Anmeldung. E-Mail → POST /api/auth/otp → 8-stelliger Code →
+// client-seitiges verifyOtp. Ohne admin-Claim (nur via grant-role/Bootstrap
+// vergeben) greifen alle C-Routen 403 — der Login mintet nur die Session.
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 // Nur relative Same-Origin-Pfade zulassen (Open-Redirect-Schutz). Der WHATWG-
@@ -23,10 +24,38 @@ function safeNext(raw: string): string {
   return raw;
 }
 
+// requireAdmin() und /auth/confirm leiten mit diesen Parametern hierher.
+const REDIRECT_ERRORS: Record<string, string> = {
+  forbidden: "Dieses Konto hat keine Superadmin-Rechte. Melden Sie sich mit einem Admin-Konto an.",
+  auth: "Der Anmeldelink war ungültig oder abgelaufen. Bitte fordern Sie einen neuen Code an.",
+};
+
+const inputStyle: React.CSSProperties = {
+  display: "block",
+  width: "100%",
+  height: 42,
+  marginTop: 6,
+  borderRadius: 11,
+  border: "1px solid var(--border-1)",
+  background: "var(--bg)",
+  padding: "0 13px",
+  fontSize: 14,
+  fontFamily: "inherit",
+  color: "var(--text-hi)",
+  outline: "none",
+};
+const labelStyle: React.CSSProperties = {
+  display: "block",
+  fontSize: 12.5,
+  fontWeight: 600,
+  color: "var(--text-1)",
+};
+
 function LoginInner() {
   const router = useRouter();
   const params = useSearchParams();
   const next = safeNext(params.get("next") ?? "/");
+  const redirectError = REDIRECT_ERRORS[params.get("error") ?? ""] ?? null;
 
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -77,50 +106,148 @@ function LoginInner() {
     }
   }
 
+  const message = err ?? redirectError;
+
   return (
-    <main style={{ fontFamily: "system-ui", padding: "2rem", maxWidth: 420, margin: "0 auto" }}>
-      <h1 style={{ fontSize: "1.4rem" }}>Superadmin-Anmeldung</h1>
-      {!sent ? (
-        <form onSubmit={requestCode} style={{ display: "grid", gap: 12, marginTop: 16 }}>
-          <label>
-            E-Mail
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
-              style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
-            />
-          </label>
-          {SITE_KEY ? <Turnstile siteKey={SITE_KEY} onSuccess={setTsToken} /> : null}
-          <button type="submit" disabled={busy} style={{ padding: 10 }}>
-            {busy ? "Sende…" : "Code senden"}
-          </button>
-        </form>
-      ) : (
-        <form onSubmit={verify} style={{ display: "grid", gap: 12, marginTop: 16 }}>
-          <p>Wir haben einen Code an {email} gesendet.</p>
-          <label>
-            Code
-            <input
-              inputMode="numeric"
-              required
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              autoComplete="one-time-code"
-              style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
-            />
-          </label>
-          <button type="submit" disabled={busy} style={{ padding: 10 }}>
-            {busy ? "Prüfe…" : "Anmelden"}
-          </button>
-          <button type="button" onClick={() => setSent(false)} style={{ padding: 6 }}>
-            Andere E-Mail
-          </button>
-        </form>
-      )}
-      {err ? <p style={{ color: "#C0392E", marginTop: 12 }}>{err}</p> : null}
+    <main
+      style={{
+        minHeight: "100vh",
+        background: "var(--bg)",
+        color: "var(--text-1)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "40px 20px",
+      }}
+    >
+      <div style={{ width: "100%", maxWidth: 400 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 26 }}>
+          <div
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: 11,
+              background: "var(--lila)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flex: "0 0 38px",
+              color: "#fff",
+              boxShadow: "0 4px 14px color-mix(in oklab, var(--lila) 45%, transparent)",
+            }}
+          >
+            <IconShield size={21} strokeWidth={1.9} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
+            <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text-hi)" }}>B1+Trainer</span>
+            <span
+              style={{
+                fontSize: 10.5,
+                fontWeight: 600,
+                letterSpacing: ".12em",
+                textTransform: "uppercase",
+                color: "var(--lila)",
+              }}
+            >
+              Superadmin
+            </span>
+          </div>
+        </div>
+
+        <div
+          style={{
+            background: "var(--surface-1)",
+            border: "1px solid var(--border-1)",
+            borderRadius: 20,
+            boxShadow: "var(--shadow-card-now)",
+            padding: "26px 24px",
+          }}
+        >
+          <h1
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: 24,
+              fontWeight: 600,
+              color: "var(--text-hi)",
+              margin: "0 0 6px",
+            }}
+          >
+            Anmelden
+          </h1>
+          <p style={{ margin: "0 0 20px", fontSize: 13.5, lineHeight: 1.55, color: "var(--text-2)" }}>
+            {sent
+              ? `Wir haben einen Code an ${email} gesendet.`
+              : "Sie erhalten einen einmaligen Code per E-Mail."}
+          </p>
+
+          {!sent ? (
+            <form onSubmit={requestCode} style={{ display: "grid", gap: 16 }}>
+              <label style={labelStyle}>
+                E-Mail
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                  className="focus-ring"
+                  style={inputStyle}
+                />
+              </label>
+              {SITE_KEY ? <Turnstile siteKey={SITE_KEY} onSuccess={setTsToken} /> : null}
+              <Button type="submit" disabled={busy} style={{ width: "100%" }}>
+                {busy ? "Sende…" : "Code senden"}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={verify} style={{ display: "grid", gap: 16 }}>
+              <label style={labelStyle}>
+                Code
+                <input
+                  inputMode="numeric"
+                  required
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  autoComplete="one-time-code"
+                  className="focus-ring"
+                  style={{ ...inputStyle, fontFamily: "var(--font-mono)", letterSpacing: ".18em" }}
+                />
+              </label>
+              <Button type="submit" disabled={busy} style={{ width: "100%" }}>
+                {busy ? "Prüfe…" : "Anmelden"}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setSent(false);
+                  setErr(null);
+                }}
+                style={{ width: "100%" }}
+              >
+                Andere E-Mail
+              </Button>
+            </form>
+          )}
+
+          {message ? (
+            <p
+              role="alert"
+              style={{
+                margin: "16px 0 0",
+                padding: "10px 12px",
+                borderRadius: 10,
+                background: "var(--rot-tint)",
+                color: "var(--rot-text)",
+                fontSize: 12.5,
+                lineHeight: 1.5,
+              }}
+            >
+              {message}
+            </p>
+          ) : null}
+        </div>
+      </div>
     </main>
   );
 }

@@ -1,1 +1,299 @@
 @import "tailwindcss";
+
+/* ============================================================
+   B1+Trainer — Lehrkraft-Portal design tokens.
+   Ported from the Claude Design bundle (tokens/*.css). Components
+   read SEMANTIC aliases only (--bg, --surface-1, --text-hi, accents…),
+   never raw hex, so they follow the theme automatically.
+   Font vars (--font-serif/-ui/-mono) come from next/font (layout.tsx).
+   ============================================================ */
+:root {
+  /* raw neutrals — light */
+  --paper: #fdfbf6;
+  --surface: #ffffff;
+  --surface-sunken: #fcfaf5;
+  --surface-alt: #f4f0e7;
+  --ink: #211c17;
+  --ink-2: #1c1815;
+  --text-body: #4f463c;
+  --text-muted: #75695c;
+  --text-muted-2: #9a8c79;
+  --text-faint: #bcae9c;
+  --text-faint-2: #c3b6a3;
+  --border: rgba(33, 28, 23, 0.09);
+  --border-strong: rgba(33, 28, 23, 0.12);
+  --track: #efeae1;
+  --track-2: #ece6dc;
+  --track-3: #ede7dc;
+
+  /* semantic aliases — LIGHT */
+  --bg: var(--paper);
+  --surface-1: var(--surface);
+  --text-hi: var(--ink);
+  --text-1: var(--text-body);
+  --text-2: var(--text-muted);
+  --text-3: var(--text-faint);
+  --border-1: var(--border);
+  --track-1: var(--track);
+  --primary-btn-bg: var(--ink-2);
+  --primary-btn-fg: #ffffff;
+  --shadow-card-now: var(--shadow-card);
+
+  /* accents — SHARED across themes (semantic) */
+  --gruen: #1c8a5b;
+  --gruen-alt: #2e9e6b;
+  --gruen-dark-text: #34b97e;
+  --gruen-tint: #e9f1ea;
+  --blau: #2b7fd4;
+  --blau-dark-text: #5aa0e8;
+  --blau-tint: #e7f0fa;
+  --lila: #7a52d9;
+  --lila-dark: #9d78e6;
+  --lila-tint: #f0eafa;
+  --gold: #dd8a22;
+  --gold-text: #b96f12;
+  --gold-hi: #ffc95c;
+  --gold-tint: #fbf0dd;
+  --rot: #d6463c;
+  --rot-text: #c0392e;
+  --rot-dark: #e8776c;
+  --rot-tint: #fbe9e7;
+
+  /* CEFR (white text sits on each) */
+  --cefr-b1: #2e9e6b;
+  --cefr-b2: #2b7fd4;
+  --cefr-c1: #7a52d9;
+  --cefr-c2: #be8226;
+
+  /* shadows / glows / focus */
+  --shadow-card: 0 1px 2px rgba(28, 24, 20, 0.045), 0 5px 16px rgba(28, 24, 20, 0.035);
+  --shadow-card-dark: 0 1px 2px rgba(0, 0, 0, 0.045), 0 5px 16px rgba(0, 0, 0, 0.035);
+  --shadow-island: 0 8px 22px rgba(28, 24, 20, 0.12), 0 1px 4px rgba(28, 24, 20, 0.07);
+  --glow-gruen: 0 6px 16px rgba(28, 138, 91, 0.3);
+  --glow-blau: 0 6px 16px rgba(43, 127, 212, 0.3);
+  --glow-gold: 0 6px 16px rgba(221, 138, 34, 0.3);
+  --focus-ring: 0 0 0 3px rgba(28, 138, 91, 0.1);
+
+  /* radii */
+  --radius-input: 15px;
+  --radius-card: 18px;
+  --radius-card-lg: 24px;
+  --radius-tile: 12px;
+  --radius-chip: 11px;
+  --radius-badge: 6px;
+  --radius-pill: 999px;
+
+  /* motion */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 0.15s;
+  --dur: 0.2s;
+}
+
+[data-theme="dark"] {
+  --paper: #15120e;
+  --surface: #221d18;
+  --surface-sunken: #2e2925;
+  --surface-alt: #2a241d;
+  --ink: #f3eee6;
+  --ink-2: #f3eee6;
+  --text-body: #c4bbad;
+  --text-muted: #928777;
+  --text-muted-2: #9c9182;
+  --text-faint: #6b6052;
+  --text-faint-2: #5e564a;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.12);
+  --track: #332c23;
+  --track-2: #17130e;
+  --track-3: #332c23;
+
+  --bg: #15120e;
+  --surface-1: #221d18;
+  --text-hi: #f3eee6;
+  --text-1: #c4bbad;
+  --text-2: #928777;
+  --text-3: #6b6052;
+  --border-1: rgba(255, 255, 255, 0.08);
+  --track-1: #332c23;
+  --primary-btn-bg: #f3eee6;
+  --primary-btn-fg: #1c1815;
+  --shadow-card-now: var(--shadow-card-dark);
+  --focus-ring: 0 0 0 3px rgba(28, 138, 91, 0.18);
+
+  /* accent tints re-mapped for dark paper */
+  --gruen-tint: rgba(46, 158, 107, 0.18);
+  --blau-tint: rgba(43, 127, 212, 0.16);
+  --lila-tint: rgba(122, 82, 217, 0.16);
+  --gold-tint: rgba(221, 138, 34, 0.16);
+  --rot-tint: rgba(214, 70, 60, 0.16);
+  --lila: #9d78e6;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+body {
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+::selection {
+  background: rgba(28, 138, 91, 0.18);
+}
+a {
+  color: var(--gruen);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--gruen-alt);
+}
+input,
+textarea,
+button {
+  font-family: inherit;
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-3);
+}
+
+/* Interaction utilities — the comp expresses hover via `style-hover`; in React
+   these become CSS classes. Motion is restrained (gentle ease, no bounce). */
+button,
+a {
+  transition:
+    background var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease),
+    opacity var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease);
+}
+.hover-surface:hover {
+  background: var(--surface-alt);
+}
+.hover-card:hover {
+  border-color: var(--border-strong);
+}
+.hover-strong:hover {
+  border-color: var(--border-strong);
+  color: var(--text-hi);
+}
+.hover-gruen:hover {
+  border-color: var(--gruen);
+  color: var(--gruen);
+}
+.hover-nav:hover {
+  background: color-mix(in oklab, var(--text-hi) 5%, transparent);
+}
+.btn-primary:hover {
+  opacity: 0.9;
+}
+.btn-accent:hover {
+  background: var(--gruen-alt);
+}
+.btn-outline:hover {
+  border-color: var(--text-2);
+}
+.press:active {
+  transform: scale(0.98);
+}
+.focus-ring:focus {
+  border-color: var(--gruen);
+  box-shadow: var(--focus-ring);
+  outline: none;
+}
+
+/* Themed scrollbar (from the comp) */
+.lms-scroll::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+.lms-scroll::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.lms-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--text-3);
+}
+.lms-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Collapsible sidebar (data-collapsed on <aside>) */
+aside[data-collapsed="true"] {
+  width: 72px !important;
+  flex-basis: 72px !important;
+}
+aside[data-collapsed="true"] .sb-hide {
+  display: none !important;
+}
+aside[data-collapsed="true"] .sb-header {
+  justify-content: center !important;
+  padding: 0 !important;
+}
+aside[data-collapsed="true"] .sb-nav {
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+}
+aside[data-collapsed="true"] .sb-nav button,
+aside[data-collapsed="true"] .sb-nav a {
+  justify-content: center !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+aside[data-collapsed="true"] .sb-nav button span,
+aside[data-collapsed="true"] .sb-nav a span {
+  display: none !important;
+}
+
+@keyframes b1-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes b1-recRing {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.5;
+  }
+  70% {
+    transform: scale(1.75);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes b1-wave {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+/* ── Superadmin-Konsole: Akzent-Override ──────────────────────────── */
+/* Im Lehrkraft-Portal ist --gruen die Primärfarbe, in der Konsole --lila
+   (teacher-lms/05 §4 / Superadmin-Comp). Der Fokus-Ring ist der einzige
+   Token, der global nachziehen muss — alle übrigen Farben setzen die
+   Komponenten selbst. Steht bewusst ganz am Ende: gleiche Spezifität wie
+   :root und [data-theme="dark"], also entscheidet die Quellreihenfolge,
+   und --lila ist selbst themenabhängig. */
+:root {
+  --focus-ring: 0 0 0 3px color-mix(in oklab, var(--lila) 24%, transparent);
+}
