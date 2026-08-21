@@ -161,14 +161,6 @@
   --color-cefr-c1: var(--cefr-c1);
   --color-cefr-c2: var(--cefr-c2);
 
-  /* Legacy-Farbschlüssel — nur noch für /admin am Leben gehalten */
-  --color-fg: var(--fg);
-  --color-fg-muted: var(--fg-muted);
-  --color-fg-dim: var(--fg-dim);
-  --color-bg-elev: var(--bg-elev);
-  --color-bg-elev-2: var(--bg-elev-2);
-  --color-border-soft: var(--border-soft);
-
   /* Drei Familien mit strikten Rollen (wie im Lehrkraft-Portal):
      · Source Serif 4 → Display, Überschriften UND ALLE ZAHLEN
      · Jost (Futura-Ersatz) → UI/Body/Labels/Buttons
@@ -178,39 +170,6 @@
   --font-serif: var(--font-source-serif), Georgia, "Times New Roman", serif;
   --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo,
     Consolas, monospace;
-}
-
-/* ── Legacy-Kompatibilitätsschicht ─────────────────────────────────────
-   Die alten Token-Namen zeigen jetzt auf die Papier-Palette, damit /admin
-   (nicht im Umbau-Umfang) ohne Änderung stimmig rendert. Jeder Alias läuft
-   über einen SEMANTISCHEN Token → folgt dem Theme automatisch.
-   NEUER CODE DARF DIESE NAMEN NICHT VERWENDEN (siehe `npm run lint:tokens`).
-   Entfällt vollständig, sobald /admin migriert ist. */
-:root {
-  --fg: var(--text-hi);
-  --fg-muted: var(--text-2);
-  --fg-dim: var(--text-3);
-  --bg-elev: var(--surface-alt);
-  --bg-elev-2: var(--track-1);
-  --border: var(--border-strong);
-  --border-soft: var(--border-1);
-  --outline: var(--border-strong);
-  --radius: var(--radius-tile);
-  --accent-write: var(--gruen);
-  --accent-speak: var(--blau);
-  --accent-shared: var(--text-2);
-  --level-b1: var(--cefr-b1);
-  --level-b2: var(--cefr-b2);
-  --level-c1: var(--cefr-c1);
-  --level-c2: var(--cefr-c2);
-  --ok: var(--gruen);
-  --bad: var(--rot);
-  --bg-texture: none; /* Kreidestaub abgeschafft */
-}
-
-[data-theme="dark"] {
-  --ok: var(--gruen-dark-text);
-  --bad: var(--rot-dark);
 }
 
 /* ── Basis ─────────────────────────────────────────────────────────────── */

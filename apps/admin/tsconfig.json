@@ -30,5 +30,12 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    // Eigenständiges Node-Werkzeug mit eigenem Runner (siehe Kopf der Datei),
+    // kein Teil des Next-Builds. Importiert mit .ts-Endung, weil Node so
+    // auflöst — was tsc ohne allowImportingTsExtensions ablehnt; das aber
+    // für den ganzen App-Code zu öffnen, wäre der falsche Tausch.
+    "scripts"
+  ]
 }

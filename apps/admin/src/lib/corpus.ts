@@ -497,11 +497,11 @@ interface SimulationTask {
  * Schreiben über Sessions hinweg; die Sperre fällt beim Commit/Rollback
  * automatisch. Zero-Migration-Fix — die Inhaltstabellen bleiben unangetastet.
  *
- * ⚠️ Eine Sperre wirkt nur zwischen Beteiligten, die sie AUCH nehmen. Solange
- * apps/web `/api/admin/simulations` lebt und dieselbe Berechnung ungesichert
- * ausführt, ist das Rennen zwischen den beiden Apps offen — geschlossen ist es
- * erst mit der Abschaltung des Legacy-Panels (§5.1). Die beiden Schritte
- * gehören zusammen; §5.1 fordert sie ausdrücklich im selben Release.
+ * Eine Sperre wirkt nur zwischen Beteiligten, die sie AUCH nehmen — solange
+ * der Legacy-Schreiber in apps/web dieselbe Berechnung ungesichert ausführte,
+ * war das Rennen zwischen den Apps offen. Mit dessen Abschaltung (§5.1, im
+ * selben Release) ist dieser Pfad der einzige Schreiber, und die Sperre wirkt.
+ * Kommt je ein zweiter hinzu, MUSS er dieselbe Sperre nehmen.
  */
 async function createSimulation(
   d: { titleDe: string; tasks: SimulationTask[] },
