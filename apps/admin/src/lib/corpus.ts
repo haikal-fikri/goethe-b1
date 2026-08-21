@@ -53,12 +53,17 @@ export function isCorpusResource(v: string): v is CorpusResource {
 }
 
 export class CorpusError extends Error {
-  constructor(
-    readonly status: number,
-    readonly code: "bad_request" | "not_found" | "conflict",
-    message: string
-  ) {
+  readonly status: number;
+  readonly code: "bad_request" | "not_found" | "conflict";
+
+  // Felder bewusst ausgeschrieben statt als Parameter-Properties: die sind
+  // reines TypeScript und lassen sich nicht bloß wegstreichen — Node
+  // (--experimental-strip-types) lehnt sie ab, und daran hängt der
+  // e2e-Testlauf gegen eine echte Datenbank.
+  constructor(status: number, code: "bad_request" | "not_found" | "conflict", message: string) {
     super(message);
+    this.status = status;
+    this.code = code;
   }
 }
 
