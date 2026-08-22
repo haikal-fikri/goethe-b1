@@ -300,7 +300,13 @@ input::placeholder,textarea::placeholder{color:var(--text-3)}
    die Canvas.
    ───────────────────────────────────────────────────────────── */
 html{background:#FFFFFF}
-@media (prefers-color-scheme: dark){html{background:#201B16}}
+/* Auch <body>: Je nach iOS-Version leitet Safari die Farbe („underPage-
+   Background") aus html ODER body ab — deshalb beide. Sichtbar ändert sich
+   nichts: Der Wrapper im Layout (min-height:100vh, background:var(--bg))
+   malt das Papier weiterhin über die gesamte Seite. Diese Regel steht nach
+   der wörtlich übernommenen body-Regel aus dem Entwurf und gewinnt daher. */
+body{background:#FFFFFF}
+@media (prefers-color-scheme: dark){html,body{background:#201B16}}
 
 /* ─────────────────────────────────────────────────────────────
    Hover-Zustände. Im Design als style-hover="…"-Attribute notiert
