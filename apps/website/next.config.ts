@@ -17,6 +17,13 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
   },
+  experimental: {
+    // Zahl der Build-Arbeitsprozesse deckeln. Jeder öffnet einen eigenen
+    // Datenbank-Pool; zusammen mit `pool.max` in payload.config.ts bleibt der
+    // Build damit sicher unter den 15 Verbindungen des Supabase-Session-Poolers,
+    // die er sich mit den anderen Apps teilt.
+    cpus: 3,
+  },
   // Sicherheits-Header analog zu apps/teacher-web. Abweichung: frame-ancestors
   // 'self' statt 'none', damit die Payload-Live-Preview (gleicher Origin) das
   // Frontend einbetten kann.

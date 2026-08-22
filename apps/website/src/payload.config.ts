@@ -64,6 +64,17 @@ export default buildConfig({
     pool: {
       // Session-Pooler (5432) — der Transaction-Pooler (6543) blockiert DDL.
       connectionString: process.env.DATABASE_URL,
+      // KLEIN halten, und zwar mit Absicht: Der Supabase-Session-Pooler lässt
+      // insgesamt nur 15 Verbindungen zu, und die teilt sich diese App mit
+      // web, teacher-web und admin auf DERSELBEN Datenbank. Ein Build mit
+      // mehreren Arbeitsprozessen (jeder mit eigenem Pool) hat die Grenze
+      // sonst gerissen — Fehlermeldung `EMAXCONNSESSION, max clients reached
+      // in session mode` — und hätte im Zweifel den laufenden Apps die
+      // Verbindungen weggenommen.
+      max: Number(process.env.DATABASE_POOL_MAX ?? 2),
+      idleTimeoutMillis: 10_000,
+      // Lieber kurz anstehen als sofort scheitern, wenn es eng wird.
+      connectionTimeoutMillis: 30_000,
     },
   }),
   sharp,
