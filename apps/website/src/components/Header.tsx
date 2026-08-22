@@ -59,8 +59,12 @@ export function Header({ lernenUrl, appStoreUrl, playStoreUrl }: Props) {
         position: "sticky",
         top: 0,
         zIndex: 20,
-        background: "var(--tabbar-bg)",
-        backdropFilter: "blur(14px)",
+        // Deckend statt Milchglas (nachträglich gewünscht — der Entwurf hatte
+        // var(--tabbar-bg) + backdrop-filter: blur(14px)). Wer das Milchglas
+        // zurück will: beide Zeilen wiederherstellen UND die Notch-Farben in
+        // globals.css/layout.tsx zurück auf die Komposit-Werte (#FFFFFE/#201B16)
+        // stellen — Streifen und Kopfzeile müssen dieselbe Farbe haben.
+        background: "var(--surface-1)",
         borderBottom: "1px solid var(--border-1)",
       }}
     >

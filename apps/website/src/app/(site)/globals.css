@@ -290,8 +290,11 @@ input::placeholder,textarea::placeholder{color:var(--text-3)}
    Hat <html> keinen eigenen Hintergrund, erbt die Canvas laut CSS-Spezifikation
    den Hintergrund von <body> (hier das Papier #FDFBF6). Genau diese Canvas-Farbe
    malt Safari auf dem iPhone hinter Statusleiste und Notch — der Streifen war
-   deshalb cremefarben, während die Kopfzeile direkt darunter weiß rendert
-   (rgba(255,255,255,.88) über dem Papier ergibt #FFFFFE).
+   deshalb cremefarben, während die Kopfzeile weiß ist.
+
+   Die Werte hier MÜSSEN der Kopfzeile entsprechen (seit dem Milchglas-Ausbau
+   deckend `var(--surface-1)`: #FFFFFF hell, #221D18 dunkel). Ändert jemand die
+   Kopfzeilenfarbe, diese Regeln und themeColor in layout.tsx mitziehen.
 
    Ein eigener Hintergrund auf <html> unterbindet diese Vererbung und setzt die
    Canvas auf die Farbe der Kopfzeile. Am sichtbaren Seiteninhalt ändert sich
@@ -306,7 +309,7 @@ html{background:#FFFFFF}
    malt das Papier weiterhin über die gesamte Seite. Diese Regel steht nach
    der wörtlich übernommenen body-Regel aus dem Entwurf und gewinnt daher. */
 body{background:#FFFFFF}
-@media (prefers-color-scheme: dark){html,body{background:#201B16}}
+@media (prefers-color-scheme: dark){html,body{background:#221D18}}
 
 /* ─────────────────────────────────────────────────────────────
    Hover-Zustände. Im Design als style-hover="…"-Attribute notiert

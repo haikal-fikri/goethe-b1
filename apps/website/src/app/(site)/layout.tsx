@@ -51,18 +51,14 @@ export const viewport: Viewport = {
   initialScale: 1,
   /**
    * Färbt in Safari auf dem iPhone den Streifen an der Notch bzw. hinter der
-   * Statusleiste. Der Wert ist NICHT die Papierfarbe der Seite, sondern die
-   * Farbe, als die die Kopfzeile tatsächlich gerendert wird:
-   * `--tabbar-bg` (rgba(255,255,255,.88)) über `--bg` ergibt #FFFFFE, also
-   * praktisch Weiß — im Dunkelmodus rgba(34,29,23,.84) über #15120E → #201B16.
-   *
-   * Vorher stand hier die Papierfarbe #FDFBF6; dadurch war der Streifen an der
-   * Notch cremefarben, die Kopfzeile direkt darunter aber weiß — genau diese
-   * Kante war sichtbar.
+   * Statusleiste. Der Wert MUSS der Farbe der Kopfzeile entsprechen — seit dem
+   * Milchglas-Ausbau ist die deckend `var(--surface-1)`: #FFFFFF hell,
+   * #221D18 dunkel. Gleiche Werte stehen auf html/body in globals.css; alle
+   * drei zusammen mit der Kopfzeile ändern, sonst ist die Kante wieder da.
    */
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
-    { media: "(prefers-color-scheme: dark)", color: "#201B16" },
+    { media: "(prefers-color-scheme: dark)", color: "#221D18" },
   ],
 };
 

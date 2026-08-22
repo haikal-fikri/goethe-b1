@@ -134,6 +134,10 @@ Alles andere ist 1:1 übernommen. Diese Punkte sind abgestimmt:
    erreichen auf Touch-Geräten 44px (unsichtbar vergrößert, Optik unverändert).
 4. **Das Burger-Symbol wird bei offenem Menü zum X** (im Entwurf blieb es
    unverändert). Nachträglich gewünscht.
+6. **Kein Milchglas auf der Kopfzeile** — der Entwurf hatte `--tabbar-bg`
+   (halbtransparent) + `backdrop-filter: blur(14px)`; jetzt deckend
+   `var(--surface-1)`. Nachträglich gewünscht. Die Notch-Farben (html/body in
+   globals.css, themeColor in layout.tsx) sind daran gekoppelt.
 5. **Turnstile im Kontaktformular** — im Entwurf nicht vorgesehen, nachträglich
    gewünscht. Siehe den Datenschutz-Hinweis weiter unten.
 
