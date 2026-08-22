@@ -12,7 +12,7 @@ A Goethe-B1 **Redemittel** (functional-phrase) trainer for German writing & spea
 
 ## Monorepo layout (Turborepo + npm workspaces)
 
-Four apps, three shared packages, one Supabase Postgres project behind all of them. **Each app has its own CLAUDE.md — read it before working in that app; this file only covers what's genuinely shared.**
+Five apps, three shared packages, one Supabase Postgres project behind all of them. **Each app has its own CLAUDE.md — read it before working in that app; this file only covers what's genuinely shared.**
 
 | App | What | Vercel project | Dev port | Details |
 |---|---|---|---|---|
@@ -20,6 +20,7 @@ Four apps, three shared packages, one Supabase Postgres project behind all of th
 | [apps/mobile](apps/mobile) | Expo / React Native learner app (iOS + Android) | — | — | [apps/mobile/CLAUDE.md](apps/mobile/CLAUDE.md) |
 | [apps/teacher-web](apps/teacher-web) | Teacher LMS portal: classes, assignments, grading, schedule, subscription billing | B | 3001 | [apps/teacher-web/CLAUDE.md](apps/teacher-web/CLAUDE.md) |
 | [apps/admin](apps/admin) | Superadmin console: oversight dashboards, the audited content editor, role grants | C | 3002 | [apps/admin/CLAUDE.md](apps/admin/CLAUDE.md) |
+| [apps/website](apps/website) | Public marketing site (German) + embedded Payload CMS for blog & documentation | D | 3003 | [apps/website/CLAUDE.md](apps/website/CLAUDE.md) |
 
 - [packages/types](packages/types) (`@repo/types`) — shared domain types.
 - [packages/core](packages/core) (`@repo/core`) — shared pure-TS logic (exercise, cloze, exam scoring/prompt/schema, teacher-grading schemas, content helpers).
@@ -27,11 +28,13 @@ Four apps, three shared packages, one Supabase Postgres project behind all of th
 
 Shared packages ship **raw TS** (no build step) — Next transpiles them via `transpilePackages`, Metro (`apps/mobile/metro.config.js`) watches the monorepo root and transpiles them directly.
 
-**Shared Supabase project:** all four apps read/write the same Postgres DB. `apps/web` owns the Redemittel + exam content schema (edited through `apps/admin`, never client-side); `apps/teacher-web`/`apps/admin` own the newer class/assignment/billing schema (migrations from ~0016 on). Confirm whether `DATABASE_URL` targets a dev or production DB before running migrations/UPDATEs against it — there's no `supabase_migrations` tracking table; migrations are applied manually with `psql`, in numeric order.
+**Shared Supabase project:** all apps read/write the same Postgres DB. `apps/web` owns the Redemittel + exam content schema (edited through `apps/admin`, never client-side); `apps/teacher-web`/`apps/admin` own the newer class/assignment/billing schema (migrations from ~0016 on). Confirm whether `DATABASE_URL` targets a dev or production DB before running migrations/UPDATEs against it — there's no `supabase_migrations` tracking table; migrations are applied manually with `psql`, in numeric order.
+
+`apps/website` is the exception to that last sentence: its tables live in their own **`payload` schema** and are managed by Payload's own migration runner (`npm run payload --workspace website migrate`), which does keep a tracking table. It never touches the `public` schema the other apps use.
 
 ## Commands
 
-Run from the repo root — `npm run dev`/`build`/`start` fan out to every app via `turbo`. Scope to one app with `--workspace <name>` (`web` / `mobile` / `teacher-web` / `admin`) or `turbo --filter=<name>`.
+Run from the repo root — `npm run dev`/`build`/`start` fan out to every app via `turbo`. Scope to one app with `--workspace <name>` (`web` / `mobile` / `teacher-web` / `admin` / `website`) or `turbo --filter=<name>`.
 
 ```bash
 npm run dev      # turbo run dev   — all apps in parallel

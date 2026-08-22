@@ -1,0 +1,334 @@
+/* ─────────────────────────────────────────────────────────────
+   apps/website — Design-Token-Port.
+
+   Quelle: das Design-System-Projekt "German B1 exam trainer",
+   styles.css → tokens/{colors,accents,typography,spacing,shadows,motion}.css
+   sowie der <helmet>-Block aus `B1 Trainer Website.dc.html`.
+
+   REGEL: Diese Datei ist eine wörtliche Übernahme. Farben, Radien,
+   Schriftgrößen und die beiden Media-Query-Stufen (1060px / 900px) NICHT
+   "aufräumen", umrechnen oder zusammenfassen — sie sind die Spezifikation.
+
+   Theme-Modell (Abweichung zum Design-System, bewusst): Das Design nutzt
+   [data-theme="dark"]. Die Website hat KEINEN Theme-Umschalter und folgt
+   ausschließlich der Systemeinstellung, deshalb stehen die Dark-Overrides
+   hier in @media (prefers-color-scheme: dark) — ohne Attribut, ohne Skript,
+   ohne Flash beim ersten Paint.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: light;
+
+  /* ── raw neutrals — light (tokens/colors.css) ── */
+  --paper:            #FDFBF6;  /* screen background            */
+  --surface:          #FFFFFF;  /* cards, sheets, inputs        */
+  --surface-sunken:   #FCFAF5;  /* dashed answer wells          */
+  --surface-alt:      #F4F0E7;  /* example boxes, bottom bars   */
+  --ink:              #211C17;  /* primary text                 */
+  --ink-2:            #1C1815;  /* primary button / near-black  */
+  --text-body:        #4F463C;  /* paragraphs                   */
+  --text-muted:       #75695C;  /* secondary / meta             */
+  --text-muted-2:     #9A8C79;  /* eyebrow labels               */
+  --text-faint:       #BCAE9C;  /* placeholders, disabled       */
+  --text-faint-2:     #C3B6A3;  /* struck words, prev-month     */
+  --border:           rgba(33,28,23,.09);  /* hairline card border */
+  --border-strong:    rgba(33,28,23,.12);
+  --track:            #EFEAE1;  /* progress track, toggle-off   */
+  --track-2:          #ECE6DC;  /* segmented control track      */
+  --track-3:          #EDE7DC;  /* ring gauge track             */
+
+  /* ── semantic aliases — LIGHT ── */
+  --bg:               var(--paper);
+  --surface-1:        var(--surface);
+  --text-hi:          var(--ink);
+  --text-1:           var(--text-body);
+  --text-2:           var(--text-muted);
+  --text-3:           var(--text-faint);
+  --border-1:         var(--border);
+  --track-1:          var(--track);
+  --primary-btn-bg:   var(--ink-2);
+  --primary-btn-fg:   #FFFFFF;
+  --ring-track:       var(--track-3);
+  --tabbar-bg:        rgba(255,255,255,.88);
+  --tabbar-border:    rgba(20,22,28,.08);
+  --tabbar-glyph:     #8a8175;
+
+  /* ── accents (tokens/accents.css) — geteilt über beide Themes ── */
+  --gruen:            #1C8A5B;  /* core: primary action, Schreiben, pass */
+  --gruen-alt:        #2E9E6B;  /* lighter fill / icon tile              */
+  --gruen-dark-text:  #34B97E;  /* success text on dark                  */
+  --gruen-tint:       #E9F1EA;  /* soft fill (found-card, chips)         */
+
+  --blau:             #2B7FD4;  /* Sprechen */
+  --blau-dark-text:   #5AA0E8;
+  --blau-tint:        #E7F0FA;
+
+  --lila:             #7A52D9;  /* Konnektoren */
+  --lila-dark:        #9D78E6;
+  --lila-tint:        #F0EAFA;
+
+  --gold:             #DD8A22;  /* streak, hints, "knapp" */
+  --gold-text:        #B96F12;
+  --gold-hi:          #FFC95C;
+  --gold-tint:        #FBF0DD;
+
+  --rot:              #D6463C;  /* recording, destructive */
+  --rot-text:         #C0392E;
+  --rot-dark:         #E8776C;
+  --rot-tint:         #FBE9E7;
+  /* Formularfehler: Auf hellem Grund --rot-text, auf dunklem --rot-dark.
+     (Das Design kennt nur die Einzelwerte; die Zuordnung ist unsere.) */
+  --error-text:       var(--rot-text);
+
+  /* CEFR level colors — white text sits on each */
+  --cefr-b1:          #2E9E6B;
+  --cefr-b2:          #2B7FD4;
+  --cefr-c1:          #7A52D9;
+  --cefr-c2:          #BE8226;
+
+  /* ── typography (tokens/typography.css) ──
+     Die UI-Familie ist Futura; die eingebettete (SIL-OFL-)Ersatzschrift ist
+     Jost — genau die Reihenfolge, mit der der Mock gebaut wurde. Beide
+     Webfonts liefert next/font selbst gehostet aus (DSGVO: keine
+     Drittanbieter-Requests zur Laufzeit).
+     --font-mono ist hier ungenutzt: die Legal-/Doc-Seiten setzen `code`
+     explizit auf den System-Mono-Stack; IBM Plex Mono wird NICHT geladen. */
+  --font-serif: var(--font-source-serif), Georgia, "Times New Roman", serif;
+  --font-ui:    Futura, var(--font-jost), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono:  ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* weights */
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semibold:600;
+  --fw-bold:    700;
+
+  /* line-heights */
+  --lh-tight:   1.04;
+  --lh-title:   1.14;
+  --lh-body:    1.6;
+  --lh-solid:   1;
+
+  /* eyebrow tracking */
+  --tracking-eyebrow: .12em;
+  --tracking-code:    .14em;
+
+  /* ── radii (tokens/spacing.css) ── */
+  --radius-input:   15px;
+  --radius-card:    18px;
+  --radius-card-lg: 24px;
+  --radius-tile:    12px;
+  --radius-chip:    11px;
+  --radius-badge:   6px;
+  --radius-nav:     14px;
+  --radius-pill:    999px;
+
+  /* ── shadows (tokens/shadows.css) ── */
+  --shadow-card:      0 1px 2px rgba(28,24,20,.045), 0 5px 16px rgba(28,24,20,.035);
+  --shadow-card-dark: 0 1px 2px rgba(0,0,0,.045),    0 5px 16px rgba(0,0,0,.035);
+  --shadow-island:    0 8px 22px rgba(28,24,20,.12), 0 1px 4px rgba(28,24,20,.07);
+  --shadow-card-now:  var(--shadow-card);
+
+  --glow-gruen: 0 6px 16px rgba(28,138,91,.3);
+  --glow-blau:  0 6px 16px rgba(43,127,212,.3);
+  --glow-gold:  0 6px 16px rgba(221,138,34,.3);
+
+  --focus-ring:      0 0 0 3px rgba(28,138,91,.10);
+  --focus-ring-dark: 0 0 0 3px rgba(28,138,91,.18);
+
+  /* ── motion (tokens/motion.css) ── */
+  --ease:        cubic-bezier(.4,0,.2,1);
+  --dur-fast:    .15s;
+  --dur:         .2s;
+  --caret-blink: 1.1s;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --paper:            #15120E;
+    --surface:          #221D18;
+    --surface-sunken:   #2E2925;
+    --surface-alt:      #2A241D;
+    --ink:              #F3EEE6;
+    --ink-2:            #F3EEE6;
+    --text-body:        #C4BBAD;
+    --text-muted:       #928777;
+    --text-muted-2:     #9C9182;
+    --text-faint:       #6B6052;
+    --text-faint-2:     #5E564A;
+    --border:           rgba(255,255,255,.08);
+    --border-strong:    rgba(255,255,255,.12);
+    --track:            #332C23;
+    --track-2:          #17130E;
+    --track-3:          #332C23;
+
+    --bg:               #15120E;
+    --surface-1:        #221D18;
+    --text-hi:          #F3EEE6;
+    --text-1:           #C4BBAD;
+    --text-2:           #928777;
+    --text-3:           #6B6052;
+    --border-1:         rgba(255,255,255,.08);
+    --track-1:          #332C23;
+    --primary-btn-bg:   #F3EEE6;
+    --primary-btn-fg:   #1C1815;
+    --ring-track:       #332C23;
+    --tabbar-bg:        rgba(34,29,23,.84);
+    --tabbar-border:    rgba(255,255,255,.10);
+    --tabbar-glyph:     #9C9182;
+    --shadow-card-now:  var(--shadow-card-dark);
+
+    /* Tints werden im Dark-Theme neu gemappt, damit getönte Flächen auf dem
+       dunklen Papier korrekt lesen (tokens/accents.css). */
+    --gruen-tint:       rgba(46,158,107,.18);
+    --blau-tint:        rgba(43,127,212,.16);
+    --lila-tint:        rgba(122,82,217,.16);
+    --gold-tint:        rgba(221,138,34,.16);
+    --rot-tint:         rgba(214,70,60,.16);
+    --error-text:       var(--rot-dark);
+    --lila:             #9D78E6;
+  }
+}
+
+/* ── @keyframes global (tokens/motion.css) ── */
+@keyframes b1-blink { 0%,100% { opacity: 1 } 50% { opacity: 0 } }
+@keyframes b1-recRing { 0% { transform: scale(.7); opacity: .5 } 70% { transform: scale(1.75); opacity: 0 } 100% { opacity: 0 } }
+@keyframes b1-wave { 0%,100% { transform: scaleY(.35) } 50% { transform: scaleY(1) } }
+
+/* ─────────────────────────────────────────────────────────────
+   Ab hier: wörtlich aus dem <helmet>-Block des Designs.
+   ───────────────────────────────────────────────────────────── */
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text-1);font-family:var(--font-ui);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+::selection{background:rgba(28,138,91,.18)}
+a{color:var(--gruen);text-decoration:none}
+a:hover{color:var(--gruen-alt)}
+input,textarea,select,button{font-family:inherit}
+input::placeholder,textarea::placeholder{color:var(--text-3)}
+.nav-item[data-active="true"]{color:var(--text-hi) !important;background:var(--surface-alt) !important}
+.lp-legal p{font-size:14.5px;line-height:1.75;color:var(--text-1);margin:0 0 14px;max-width:70ch;text-wrap:pretty}
+.lp-legal h3{font-family:var(--font-serif);font-size:19px;font-weight:600;color:var(--text-hi);margin:30px 0 10px}
+.lp-legal .h-sec{font-family:var(--font-serif);font-size:19px;font-weight:600;color:var(--text-hi);margin:30px 0 10px}
+.lp-legal ul{margin:0 0 16px;padding-left:20px}
+.lp-legal li{font-size:14.5px;line-height:1.7;color:var(--text-1);margin-bottom:6px;max-width:68ch}
+.lp-legal h4{font-size:15px;font-weight:600;color:var(--text-hi);margin:22px 0 8px}
+.lp-legal .h-sub{font-size:15px;font-weight:600;color:var(--text-hi);margin:22px 0 8px}
+/* Fließtext-Links sind im Entwurf nur farbig. Innerhalb von Absätzen ist
+   Farbe allein kein ausreichendes Unterscheidungsmerkmal (WCAG 1.4.1),
+   deshalb hier — und nur hier — zusätzlich unterstrichen. */
+.lp-legal p a,.lp-legal li a{text-decoration:underline;text-underline-offset:2px}
+.lp-legal code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;background:var(--surface-alt);border:1px solid var(--border-1);border-radius:6px;padding:1px 5px;color:var(--text-hi)}
+.doc-link[data-active="true"]{color:var(--gruen) !important;background:var(--gruen-tint) !important}
+@media (min-width:1061px){.m-drawer,.m-only{display:none !important}}
+@media (max-width:1060px){
+  .m-hide{display:none !important}
+  .m-only{display:flex !important}
+  .lp-headbar{gap:10px !important;padding:0 18px !important}
+  .lp-hero,.lp-g2,.lp-g3,.lp-g2f,.lp-ctacard{grid-template-columns:1fr !important}
+  .lp-hero{gap:36px !important;padding:52px 34px 52px !important}
+  .lp-sec,.lp-sec-b,.lp-padx,.lp-foot{padding-left:34px !important;padding-right:34px !important}
+  .lp-dev-desk{width:82% !important;top:2% !important}
+  .docs-shell{grid-template-columns:1fr !important;gap:0 !important}
+  .docs-side{position:static !important;max-height:none !important;border-right:none !important;border-bottom:1px solid var(--border-1) !important;padding:0 0 20px !important;margin-bottom:26px !important}
+  .docs-main{padding-left:0 !important}
+  /* Die Artikelliste ist auf schmalen Schirmen zugeklappt (Schalter „Alle
+     Artikel"). Rein per CSS, damit schon die vom Server gelieferte Fassung
+     stimmt — sonst blitzt die Liste vor der Hydration auf. */
+  .docs-nav-groups[data-open="false"]{display:none !important}
+  .lp-feat>div:first-child{padding:28px 26px !important}
+  .lp-feat>div:last-child{min-height:240px !important}
+  .lp-h1{font-size:42px !important;letter-spacing:-.022em !important}
+  .lp-h1s{font-size:36px !important}
+  .lp-h2{font-size:30px !important}
+  .lp-h2s{font-size:25px !important}
+  .lp-legal h1{font-size:34px !important}
+  .lp-hero-img{height:320px !important;width:100% !important;max-width:460px !important;justify-self:center !important;margin-left:auto !important;margin-right:auto !important}
+}
+@media (max-width:900px){
+  .lp-headbar{gap:10px !important;padding:0 14px !important;height:62px !important}
+  .lp-hero{grid-template-columns:1fr !important;gap:30px !important;padding:36px 18px 40px !important}
+  .lp-h1{font-size:34px !important;letter-spacing:-.02em !important}
+  .lp-h1s{font-size:29px !important}
+  .lp-h2{font-size:26px !important}
+  .lp-h2s{font-size:22px !important}
+  .lp-hero-img{height:250px !important;max-width:400px !important}
+  .lp-dev-desk{padding:18px 5px 6px !important;border-radius:11px !important}
+  .lp-dev-dots{top:6px !important;left:8px !important;gap:4px !important}
+  .lp-dev-dots>span{width:5px !important;height:5px !important}
+  .lp-dev-phone{padding:5px !important;border-radius:20px !important}
+  .lp-img300{height:210px !important}
+  .lp-img400{height:240px !important}
+  .lp-eyebrow{display:block !important;padding:0 !important;background:transparent !important;border-radius:0 !important;margin-bottom:16px !important;font-size:11.5px !important;letter-spacing:.02em !important;line-height:1.5 !important;max-width:34ch !important}
+  .lp-eyebrow>span{display:none !important}
+  .lp-stats{display:grid !important;grid-template-columns:1fr 1fr !important;gap:20px 18px !important}
+  .lp-sec{padding:44px 18px !important}
+  .lp-sec-b{padding:0 18px 48px !important}
+  .lp-padx{padding-left:18px !important;padding-right:18px !important}
+  .lp-g2,.lp-g3,.lp-g2f,.lp-ctacard{grid-template-columns:1fr !important}
+  .lp-g3,.lp-g2f{gap:16px !important}
+  .lp-g2{gap:28px !important}
+  .lp-card{padding:22px 20px !important}
+  .lp-ctacard{padding:26px 22px !important;gap:20px !important}
+  .lp-row-wrap{flex-direction:column !important;align-items:flex-start !important;gap:16px !important}
+  .lp-btnrow{flex-wrap:nowrap !important;gap:10px !important}
+  .lp-btnrow>button,.lp-btnrow>a{flex:1 1 0 !important;min-width:0 !important;padding:0 12px !important;font-size:13.5px !important;text-wrap:balance !important}
+  .lp-feat{border-radius:20px !important}
+  .lp-feat>div:first-child{padding:24px 20px !important}
+  .lp-feat>div:last-child{min-height:200px !important}
+  .lp-foot{grid-template-columns:1fr 1fr !important;gap:26px !important;padding:40px 18px 24px !important}
+  .lp-legal h1{font-size:29px !important}
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Hover-Zustände. Im Design als style-hover="…"-Attribute notiert
+   (die Canvas-Laufzeit setzt sie inline), hier als Klassenregeln mit
+   denselben Werten.
+
+   Das !important ist notwendig, nicht kosmetisch: Die Grundfarben stehen
+   — wie im Design — als Inline-Styles am Element. Eine normale
+   Klassenregel verliert dagegen jedes Mal.
+   ───────────────────────────────────────────────────────────── */
+
+.nav-item:hover{background:var(--surface-alt) !important;color:var(--text-hi) !important}
+.lernen-link:hover{background:var(--surface-alt) !important;color:var(--text-hi) !important}
+.doc-link:hover{background:var(--surface-alt) !important;color:var(--text-hi) !important}
+.doc-link[data-active="true"]:hover{color:var(--gruen) !important;background:var(--gruen-tint) !important}
+.hover-border:hover{border-color:var(--border-strong) !important}
+.hover-gruen:hover{color:var(--gruen) !important}
+.foot-link:hover{color:var(--gruen) !important}
+
+/* ─────────────────────────────────────────────────────────────
+   Barrierefreiheit (Vorgabe aus dem Build-Prompt, nicht im Mock).
+   ───────────────────────────────────────────────────────────── */
+
+:focus-visible{outline:2px solid var(--gruen);outline-offset:2px;border-radius:6px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Der Sprunglink muss sichtbar werden, sobald er den Fokus hat — sonst
+   springt eine sehende Person per Tastatur auf ein 1x1-Ziel, das sie nicht
+   sieht. Gilt nur für den Link, nicht für rein vorgelesene sr-only-Texte. */
+a.sr-only:focus{position:fixed;top:12px;left:12px;z-index:100;width:auto;height:auto;margin:0;padding:12px 16px;clip:auto;overflow:visible;border-radius:12px;background:var(--surface-1);color:var(--text-hi);font-size:14px;font-weight:600;box-shadow:var(--shadow-card-now);border:1px solid var(--border-strong)}
+
+/* „Stretched link": Die ganze Karte ist klickbar, im Markup bleibt aber genau
+   EIN Link — anders als bei einem klickbaren <div> mit Links darin, das
+   Screenreader doppelt ankündigt. */
+.card-clickable{position:relative}
+.card-link::after{content:"";position:absolute;inset:0}
+
+/* Der Mock erreicht bei Desktop-Navigation und Preis-Umschalter keine 44px
+   Trefferfläche. Optik bleibt unverändert, die Trefferfläche wächst
+   unsichtbar — nur auf groben Zeigern (Finger), nicht mit der Maus. */
+@media (pointer:coarse){
+  .tap-target{position:relative}
+  .tap-target::after{content:"";position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;min-height:100%}
+}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
+}
