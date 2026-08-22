@@ -49,10 +49,21 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  // Ein einzelner Wert: Eine media-abhängige themeColor lässt Next den Header
-  // `Critical-CH: Sec-CH-Prefers-Color-Scheme` senden, was bei jedem
-  // Erstbesuch einen zusätzlichen Anlauf der Anfrage auslöst.
-  themeColor: "#FDFBF6",
+  /**
+   * Färbt in Safari auf dem iPhone den Streifen an der Notch bzw. hinter der
+   * Statusleiste. Der Wert ist NICHT die Papierfarbe der Seite, sondern die
+   * Farbe, als die die Kopfzeile tatsächlich gerendert wird:
+   * `--tabbar-bg` (rgba(255,255,255,.88)) über `--bg` ergibt #FFFFFE, also
+   * praktisch Weiß — im Dunkelmodus rgba(34,29,23,.84) über #15120E → #201B16.
+   *
+   * Vorher stand hier die Papierfarbe #FDFBF6; dadurch war der Streifen an der
+   * Notch cremefarben, die Kopfzeile direkt darunter aber weiß — genau diese
+   * Kante war sichtbar.
+   */
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
+    { media: "(prefers-color-scheme: dark)", color: "#201B16" },
+  ],
 };
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
