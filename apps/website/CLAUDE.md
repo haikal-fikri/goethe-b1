@@ -107,6 +107,15 @@ E-Mail. Details:
   ist hier fehl am Platz — die Website spricht die Datenbank nur über Payload
   an. (Der Import ist ungefährlich: `db.ts` baut die Verbindung faul auf, ein
   Build ohne `DATABASE_URL` scheitert daran nicht.)
+- **Cloudflare Turnstile** (`src/lib/turnstile.ts`, Widget in `ContactForm`).
+  Aktiv nur, wenn `NEXT_PUBLIC_TURNSTILE_SITE_KEY` **und**
+  `TURNSTILE_SECRET_KEY` gesetzt sind — beide gehören zusammen. Nur das Secret
+  zu setzen weist jede Anfrage ab (der Client sendet dann kein Token), nur den
+  Site-Key zu setzen zeigt das Widget, ohne es zu prüfen. Ohne beide läuft die
+  lokale Entwicklung unverändert. Fehlt das Token, wird abgewiesen
+  (fail-closed); ist Cloudflare nicht erreichbar, wird durchgelassen — in dem
+  seltenen Fenster deckelt das Rate-Limit. Ein Token gilt nur einmal, deshalb
+  lädt das Formular das Widget nach jeder Fehlerantwort neu (`resetTurnstile`).
 - Versand über Resend (`src/lib/resend.ts`, gleiche Lazy-Singleton-Konvention
   wie `apps/web`). Schlägt der Versand fehl, gilt die Anfrage trotzdem als
   angenommen — sie liegt bereits in `contactSubmissions`.
@@ -123,6 +132,10 @@ Alles andere ist 1:1 übernommen. Diese Punkte sind abgestimmt:
    zur Build-Zeit erzeugten Index) statt dekorativ.
 3. Klickbare `div`s des Mocks sind echte `<a>`/`<button>`; Trefferflächen
    erreichen auf Touch-Geräten 44px (unsichtbar vergrößert, Optik unverändert).
+4. **Das Burger-Symbol wird bei offenem Menü zum X** (im Entwurf blieb es
+   unverändert). Nachträglich gewünscht.
+5. **Turnstile im Kontaktformular** — im Entwurf nicht vorgesehen, nachträglich
+   gewünscht. Siehe den Datenschutz-Hinweis weiter unten.
 
 ## Fallstricke, die uns schon getroffen haben
 
@@ -188,5 +201,11 @@ Alles hier ist einmal schiefgegangen und wurde nachgeprüft — bitte nicht
 - Ebenfalls unter der Schwelle, beides Design-Tokens: `--text-3` als
   Platzhalterfarbe in Eingabefeldern (2,10:1) und `--gruen` auf `--gruen-tint`
   im aktiven Seitenleisten-Eintrag (3,77:1).
+- **Turnstile ist die einzige Drittanbieter-Verbindung der Website.** Ist es
+  aktiv, lädt `/kontakt` ein Skript von `challenges.cloudflare.com`. Die
+  Datenschutzerklärung nennt Cloudflare bisher nicht, und die Cookie-Richtlinie
+  führt nur `session`, `csrf`, `prefs` und `stats` auf. Beides gehört in die
+  juristische Prüfung — ohne Turnstile-Keys macht die Seite weiterhin keinen
+  einzigen Drittanbieter-Request.
 - Store-Links und Preise sind Design-Platzhalter und liegen in den Globals
   `siteSettings` / `pricing` — im Admin änderbar, ohne Deploy.

@@ -302,6 +302,13 @@ input::placeholder,textarea::placeholder{color:var(--text-3)}
 .hover-gruen:hover{color:var(--gruen) !important}
 .foot-link:hover{color:var(--gruen) !important}
 
+/* Burger wird zum X. Gedreht wird um die Mitte des Icons (12/12), damit die
+   Striche sauber übereinanderliegen; der mittlere blendet aus. */
+.burger-line{transition:transform var(--dur) var(--ease),opacity var(--dur) var(--ease);transform-origin:12px 12px}
+[data-open="true"] .burger-top{transform:translateY(5px) rotate(45deg)}
+[data-open="true"] .burger-mid{opacity:0}
+[data-open="true"] .burger-bot{transform:translateY(-5px) rotate(-45deg)}
+
 /* ─────────────────────────────────────────────────────────────
    Barrierefreiheit (Vorgabe aus dem Build-Prompt, nicht im Mock).
    ───────────────────────────────────────────────────────────── */

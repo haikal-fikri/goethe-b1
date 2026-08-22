@@ -1,5 +1,6 @@
 "use client";
 
+import { Turnstile } from "@marsidev/react-turnstile";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import type { CSSProperties } from "react";
@@ -8,6 +9,11 @@ import { submitContact, type ContactState } from "@/app/(site)/kontakt/actions";
 import { SendIcon } from "./icons";
 
 const initialState: ContactState = { status: "idle" };
+
+// Ohne Site-Key wird das Widget nicht gerendert — lokale Entwicklung ohne
+// Cloudflare-Keys funktioniert dadurch unverändert. Die Gegenprüfung auf dem
+// Server hängt am TURNSTILE_SECRET_KEY; beide gehören zusammen.
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 const labelTextStyle: CSSProperties = { fontSize: 12.5, fontWeight: 600, color: "var(--text-hi)" };
 const fieldStyle: CSSProperties = {
@@ -22,12 +28,14 @@ const fieldStyle: CSSProperties = {
 const labelStyle: CSSProperties = { display: "flex", flexDirection: "column", gap: 7 };
 const errorStyle: CSSProperties = { fontSize: 12.5, color: "var(--error-text)" };
 
-function SubmitButton() {
+function SubmitButton({ blocked }: { blocked: boolean }) {
   const { pending } = useFormStatus();
+  const disabled = pending || blocked;
   return (
     <button
       type="submit"
-      disabled={pending}
+      disabled={disabled}
+      aria-describedby={blocked ? "turnstile-hinweis" : undefined}
       style={{
         height: 46,
         padding: "0 22px",
@@ -37,12 +45,12 @@ function SubmitButton() {
         color: "#fff",
         fontSize: 14.5,
         fontWeight: 600,
-        cursor: pending ? "progress" : "pointer",
+        cursor: pending ? "progress" : disabled ? "not-allowed" : "pointer",
         boxShadow: "var(--glow-gruen)",
         display: "inline-flex",
         alignItems: "center",
         gap: 9,
-        opacity: pending ? 0.75 : 1,
+        opacity: disabled ? 0.75 : 1,
       }}
     >
       {pending ? "Wird gesendet …" : "Senden"}
@@ -58,6 +66,11 @@ export function ContactForm({ contactEmail }: { contactEmail: string }) {
   // neues Objekt, die Erfolgsmeldung erscheint also wieder.
   const [dismissed, setDismissed] = useState<ContactState | null>(null);
   const [resetKey, setResetKey] = useState(0);
+  // Ein Turnstile-Token ist einmal gültig. Nach jeder Antwort, die das Formular
+  // erneut zeigt, muss ein frisches Widget her — sonst schlägt der zweite
+  // Versuch mit „timeout-or-duplicate" fehl.
+  const [turnstileKey, setTurnstileKey] = useState(0);
+  const [humanVerified, setHumanVerified] = useState(false);
   const showSuccess = state.status === "success" && state !== dismissed;
 
   // Das Design scrollt nach dem Absenden nach oben (submitForm → scrollTo(0,0)),
@@ -67,6 +80,10 @@ export function ContactForm({ contactEmail }: { contactEmail: string }) {
     if (state !== lastState.current) {
       lastState.current = state;
       if (state.status === "success") window.scrollTo(0, 0);
+      if (state.resetTurnstile) {
+        setHumanVerified(false);
+        setTurnstileKey((value) => value + 1);
+      }
     }
   }, [state]);
 
@@ -263,8 +280,26 @@ export function ContactForm({ contactEmail }: { contactEmail: string }) {
         </span>
       </label>
 
+      {TURNSTILE_SITE_KEY ? (
+        <div>
+          <Turnstile
+            key={turnstileKey}
+            siteKey={TURNSTILE_SITE_KEY}
+            options={{ language: "de", theme: "auto" }}
+            onSuccess={() => setHumanVerified(true)}
+            onExpire={() => setHumanVerified(false)}
+            onError={() => setHumanVerified(false)}
+          />
+          {!humanVerified ? (
+            <p id="turnstile-hinweis" style={{ fontSize: 12.5, color: "var(--text-2)", margin: "8px 0 0" }}>
+              Die Sicherheitsprüfung läuft — gleich können Sie absenden.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
       <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 4 }}>
-        <SubmitButton />
+        <SubmitButton blocked={Boolean(TURNSTILE_SITE_KEY) && !humanVerified} />
         <span style={{ fontSize: 12.5, color: "var(--text-2)" }}>Antwort innerhalb eines Werktags</span>
       </div>
     </form>

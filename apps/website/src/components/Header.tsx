@@ -198,6 +198,7 @@ export function Header({ lernenUrl, appStoreUrl, playStoreUrl }: Props) {
           onClick={() => setOpen((value) => !value)}
           aria-label={open ? "Menü schließen" : "Menü öffnen"}
           aria-expanded={open}
+          data-open={open}
           aria-controls={open ? drawerId : undefined}
           style={{
             display: "none",
@@ -212,12 +213,23 @@ export function Header({ lernenUrl, appStoreUrl, playStoreUrl }: Props) {
             justifyContent: "center",
           }}
         >
-          {/* Wie im Design bleibt das Symbol auch bei offener Schublade das
-              Burger-Menü; den Zustand tragen aria-expanded und aria-label. */}
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-            <path d="M4 7h16" />
-            <path d="M4 12h16" />
-            <path d="M4 17h16" />
+          {/* Offen wird aus dem Burger ein X (auf Wunsch — im Entwurf blieb das
+              Symbol gleich). Die drei Striche behalten ihre Endpunkte und
+              bewegen sich ineinander; bei prefers-reduced-motion schaltet die
+              Regel in globals.css die Bewegung ab. */}
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            aria-hidden="true"
+          >
+            <path className="burger-line burger-top" d="M4 7h16" />
+            <path className="burger-line burger-mid" d="M4 12h16" />
+            <path className="burger-line burger-bot" d="M4 17h16" />
           </svg>
         </button>
       </div>

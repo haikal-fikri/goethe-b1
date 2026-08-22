@@ -7,11 +7,14 @@ import { getPayloadClient } from "@/lib/payload";
 import { clientIpFromHeaders, enforce, enforceAll, hkey } from "@/lib/ratelimit";
 import { getSiteSettings } from "@/lib/queries";
 import { getResend, RESEND_FROM_HEADER, resendConfigured } from "@/lib/resend";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 export type ContactState = {
   status: "idle" | "success" | "error";
   message?: string;
   fieldErrors?: Partial<Record<"name" | "email" | "consent" | "message" | "organisation", string>>;
+  /** Signalisiert dem Formular, dass das Turnstile-Widget neu geladen werden muss. */
+  resetTurnstile?: boolean;
 };
 
 const schema = z.object({
@@ -47,7 +50,9 @@ function sanitizeSubject(value: string): string {
 /**
  * Demo-Anfrage aus dem Kontaktformular.
  *
- * Reihenfolge: Honeypot → Validierung → Rate-Limit → Speichern → E-Mail.
+ * Reihenfolge: Honeypot → Validierung → Rate-Limit → Turnstile → Speichern →
+ * E-Mail. Das Rate-Limit steht bewusst VOR Turnstile: Es ist billiger als ein
+ * Netzaufruf zu Cloudflare und schützt damit auch die Verifikation selbst.
  * Gespeichert wird über die Local API; die REST-Schnittstelle der Collection
  * ist geschlossen (`create: () => false`), damit dieser Weg der einzige bleibt.
  */
@@ -91,6 +96,7 @@ export async function submitContact(
       status: "error",
       message: "Bitte prüfen Sie die markierten Felder.",
       fieldErrors,
+      resetTurnstile: true,
     };
   }
 
@@ -115,10 +121,27 @@ export async function submitContact(
       status: "error",
       message:
         "Es sind bereits mehrere Anfragen von hier eingegangen. Bitte versuchen Sie es später erneut oder schreiben Sie uns direkt.",
+      resetTurnstile: true,
     };
   }
 
-  // 4. Speichern. Schlägt das fehl, ist die Anfrage verloren — also der Punkt,
+  // 4. Turnstile. Ein Token gilt nur einmal; jede Antwort, die das Formular
+  //    wieder anzeigt, fordert deshalb ein frisches Widget an.
+  const turnstileToken = formData.get("cf-turnstile-response");
+  const humanOk = await verifyTurnstile(
+    typeof turnstileToken === "string" ? turnstileToken : undefined,
+    clientIpFromHeaders(headerList)
+  );
+  if (!humanOk) {
+    return {
+      status: "error",
+      message:
+        "Die Sicherheitsprüfung konnte nicht abgeschlossen werden. Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
+      resetTurnstile: true,
+    };
+  }
+
+  // 5. Speichern. Schlägt das fehl, ist die Anfrage verloren — also der Punkt,
   //    an dem wir dem Formular einen Fehler zurückgeben.
   const submittedAt = new Date().toISOString();
   try {
@@ -143,10 +166,11 @@ export async function submitContact(
       status: "error",
       message:
         "Die Anfrage konnte gerade nicht entgegengenommen werden. Bitte versuchen Sie es erneut oder schreiben Sie uns direkt.",
+      resetTurnstile: true,
     };
   }
 
-  // 5. Benachrichtigung. Ab hier gilt die Anfrage als angenommen — sie liegt
+  // 6. Benachrichtigung. Ab hier gilt die Anfrage als angenommen — sie liegt
   //    bereits in der Datenbank, ein Mailfehler darf sie nicht entwerten.
   if (resendConfigured()) {
     try {
