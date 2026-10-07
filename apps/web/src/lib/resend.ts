@@ -2,7 +2,7 @@ import { Resend } from "resend";
 
 // Lazy-Singleton: erst beim ersten Aufruf instanziiert, damit der Build (und
 // Routen ohne E-Mail-Versand) nicht am fehlenden Key scheitern. Wirft eine klare
-// Meldung, falls RESEND_API_KEY fehlt — analog zum Stripe-/GROQ-Guard.
+// Meldung, falls RESEND_API_KEY fehlt — analog zum Polar-/GROQ-Guard.
 let cached: Resend | null = null;
 
 export function getResend(): Resend {

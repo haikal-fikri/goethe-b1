@@ -41,7 +41,7 @@ Note: `distractors` are **intentional wrong-answer foils** (deliberate misspelli
 ## App structure
 
 Routes ([src/app](src/app)):
-- `(shell)` route group — `/lernen` (searchable reference of all phrases), `/pruefen` (Goethe-B1 writing exam simulator with AI grading), `/pay` + `/pay/danke` (Stripe pay-what-you-want checkout)
+- `(shell)` route group — `/lernen` (searchable reference of all phrases), `/pruefen` (Goethe-B1 writing exam simulator with AI grading), `/pay` + `/pay/danke` (Polar pay-what-you-want checkout)
 - `/uebung/[lessonId]` — exercise player (word-bank + cloze, keyboard 1–9 / Enter / Backspace)
 
 API routes ([src/app/api](src/app/api)) — the ones with non-obvious contracts:
@@ -63,8 +63,8 @@ Shared workspace packages actually imported here: `@repo/core` (exercise/cloze/e
 - **Grading**: `GRADING_ENABLED` (kill switch, 503 when false), `CRON_SECRET`, `GROQ_API_KEY`.
 - **Abuse protection**: Turnstile (`NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY`, set both or neither) on `/pruefen`; Upstash Redis (`UPSTASH_REDIS_REST_URL`/`_TOKEN`) for per-IP rate limiting on `/api/exam/grade` + `/api/exam/email`, keys namespaced `rl:web:*`.
 - **Resend**: `RESEND_API_KEY` (+ optional `RESEND_FROM_EMAIL`/`_NAME`) — default sandbox sender only delivers to the Resend account owner; verify a domain for real delivery.
-- **Stripe**: `STRIPE_SECRET_KEY` (pay-what-you-want Checkout, framed as a voluntary payment, not a donation).
+- **Polar**: `POLAR_ACCESS_TOKEN` + `POLAR_PAYW_PRODUCT_ID` + `POLAR_SERVER` (pay-what-you-want Checkout, framed as a voluntary payment, not a donation). `POLAR_SERVER` **must** be the exact string `production` in prod — the client falls back to Polar's sandbox otherwise. This app's token belongs to the *production* Polar org and is separate from `apps/teacher-web`'s subscription token.
 
 Emailing a graded result (`/pruefen`) — the lazy Resend client + sender config live in `src/lib/resend.ts`, the HTML template + zod payload schema in `src/lib/email/examResultEmail.ts`, the send route in `src/app/api/exam/email/route.ts`. Grade data is **sent from the browser** (no persistence). **Security (dual-mode route):** the anonymous web path requires a Turnstile token (mirroring `/api/exam/grade`) and is rate-limited **fail-closed** per IP; the authenticated mobile self-copy path ignores client-supplied recipients and emails only the caller's own verified address.
 
-The pay-what-you-want page (`/pay`) uses Stripe Checkout (hosted redirect, one-time USD payments) — config + lazy client in `src/lib/stripe.ts`, session creation in `src/app/api/pay/checkout/route.ts`. Amount is validated server-side against `MIN_USD`/`MAX_USD`; route is rate-limited fail-closed per IP. No webhook (nothing to fulfill).
+The pay-what-you-want page (`/pay`) uses Polar Checkout (hosted redirect, one-time USD payments) — shared amount config in `src/lib/payConfig.ts` (client-safe: `PayForm.tsx` imports it), lazy server-only SDK client in `src/lib/polar.ts`, session creation in `src/app/api/pay/checkout/route.ts`. The Polar product is a *pay-what-you-want one-time product*; the per-request amount is passed as `amount` in cents, which overrides the product default. Amount is validated server-side against `MIN_USD`/`MAX_USD`; route is rate-limited fail-closed per IP. No webhook (nothing to fulfill). Polar has no `cancel_url` — `returnUrl` renders a back button in the checkout, which is what still produces `/pay?abgebrochen=1`.

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PRESET_AMOUNTS, MIN_USD, MAX_USD } from "@/lib/stripe";
+import { PRESET_AMOUNTS, MIN_USD, MAX_USD } from "@/lib/payConfig";
 import { Button, FieldLabel } from "@/components/ui/controls";
 import { Card, Num } from "@/components/ui/primitives";
 
@@ -141,7 +141,7 @@ export function PayForm({ canceled }: { canceled?: boolean }) {
       </Button>
 
       <p className="mt-3 text-xs leading-relaxed text-faint">
-        Sichere Bezahlung über Stripe. Du wirst zur Bezahlseite weitergeleitet.
+        Sichere Bezahlung über Polar. Du wirst zur Bezahlseite weitergeleitet.
         Freiwillige Zahlung für die Nutzung von Satzwerk — keine Spende im
         steuerlichen Sinne.
       </p>

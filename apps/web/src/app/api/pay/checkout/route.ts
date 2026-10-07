@@ -1,25 +1,20 @@
-import {
-  getStripe,
-  CURRENCY,
-  MIN_USD,
-  MAX_USD,
-  toCents,
-} from "@/lib/stripe";
+import { MIN_USD, MAX_USD } from "@/lib/payConfig";
+import { createTipCheckoutUrl } from "@/lib/polar";
 import { enforce, getClientIp } from "@/lib/ratelimit";
 
-// Erstellt eine Stripe-Checkout-Session für eine Pay-what-you-want-Zahlung und
+// Erstellt eine Polar-Checkout-Session für eine Pay-what-you-want-Zahlung und
 // gibt die gehostete Bezahl-URL zurück. Kein Webhook nötig — es gibt nichts zu
 // liefern.
 export async function POST(request: Request) {
-  if (!process.env.STRIPE_SECRET_KEY) {
+  if (!process.env.POLAR_ACCESS_TOKEN) {
     return Response.json(
-      { error: "STRIPE_SECRET_KEY ist nicht gesetzt." },
+      { error: "POLAR_ACCESS_TOKEN ist nicht gesetzt." },
       { status: 500 }
     );
   }
 
   // Öffentliche Route: per-IP-Drossel (fail-CLOSED), damit niemand unbegrenzt
-  // Stripe-Checkout-Sessions erzeugt (API-Rauschen / Missbrauch).
+  // Checkout-Sessions erzeugt (API-Rauschen / Missbrauch).
   const rl = await enforce("payCheckout", getClientIp(request), /* failClosed */ true);
   if (!rl.ok) {
     return Response.json(
@@ -49,39 +44,19 @@ export async function POST(request: Request) {
   const origin = new URL(request.url).origin;
 
   try {
-    const session = await getStripe().checkout.sessions.create({
-      mode: "payment",
-      submit_type: "pay",
-      // Karten explizit setzen, statt auf "automatic payment methods" zu setzen
-      // (die je Währung im Dashboard aktiviert sein müssen — sonst "No valid
-      // payment method types"). Apple Pay / Google Pay laufen über "card" mit.
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: CURRENCY,
-            unit_amount: toCents(amount),
-            product_data: { name: "Satzwerk — Pay what you want" },
-          },
-        },
-      ],
-      success_url: `${origin}/pay/danke`,
-      cancel_url: `${origin}/pay?abgebrochen=1`,
+    const url = await createTipCheckoutUrl({
+      amountUsd: amount,
+      successUrl: `${origin}/pay/danke`,
+      // Polar kennt keine cancel_url; returnUrl rendert einen Zurück-Button
+      // in der Bezahlseite.
+      returnUrl: `${origin}/pay?abgebrochen=1`,
     });
 
-    if (!session.url) {
-      return Response.json(
-        { error: "Checkout konnte nicht gestartet werden." },
-        { status: 502 }
-      );
-    }
-
-    return Response.json({ url: session.url });
+    return Response.json({ url });
   } catch (err) {
-    // Generische Meldung an den Client, aber den echten Stripe-Fehler serverseitig
-    // loggen (z.B. fehlende Berechtigung bei restricted keys, ungültiger Key).
-    console.error("Stripe-Checkout fehlgeschlagen:", err);
+    // Generische Meldung an den Client, aber den echten Polar-Fehler serverseitig
+    // loggen (z.B. fehlende Token-Scopes, falsche/unbekannte product_id).
+    console.error("Polar-Checkout fehlgeschlagen:", err);
     return Response.json(
       { error: "Zahlung konnte nicht gestartet werden." },
       { status: 502 }

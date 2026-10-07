@@ -12,7 +12,7 @@ export default function DankePage() {
     <Page>
       <PageHeader
         title="Vielen Dank für deinen Beitrag!"
-        subtitle="Dein Beitrag hilft, Satzwerk frei nutzbar und werbefrei zu halten. Eine Zahlungsbestätigung erhältst du per E-Mail von Stripe."
+        subtitle="Dein Beitrag hilft, Satzwerk frei nutzbar und werbefrei zu halten. Eine Zahlungsbestätigung erhältst du per E-Mail von Polar."
       />
       <Link
         href="/"
