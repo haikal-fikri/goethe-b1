@@ -1,5 +1,5 @@
 /**
- * Store-Links der mobilen App (apps/mobile, Bundle-ID/Package `de.b1trainer.app`).
+ * Store-Links der mobilen App (apps/mobile, Bundle-ID/Package `de.satzwerk.app`).
  *
  * Bewusst NICHT in lib/site.ts: die Seitenleiste (PublicShell) ist eine
  * Client-Component. lib/site.ts leitet `siteUrl` u.a. aus
@@ -24,4 +24,4 @@ export const APP_STORE_URL =
 
 export const PLAY_STORE_URL =
   process.env.NEXT_PUBLIC_PLAY_STORE_URL ??
-  "https://play.google.com/store/apps/details?id=de.b1trainer.app";
+  "https://play.google.com/store/apps/details?id=de.satzwerk.app";

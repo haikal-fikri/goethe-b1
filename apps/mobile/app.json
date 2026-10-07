@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "B1+Trainer",
+    "name": "Satzwerk",
     "slug": "b1trainer",
-    "scheme": "b1trainer",
+    "scheme": "satzwerk",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,15 +10,15 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "de.b1trainer.app",
+      "bundleIdentifier": "de.satzwerk.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSSpeechRecognitionUsageDescription": "B1+Trainer erkennt deine Aussprache auf dem Gerät, um Feedback zu geben.",
-        "NSMicrophoneUsageDescription": "B1+Trainer nutzt das Mikrofon für die Ausspracheübung (auf dem Gerät, nichts wird gespeichert)."
+        "NSSpeechRecognitionUsageDescription": "Satzwerk erkennt deine Aussprache auf dem Gerät, um Feedback zu geben.",
+        "NSMicrophoneUsageDescription": "Satzwerk nutzt das Mikrofon für die Ausspracheübung (auf dem Gerät, nichts wird gespeichert)."
       }
     },
     "android": {
-      "package": "de.b1trainer.app",
+      "package": "de.satzwerk.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -44,20 +44,20 @@
       [
         "expo-audio",
         {
-          "microphonePermission": "B1+Trainer nutzt das Mikrofon für Sprechübungen."
+          "microphonePermission": "Satzwerk nutzt das Mikrofon für Sprechübungen."
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "B1+Trainer braucht Zugriff auf deine Fotos, um ein Profilbild zu wählen."
+          "photosPermission": "Satzwerk braucht Zugriff auf deine Fotos, um ein Profilbild zu wählen."
         }
       ],
       [
         "expo-speech-recognition",
         {
-          "microphonePermission": "B1+Trainer nutzt das Mikrofon für die Ausspracheübung (auf dem Gerät, nichts wird gespeichert).",
-          "speechRecognitionPermission": "B1+Trainer erkennt deine Aussprache auf dem Gerät, um Feedback zu geben."
+          "microphonePermission": "Satzwerk nutzt das Mikrofon für die Ausspracheübung (auf dem Gerät, nichts wird gespeichert).",
+          "speechRecognitionPermission": "Satzwerk erkennt deine Aussprache auf dem Gerät, um Feedback zu geben."
         }
       ]
     ],

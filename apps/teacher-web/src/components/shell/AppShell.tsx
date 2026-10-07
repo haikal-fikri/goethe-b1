@@ -185,7 +185,7 @@ export function AppShell({ user, classes, plan, classesUsed, studentsUsed, unrea
             </span>
           </div>
           <div className="sb-hide" style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
-            <span style={{ fontSize: 14.5, fontWeight: 600, color: "var(--text-hi)" }}>B1+Trainer</span>
+            <span style={{ fontSize: 14.5, fontWeight: 600, color: "var(--text-hi)" }}>Satzwerk</span>
             <span
               style={{
                 fontSize: 10.5,

@@ -72,7 +72,7 @@ export function LoginScreen() {
           <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: accent.gruen, alignItems: "center", justifyContent: "center" }}>
             <AppText role="uiBold" size={18} color="#fff">B1</AppText>
           </View>
-          <AppText role="uiSemi" size={18} color={c.textHi}>B1+Trainer</AppText>
+          <AppText role="uiSemi" size={18} color={c.textHi}>Satzwerk</AppText>
         </View>
 
         <AppText role="serif" size={28} color={c.textHi} lh={32}>

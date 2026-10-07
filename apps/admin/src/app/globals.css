@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ============================================================
-   B1+Trainer — Lehrkraft-Portal design tokens.
+   Satzwerk — Lehrkraft-Portal design tokens.
    Ported from the Claude Design bundle (tokens/*.css). Components
    read SEMANTIC aliases only (--bg, --surface-1, --text-hi, accents…),
    never raw hex, so they follow the theme automatically.

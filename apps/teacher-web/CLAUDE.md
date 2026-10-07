@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-**apps/teacher-web** is the Lehrkraft (teacher) portal for the B1+Trainer LMS — Vercel Project B, dev port 3001. Teachers manage classes, assign writing/speaking tasks, grade submissions, run the schedule/attendance, and manage their subscription. It shares the same Supabase project (Postgres DB) as `apps/web` and `apps/admin`, and shares `@repo/core`/`@repo/types`/`@repo/server` with the rest of the monorepo. UI copy is **formal Sie** (unlike the du-form mobile/web learner apps).
+**apps/teacher-web** is the Lehrkraft (teacher) portal for the Satzwerk LMS — Vercel Project B, dev port 3001. Teachers manage classes, assign writing/speaking tasks, grade submissions, run the schedule/attendance, and manage their subscription. It shares the same Supabase project (Postgres DB) as `apps/web` and `apps/admin`, and shares `@repo/core`/`@repo/types`/`@repo/server` with the rest of the monorepo. UI copy is **formal Sie** (unlike the du-form mobile/web learner apps).
 
 ## Commands
 

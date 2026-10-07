@@ -1,4 +1,4 @@
-# Supabase-Auth-Konfiguration für B1+Trainer (Student v1).
+# Supabase-Auth-Konfiguration für Satzwerk (Student v1).
 # Diese Datei ist die Referenz für die Auth-Einstellungen. Da Migrationen hier
 # per psql (nicht der Supabase-CLI) eingespielt werden, spiegle diese Werte im
 # Dashboard: Authentication → Providers / Rate Limits / Attack Protection.
@@ -9,8 +9,8 @@ project_id = "b1trainer"
 [auth]
 enable_signup = true
 # Passwortlos primär (Magic-Link + Google/Apple idToken); OTP = Fallback.
-site_url = "b1trainer://auth-callback"
-additional_redirect_urls = ["b1trainer://auth-callback"]
+site_url = "satzwerk://auth-callback"
+additional_redirect_urls = ["satzwerk://auth-callback", "b1trainer://auth-callback"]  # alt-Schema bis alle Dev-Builds ersetzt sind
 jwt_expiry = 3600                     # Access-Token-TTL 1 h (backend/12 §4)
 enable_refresh_token_rotation = true  # Rotation + Reuse-Detection
 refresh_token_reuse_interval = 10

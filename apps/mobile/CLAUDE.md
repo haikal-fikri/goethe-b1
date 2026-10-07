@@ -1,8 +1,8 @@
-# CLAUDE.md — B1+Trainer build conventions
+# CLAUDE.md — Satzwerk build conventions
 
 > Part of the goethe-b1 monorepo — see the root [CLAUDE.md](../../CLAUDE.md) for workspace layout, shared packages, and monorepo-wide commands. This file covers `apps/mobile` specifically.
 
-Guidance for implementing the B1+Trainer designs (`README.md` + `STATE_AND_INTERACTIONS.md`) as a **React Native** app for iOS (App Store) and Android (Play Store).
+Guidance for implementing the Satzwerk designs (`README.md` + `STATE_AND_INTERACTIONS.md`) as a **React Native** app for iOS (App Store) and Android (Play Store).
 
 > The `.dc.html` / `.jsx` / `support.js` files in the `design/` folder are **design references**, not app code. Recreate the screens natively; do not embed the HTML or port its inline styles verbatim. Map every HTML value to the theme tokens below.
 

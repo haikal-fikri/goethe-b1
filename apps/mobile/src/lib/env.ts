@@ -23,4 +23,4 @@ export const googleConfigured = () => Boolean(env.googleWebClientId || env.googl
 export const turnstileConfigured = () => Boolean(env.turnstileSiteKey);
 
 // Auth-Redirect (Deep-Link) — muss in Supabase → URL Configuration erlaubt sein.
-export const AUTH_REDIRECT = "b1trainer://auth-callback";
+export const AUTH_REDIRECT = "satzwerk://auth-callback";

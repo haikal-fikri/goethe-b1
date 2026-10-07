@@ -139,7 +139,7 @@ function LoginInner() {
             <IconShield size={21} strokeWidth={1.9} />
           </div>
           <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
-            <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text-hi)" }}>B1+Trainer</span>
+            <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text-hi)" }}>Satzwerk</span>
             <span
               style={{
                 fontSize: 10.5,

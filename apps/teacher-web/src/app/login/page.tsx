@@ -128,7 +128,7 @@ function LoginInner() {
             <span style={{ fontFamily: "var(--font-serif)", fontWeight: 600, fontSize: 20, color: "#fff" }}>B1</span>
           </div>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 600, color: "var(--text-hi)" }}>B1+Trainer</div>
+            <div style={{ fontSize: 16, fontWeight: 600, color: "var(--text-hi)" }}>Satzwerk</div>
             <div
               style={{
                 fontSize: 11,

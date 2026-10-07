@@ -130,10 +130,10 @@ export async function POST(req: Request) {
       await getResend().emails.send({
         from: RESEND_FROM_HEADER,
         to: inv.email,
-        subject: `Lehrer-Sitz bei „${orgName}" – B1+Trainer`,
+        subject: `Lehrer-Sitz bei „${orgName}" – Satzwerk`,
         html:
           `<p>Hallo,</p><p>du wurdest als Lehrkraft zur Organisation ` +
-          `<strong>${escapeHtml(orgName)}</strong> im B1+Trainer eingeladen.</p>` +
+          `<strong>${escapeHtml(orgName)}</strong> bei Satzwerk eingeladen.</p>` +
           `<p>In der App annehmen: <a href="${acceptLink}">Einladung öffnen</a></p>`,
       });
       sent++;

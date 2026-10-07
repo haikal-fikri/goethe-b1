@@ -134,10 +134,10 @@ export async function POST(req: Request) {
       await getResend().emails.send({
         from: RESEND_FROM_HEADER,
         to: inv.email,
-        subject: `Einladung zur Klasse „${cls.name}" – B1+Trainer`,
+        subject: `Einladung zur Klasse „${cls.name}" – Satzwerk`,
         html:
           `<p>Hallo,</p><p>du wurdest zur Klasse <strong>${escapeHtml(cls.name)}</strong> ` +
-          `im B1+Trainer eingeladen.</p>` +
+          `bei Satzwerk eingeladen.</p>` +
           `<p>Beitritts-Code: <strong>${escapeHtml(cls.join_code)}</strong></p>` +
           `<p>In der App öffnen: <a href="${joinLink}">${joinLink}</a></p>` +
           `<p>Alternativ den Code manuell unter „Klasse beitreten" eingeben.</p>`,
