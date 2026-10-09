@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, TextInput, Pressable, ScrollView, Alert } from "react-native";
+import { View, TextInput, Pressable, ScrollView, Alert, KeyboardAvoidingView, Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "../../theme/ThemeProvider";
@@ -9,6 +9,34 @@ import { CheckCircle, LockIcon } from "../../components/icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSession } from "../../lib/session";
 import { upsertProfile } from "../../lib/db";
+
+// Rahmen für alle Onboarding-Schritte (Schrittpunkte, scrollbarer Inhalt, CTA).
+// MUSS auf Modulebene bleiben: in OnboardingScreen definiert, entstünde bei jedem
+// Render (= jedem Tastendruck im Namensfeld) ein neuer Komponententyp — React hängt
+// dann den ganzen Teilbaum samt TextInput neu ein und iOS schließt die Tastatur.
+function Chrome({ step, children, cta, onCta, ctaAccent, ctaLoading }: {
+  step: number; children: React.ReactNode; cta: string; onCta: () => void; ctaAccent?: boolean; ctaLoading?: boolean;
+}) {
+  const { c } = useTheme();
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
+        <View style={{ paddingHorizontal: 22, paddingTop: 8, height: 40, alignItems: "center", justifyContent: "center" }}>
+          {step >= 1 && step <= 4 && <StepDots total={4} current={step - 1} />}
+        </View>
+        <ScrollView
+          contentContainerStyle={{ paddingHorizontal: 22, paddingBottom: 20, flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag"
+        >
+          {children}
+        </ScrollView>
+        <View style={{ paddingHorizontal: 22, paddingBottom: 16 }}>
+          {ctaAccent ? <AccentButton label={cta} onPress={onCta} loading={ctaLoading} /> : <PrimaryButton label={cta} onPress={onCta} loading={ctaLoading} />}
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
 
 // 03–08 Onboarding — 4 getrackte Schritte, umrahmt von Intro (03) und Erfolg (08).
 // Schreibt profiles (client-direkt) und setzt onboarded_at am Ende → RootNavigator
@@ -23,6 +51,9 @@ export function OnboardingScreen() {
   const [examDate, setExamDate] = useState<string | null>(null);
   const [reminder, setReminder] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const submitName = () =>
+    firstName.trim() ? setI(2) : Alert.alert("Name", "Bitte gib deinen Vornamen ein.");
 
   const finish = async () => {
     setSaving(true);
@@ -53,23 +84,9 @@ export function OnboardingScreen() {
     setSaving(false);
   };
 
-  const Chrome = ({ children, cta, onCta, ctaAccent, ctaLoading }: {
-    children: React.ReactNode; cta: string; onCta: () => void; ctaAccent?: boolean; ctaLoading?: boolean;
-  }) => (
-    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }}>
-      <View style={{ paddingHorizontal: 22, paddingTop: 8, height: 40, alignItems: "center", justifyContent: "center" }}>
-        {i >= 1 && i <= 4 && <StepDots total={4} current={i - 1} />}
-      </View>
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 22, paddingBottom: 20, flexGrow: 1 }}>{children}</ScrollView>
-      <View style={{ paddingHorizontal: 22, paddingBottom: 16 }}>
-        {ctaAccent ? <AccentButton label={cta} onPress={onCta} loading={ctaLoading} /> : <PrimaryButton label={cta} onPress={onCta} loading={ctaLoading} />}
-      </View>
-    </SafeAreaView>
-  );
-
   if (i === 0)
     return (
-      <Chrome cta="Los geht's" onCta={() => setI(1)}>
+      <Chrome step={i} cta="Los geht's" onCta={() => setI(1)}>
         <View style={{ marginTop: 30, gap: 16 }}>
           <View style={{ width: 62, height: 62, borderRadius: 16, backgroundColor: accent.gruen, alignItems: "center", justifyContent: "center" }}>
             <AppText role="uiBold" size={24} color="#fff">B1</AppText>
@@ -97,12 +114,14 @@ export function OnboardingScreen() {
 
   if (i === 1)
     return (
-      <Chrome cta="Weiter" onCta={() => firstName.trim() ? setI(2) : Alert.alert("Name", "Bitte gib deinen Vornamen ein.")}>
+      <Chrome step={i} cta="Weiter" onCta={submitName}>
         <AppText role="serif" size={25} color={c.textHi} style={{ marginTop: 20 }}>Wie heißen wir dich?</AppText>
         <View style={{ marginTop: 24, gap: 8 }}>
           <Eyebrow>Vorname</Eyebrow>
           <TextInput
             value={firstName} onChangeText={setFirstName} placeholder="Lena" placeholderTextColor={c.textFaint}
+            autoCapitalize="words" autoCorrect={false} textContentType="givenName" autoComplete="given-name"
+            maxLength={40} returnKeyType="next" onSubmitEditing={submitName} submitBehavior="submit"
             style={{ height: 52, borderRadius: radius.input, borderWidth: 1.5, borderColor: accent.gruen, paddingHorizontal: 14, color: c.textHi, fontFamily: fonts.ui, fontSize: 16, backgroundColor: c.surface }}
           />
           <AppText size={12.5} color={c.textMuted}>Nur der Vorname ist für andere im Kurs sichtbar.</AppText>
@@ -112,7 +131,7 @@ export function OnboardingScreen() {
 
   if (i === 2)
     return (
-      <Chrome cta="Weiter" onCta={() => setI(3)}>
+      <Chrome step={i} cta="Weiter" onCta={() => setI(3)}>
         <AppText role="serif" size={25} color={c.textHi} lh={30} style={{ marginTop: 20 }}>Welches Niveau möchtest du üben?</AppText>
         <View style={{ marginTop: 20, gap: 12 }}>
           <Card style={{ borderColor: accent.gruen, borderWidth: 2, flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: tint("gruen") }}>
@@ -138,7 +157,7 @@ export function OnboardingScreen() {
 
   if (i === 3)
     return (
-      <Chrome cta="Weiter" onCta={() => setI(4)}>
+      <Chrome step={i} cta="Weiter" onCta={() => setI(4)}>
         <AppText role="serif" size={25} color={c.textHi} style={{ marginTop: 20 }}>Wann ist deine Prüfung?</AppText>
         <AppText size={14} color={c.textMuted} style={{ marginTop: 6 }}>Optional — hilft dir, dranzubleiben.</AppText>
         <View style={{ marginTop: 20, gap: 10 }}>
@@ -152,7 +171,7 @@ export function OnboardingScreen() {
 
   if (i === 4)
     return (
-      <Chrome cta="Erinnerungen aktivieren" ctaAccent onCta={finish} ctaLoading={saving}>
+      <Chrome step={i} cta="Erinnerungen aktivieren" ctaAccent onCta={finish} ctaLoading={saving}>
         <AppText role="serif" size={25} color={c.textHi} style={{ marginTop: 20 }}>Bleib dran</AppText>
         <AppText size={15} color={c.textMuted} lh={22} style={{ marginTop: 6 }}>Eine kurze tägliche Erinnerung hält deine Serie am Leben — 10 Minuten reichen.</AppText>
         <Card style={{ marginTop: 20, flexDirection: "row", alignItems: "center", gap: 12 }}>
